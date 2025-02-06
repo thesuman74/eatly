@@ -10,7 +10,7 @@ export default {
   theme: {
   	extend: {
 		gridTemplateColumns: {
-			'responsive_grid': 'repeat(auto-fit, minmax(208px, 1fr))',
+			responsive_grid: 'repeat(auto-fit, minmax(150px, 1fr))', // Ensures responsive layout
 		  },
   		colors: {
   			background: 'hsl(var(--background))',

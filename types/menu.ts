@@ -1,10 +1,9 @@
 export interface MenuItemTypes {
-  id: string
-  name: string
-  description: string
-  price: number
-  image: string
-  category: string
+  // id: string;
+  title: string;
+  description: string;
+  price: string;
+  image: string;
 }
 
 export interface MenuCategoryTypes {

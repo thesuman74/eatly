@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 import "./globals.css";
+import Provider from "@/components/HOC/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -8,8 +9,9 @@ const geistSans = Geist({
 });
 
 const quicksand = Quicksand({
-  variable: "--font-quicksand",
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-quicksand",
 });
 
 export const metadata: Metadata = {
@@ -27,8 +29,8 @@ export default function RootLayout({
       lang="en"
       // className="color-scheme: dark"
     >
-      <body className={` ${quicksand.variable} antialiased font-sans`}>
-        {children}
+      <body className={`${quicksand.className} antialiased`}>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
