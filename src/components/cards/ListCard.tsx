@@ -12,11 +12,11 @@ const ListCard: React.FC<ItemCardProps> = ({ data, onAddToCart }) => {
     <>
       <section className="rouded-lg flex flex-grow h-32  my-1 mb-4  gap-0 bg-white   w-full  border-b-2  hover:scale-105 transition-all duration-300">
         {/* image section  */}
-        <div className="w-44 h-28 overflow-hidden rounded-xl p-1 ">
+        <div className="w-40 h-24 overflow-hidden rounded-xl p-1 ">
           <img
             src={`${data.image}`}
             alt={data.title}
-            className="size-28 rounded-xl object-cover"
+            className=" rounded-xl object-cover "
           />
         </div>
         {/* content section  */}
