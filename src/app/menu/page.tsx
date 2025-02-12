@@ -9,62 +9,70 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Grid2X2, List, QrCode, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
-import path from "path";
 import TopSection from "@/components/menu/TopSection";
-import ItemCard from "@/components/cards/ItemCard";
 import ListCard from "@/components/cards/ListCard";
+import { MenuItemTypes } from "../../../types/menu";
+import Link from "next/link";
 
 const menuItems = {
   "Tea Specials": [
     {
+      id: "1",
       title: "Masala Tea",
       description:
         "Masala Chai is an Indian beverage made by brewing black tea with fragrant spices and herbs.",
-      price: "Rs 5,00",
+      price: "  500",
       image: "/Images/coffee.png",
     },
     {
+      id: "2",
       title: "Green Tea",
       description:
         "Green tea contains antioxidants and other compounds that may help with overall health.",
-      price: "Rs 4,00",
+      price: "  400",
       image: "/Images/coffee.png",
     },
     {
+      id: "3",
       title: "Lemon Tea",
       description:
         "Lemon tea is a refreshing tea where lemon juice is added in black or green tea.",
-      price: "Rs 4,50",
+      price: "  450",
       image: "/Images/coffee.png",
     },
   ],
   Coffee: [
     {
+      id: "1",
       title: "Cappuccino",
       description:
         "Espresso with steamed milk foam, perfect balance of coffee and milk.",
-      price: "Rs 6,00",
+      price: "  600",
       image: "/Images/coffee.png",
     },
     {
+      id: "2",
       title: "Latte",
       description: "Espresso with steamed milk and a light layer of milk foam.",
-      price: "Rs 5,50",
+      price: "  550",
       image: "/Images/coffee.png",
     },
   ],
   Breakfast: [
     {
+      id: "1",
       title: "English Breakfast",
       description: "Eggs, bacon, toast, and beans served with tea or coffee.",
-      price: "Rs 12,00",
+      price: "  1200",
       image: "/Images/coffee.png",
     },
     {
+      id: "2",
+
       title: "Continental",
       description:
         "Croissant, jam, butter, and fresh fruits with your choice of beverage.",
-      price: "Rs 10,00",
+      price: "  1000",
       image: "/Images/coffee.png",
     },
   ],
@@ -73,13 +81,23 @@ const menuItems = {
 export default function MenuPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [fullUrl, setFullUrl] = useState<string>("");
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState<MenuItemTypes[]>([]);
+  const [total, setTotal] = useState(0);
 
-  // const handleAddToCart = () => {
-  //   setCartItems((prevCart) => {
-  //     const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
-  //   });
-  // };
+  const handleAddToCart = (items: MenuItemTypes) => {
+    setCartItems((preItems) => {
+      const updatedCart = [...preItems, items];
+
+      const total = updatedCart.reduce((total, item) => {
+        const priceNumber = Number(item.price.replace(/[^0-9.]/g, ""));
+        return total + priceNumber;
+      }, 0);
+
+      setTotal(total);
+
+      return updatedCart;
+    });
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -166,45 +184,39 @@ export default function MenuPage() {
                 className="grid grid-cols-1 md:grid-cols-2  gap-8"
               >
                 {items.map((item) => (
-                  <ListCard key={item.title} data={item} />
+                  <ListCard
+                    key={item.title}
+                    data={item}
+                    onAddToCart={() => handleAddToCart(item)}
+                  />
                 ))}
               </div>
             </div>
           ))}
         </div>
+
+        {/* cart section */}
+        {cartItems?.length > 0 && (
+          <>
+            <section className="fixed bottom-0 flex w-full items-center justify-around bg-gray-100 px-8 py-4 shadow-lg">
+              <div className="flex w-full flex-col">
+                <span> {cartItems?.length} Products</span>{" "}
+                <span className="text-xl font-bold"> {total}</span>
+              </div>
+              <div className="w-full ">
+                <Button asChild>
+                  <Link
+                    href={"/cart"}
+                    className="w-full max-w-lg rounded-lg bg-blue-500 py-2 text-white"
+                  >
+                    See My Order
+                  </Link>
+                </Button>
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </div>
   );
 }
-
-// <motion.div
-//   key={item.title}
-//   initial={{ opacity: 0, y: 20 }}
-//   animate={{ opacity: 1, y: 0 }}
-//   transition={{ delay: index * 0.1 }}
-//   className={`bg-white rounded-lg overflow-hidden shadow-sm ${
-//     viewType === "list" ? "flex flex-wrap" : ""
-//   }`}
-// >
-//   <div
-//     className={
-//       viewType === "list" ? "w-36 p-2  h-full" : "w-full h-48"
-//     }
-//   >
-//     <img
-//       src={item.image || "/placeholder.svg"}
-//       alt={item.title}
-//       className="w-full h-full object-cover rounded-lg"
-//     />
-//   </div>
-//   <div className="p-4 flex-1">
-//     <h3 className="font-semibold text-black">{item.title}</h3>
-//     <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-//       {item.description}
-//     </p>
-//     <div className="flex items-center justify-between mt-2">
-//       <span className="font-bold">{item.price}</span>
-//       <Button size="sm">Add</Button>
-//     </div>
-//   </div>
-// </motion.div>
