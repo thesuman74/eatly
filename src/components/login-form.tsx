@@ -13,25 +13,27 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { doCredentialLogin } from "@/lib/actions/authActions";
 import { login } from "@/lib/actions/login";
+import SubmitButton from "./ui/SubmitButton";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
 
-    try {
-      const response = await doCredentialLogin(formData);
-    } catch (error) {}
-
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+    const errorMessage = await login(formData);
+    if (errorMessage) {
+      setError(errorMessage);
     }
+
+    setLoading(false);
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -43,10 +45,14 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-          // onSubmit={handleSubmit}
-          >
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
+              {error && (
+                <p className="text-red-500 text-center line-clamp-2">
+                  {error || "Error"}
+                </p>
+              )}
+              {/* Display error */}
               <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
@@ -72,12 +78,13 @@ export function LoginForm({
                     id="password"
                     type="password"
                     name="password"
+                    placeholder="**********"
                     required
                   />
                 </div>
-                <Button type="submit" formAction={login} className="w-full">
-                  Sign up
-                </Button>
+                <SubmitButton isLoading={loading} className="w-full text-white">
+                  Login
+                </SubmitButton>
               </div>
               <div className="flex flex-col gap-4">
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
