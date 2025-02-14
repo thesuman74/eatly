@@ -11,6 +11,7 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProductAddSheet } from "@/components/sheet/productSheet";
 
 interface CategoryProps {
   category: {
@@ -32,7 +33,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
       <motion.div
         ref={setNodeRef}
         style={{
-          //   transform: CSS.Transform.toString(transform),
+          // transform: CSS.Transform.toString(transform),
           transition,
         }}
         className="p-3 border bg-gray-100 rounded-lg mb-2 shadow-md"
@@ -45,7 +46,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
               {...listeners}
               className="cursor-grab active:cursor-grabbing text-gray-500"
             >
-              <Grip />
+              <Grip size={16} />
             </span>
             <div className="flex flex-col">
               <span className="text-sm text-gray-500">Category Name</span>
@@ -58,7 +59,8 @@ const CategoryItem = ({ category }: CategoryProps) => {
             <span className="bg-gray-200 px-2 py-1 rounded-full text-xs">
               {category.items.length}
             </span>
-            <Button variant="outline">+ Product</Button>
+            {/* <Button variant="outline">+ Product</Button> */}
+            <ProductAddSheet />
             <EllipsisVertical />
             <button onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <ChevronDown /> : <ChevronRight />}
