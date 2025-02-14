@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MainNav } from "@/components/main-nav";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Grid2X2, List, QrCode, Share2 } from "lucide-react";
-import { motion } from "framer-motion";
+import {  QrCode, Share2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import TopSection from "@/components/menu/TopSection";
 import ListCard from "@/components/cards/ListCard";

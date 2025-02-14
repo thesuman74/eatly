@@ -1,5 +1,4 @@
 import { OnsiteDialog } from "../dialogs/OnSiteDialog";
-import ServiceButton from "./ServiceButton";
 
 // Define the valid types for the service buttons
 type ServiceType = "On Site" | "Take Away" | "Delivery";
@@ -9,7 +8,7 @@ type CartFooterProps = {
 };
 
 const CartFooter = ({ onServiceClick }: CartFooterProps) => {
-  const serviceOptions: ServiceType[] = ["On Site", "Take Away", "Delivery"]; // Valid service types
+  // const serviceOptions: ServiceType[] = ["On Site", "Take Away", "Delivery"]; // Valid service types
 
   return (
     <footer className="fixed bottom-0 flex w-full flex-col items-center border border-gray-300 shadow-xl py-2">

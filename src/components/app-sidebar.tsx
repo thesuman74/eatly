@@ -3,19 +3,13 @@
 import * as React from "react";
 import {
   AudioWaveform,
-  BookOpen,
   Bot,
   CircleDollarSign,
   Command,
   CookingPot,
-  Frame,
   GalleryVerticalEnd,
   ListOrdered,
-  Map,
   NotebookPen,
-  PieChart,
-  Settings2,
-  User,
   Users,
   Utensils,
 } from "lucide-react";
