@@ -10,6 +10,7 @@ import TopSection from "@/components/menu/TopSection";
 import ListCard from "@/components/cards/ListCard";
 import { MenuItemTypes } from "../../../types/menu";
 import Link from "next/link";
+import BouncingText from "@/components/animation/BouncingText";
 
 const menuItems = {
   "Tea Specials": [
@@ -198,7 +199,11 @@ export default function MenuPage() {
             <section className="fixed bottom-0 right-0 flex w-full items-center justify-around bg-secondary px-20 py-4 shadow-lg">
               <div className="flex w-full flex-col">
                 <span> {cartItems?.length} Products</span>{" "}
-                <span className="text-xl font-bold"> {total}</span>
+                <BouncingText
+                  text={total.toString()}
+                  className="text-xl font-bold"
+                />
+                {/* <span className="text-xl font-bold">{total}</span> */}
               </div>
               <div className="w-full ">
                 <Button asChild>

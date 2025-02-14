@@ -1,7 +1,9 @@
 "use client";
 
+import BouncingText from "@/components/animation/BouncingText";
 import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
+import { useState } from "react";
 
 // import { useState } from "react";
 // import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -249,9 +251,24 @@ import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndD
 // }
 
 export default function Home() {
+  const [price, setPrice] = useState(100);
+
   return (
-    <DragAndDropProvider>
-      <CategoryList />
-    </DragAndDropProvider>
+    <>
+      <DragAndDropProvider>
+        <CategoryList />
+      </DragAndDropProvider>
+
+      <div className="flex flex-col items-center justify-center h-screen">
+        <BouncingText text={price.toString()} />
+
+        <button
+          onClick={() => setPrice((prev) => prev + 10)}
+          className="bg-purple-600 text-white px-4 py-2 rounded"
+        >
+          Increase Price
+        </button>
+      </div>
+    </>
   );
 }
