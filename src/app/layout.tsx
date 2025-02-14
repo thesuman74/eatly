@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+
       // className="color-scheme: dark"
     >
       <body className={`${quicksand.className} antialiased`}>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {  QrCode, Share2 } from "lucide-react";
+import { QrCode, Share2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import TopSection from "@/components/menu/TopSection";
 import ListCard from "@/components/cards/ListCard";
@@ -122,12 +122,12 @@ export default function MenuPage() {
   );
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
+    <div className="min-h-screen max-w-7xl mx-auto ">
       {/* Top Section */}
       <TopSection />
 
       <div className="container mx-auto px-4">
-        <div className="bg-gray-50 z-40 py-4 space-y-4">
+        <div className=" z-40 py-4 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <Input
               type="search"
@@ -195,7 +195,7 @@ export default function MenuPage() {
         {/* cart section */}
         {cartItems?.length > 0 && (
           <>
-            <section className="fixed bottom-0 flex w-full items-center justify-around bg-gray-100 px-8 py-4 shadow-lg">
+            <section className="fixed bottom-0 right-0 flex w-full items-center justify-around bg-secondary px-20 py-4 shadow-lg">
               <div className="flex w-full flex-col">
                 <span> {cartItems?.length} Products</span>{" "}
                 <span className="text-xl font-bold"> {total}</span>

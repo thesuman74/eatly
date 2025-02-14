@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { doCredentialLogin } from "@/lib/actions/authActions";
-import { login, signup } from "@/lib/actions/login";
+import { login } from "@/lib/actions/login";
 
 export function LoginForm({
   className,
@@ -75,7 +75,7 @@ export function LoginForm({
                     required
                   />
                 </div>
-                <Button type="submit" formAction={signup} className="w-full">
+                <Button type="submit" formAction={login} className="w-full">
                   Sign up
                 </Button>
               </div>
@@ -98,7 +98,7 @@ export function LoginForm({
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
+                <a href="/register" className="underline underline-offset-4">
                   Sign up
                 </a>
               </div>

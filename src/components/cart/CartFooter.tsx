@@ -11,7 +11,7 @@ const CartFooter = ({ onServiceClick }: CartFooterProps) => {
   // const serviceOptions: ServiceType[] = ["On Site", "Take Away", "Delivery"]; // Valid service types
 
   return (
-    <footer className="fixed bottom-0 flex w-full flex-col items-center border border-gray-300 shadow-xl py-2">
+    <footer className="fixed bottom-0 flex w-full flex-col items-center border border-input shadow-xl py-2">
       <div className="py-2">
         <span className="text-wrap text-gray-500 text-xs font-bold">
           Select the type of service:

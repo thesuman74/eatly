@@ -15,6 +15,7 @@ import { doCredentialLogin, doRegister } from "@/lib/actions/authActions";
 import { toast } from "react-toastify";
 import SubmitButton from "./ui/SubmitButton";
 import Link from "next/link";
+import { signup } from "@/lib/actions/login";
 
 export function RegisterForm({
   className,
@@ -60,7 +61,7 @@ export function RegisterForm({
           <CardDescription>Let's Create a New Account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form>
             <div className="grid gap-6">
               <div className="grid gap-4">
                 {error && (
@@ -68,12 +69,12 @@ export function RegisterForm({
                     {error}
                   </span>
                 )}
-                <div className="grid gap-2">
+                {/* <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Full Name</Label>
                   </div>
                   <Input id="fullname" type="text" name="fullname" required />
-                </div>
+                </div> */}
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -95,9 +96,9 @@ export function RegisterForm({
                     required
                   />
                 </div>
-                <SubmitButton isLoading={loading} className="w-full">
+                <Button className="w-full" formAction={signup}>
                   Sign Up
-                </SubmitButton>
+                </Button>
               </div>
               <div className="flex flex-col gap-4">
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">

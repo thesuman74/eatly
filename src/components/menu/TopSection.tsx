@@ -18,7 +18,7 @@ const TopSection = () => {
         </div>
 
         {/* <!-- heading  --> */}
-        <div className="  -mt-6 z-10  w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-gray-300 pb-4">
+        <div className="  -mt-6 z-10  w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-input pb-4">
           <div className="flex size-16 sm:size-24 md:size-32 items-center bg-gray-200 rounded-xl p-1 min-w-16">
             <img
               src="/Images/logo.png"
@@ -39,7 +39,7 @@ const TopSection = () => {
                   <ShareButton />
                 </div>
               </div>
-              <div className="flex space-x-1 mt-2 w-full sm:min-w-40 justify-center  border px-2 text-gray-600 border-gray-200 rounded-sm text-sm items-center">
+              <div className="flex space-x-1 mt-2 w-full sm:min-w-40 justify-center  border px-2 text-gray-400 border-input rounded-sm text-sm items-center">
                 <MapPin size={14} />
                 <span> Location </span>
               </div>

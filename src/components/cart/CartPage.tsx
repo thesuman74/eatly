@@ -37,7 +37,7 @@ const CartPage = () => {
   return (
     <>
       <section className="max-w-7xl mx-auto">
-        <div className="flex w-full justify-between bg-gray-200 px-4 py-2">
+        <div className="flex w-full justify-between  px-4 py-2">
           <div
             className="flex items-center space-x-2 hover:text-blue-500"
             onClick={() => router.back()}
