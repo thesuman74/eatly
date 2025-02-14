@@ -17,7 +17,7 @@ export default function MenuPageLayout({
       <div className="bg-gray-200 h-screen flex-none md:w-96 justify-center items-center flex overflow-x-hidden  ">
         <iframe
           src="/menu"
-          className="w-[330px] h-[600px] border rounded-xl shadow-lg bg-red-200"
+          className="w-[330px] h-[600px] border rounded-xl shadow-lg "
         ></iframe>
       </div>
     </div>

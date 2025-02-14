@@ -39,9 +39,24 @@ export const DragAndDropProvider = ({
       id: "1",
       name: "Tea Specials",
       items: [
-        { id: "1-1", name: "Green Tea", price: "Rs 4.00", image: "/tea1.png" },
-        { id: "1-2", name: "Masala Tea", price: "Rs 5.00", image: "/tea2.png" },
-        { id: "1-3", name: "Lemon Tea", price: "Rs 5.00", image: "/tea3.png" },
+        {
+          id: "1-1",
+          name: "Green Tea",
+          price: "Rs 4.00",
+          image: "/Images/coffee.png",
+        },
+        {
+          id: "1-2",
+          name: "Masala Tea",
+          price: "Rs 5.00",
+          image: "/Images/coffee.png",
+        },
+        {
+          id: "1-3",
+          name: "Lemon Tea",
+          price: "Rs 5.00",
+          image: "/Images/coffee.png",
+        },
       ],
     },
     {
@@ -52,7 +67,7 @@ export const DragAndDropProvider = ({
           id: "2-1",
           name: "Chocolate Cake",
           price: "Rs 8.00",
-          image: "/cake.png",
+          image: "/Images/coffee.png",
         },
       ],
     },
