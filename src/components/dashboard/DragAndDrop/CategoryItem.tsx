@@ -33,7 +33,9 @@ const CategoryItem = ({ category }: CategoryProps) => {
       <motion.div
         ref={setNodeRef}
         style={{
-          // transform: CSS.Transform.toString(transform),
+          transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
           transition,
         }}
         className="p-3 border bg-gray-100 rounded-lg mb-2 shadow-md"
