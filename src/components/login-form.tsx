@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { doCredentialLogin } from "@/lib/actions/authActions";
+import { login, signup } from "@/lib/actions/login";
 
 export function LoginForm({
   className,
@@ -42,7 +43,9 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form
+          // onSubmit={handleSubmit}
+          >
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-2">
@@ -72,8 +75,8 @@ export function LoginForm({
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" formAction={signup} className="w-full">
+                  Sign up
                 </Button>
               </div>
               <div className="flex flex-col gap-4">
