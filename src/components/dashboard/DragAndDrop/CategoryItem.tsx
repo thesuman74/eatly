@@ -11,7 +11,8 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductAddSheet } from "@/components/sheet/productSheet";
+import { ProductAddSheet } from "@/components/sheet/productAddSheet";
+import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 
 interface CategoryProps {
   category: {
