@@ -1,0 +1,70 @@
+"use client";
+import { ChevronDown, Plus, Utensils } from "lucide-react";
+import { TbPaperBag } from "react-icons/tb";
+
+import { MdOutlineDeliveryDining } from "react-icons/md";
+import { useState } from "react";
+
+const NewOrderDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex   items-center gap-2 rounded-sm bg-blue-500 px-4 py-2 text-white "
+      >
+        <span>
+          <Plus size={16} />
+        </span>
+        <span className="font-bold">New Orders </span>
+        <span
+          className={`transform transition-transform ease-in-out duration-500 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          <ChevronDown size={16} />
+        </span>{" "}
+      </button>
+
+      {/* Dropdown */}
+      {isOpen && (
+        <div className="bg-white rounded-sm p-2  space-y-2  z-10 w-[200px] shadow-2xl  absolute right-0 ">
+          <div className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around">
+            <div className="space-x-2 flex items-center justify-center">
+              <span>
+                <Utensils size={16} className="text-gray-500" />
+              </span>
+              <span>On site</span>
+            </div>
+            <span className="rounded-full bg-blue-300 p-1 px-2 text-xs text-white ">
+              Counter
+            </span>
+          </div>
+
+          <div className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around">
+            <div className="space-x-2 flex items-center justify-center">
+              <span>
+                <TbPaperBag size={16} className="text-gray-500" />
+              </span>
+              <span>On site</span>
+            </div>
+            <span className="rounded-full bg-blue-300 p-1 px-2 text-xs text-white ">
+              Counter
+            </span>
+          </div>
+
+          <div className="space-x-2 border-b py-2 border-black/10 flex items-center px-3">
+            <div className="space-x-2 flex items-center justify-center">
+              <span>
+                <MdOutlineDeliveryDining size={16} className="text-gray-500" />
+              </span>
+              <span>Delivery </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NewOrderDropdown;

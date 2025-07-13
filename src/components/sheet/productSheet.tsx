@@ -31,7 +31,7 @@ export function ProductAddSheet() {
             <img
               src="https://picsum.photos/200"
               alt=""
-              className="size-24 w-fit"
+              className="size-24 w-fit rounded-lg"
             />
 
             <div className="w-full space-y-2">
@@ -61,10 +61,11 @@ export function ProductAddSheet() {
               </div>
             </div>
 
-            <input
+            <Input
               type="text"
+              name="product_price"
               placeholder="NPR 0.00"
-              className="w-full rounded-md border p-1 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="w-full border"
             />
 
             <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap">

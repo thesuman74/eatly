@@ -12,7 +12,7 @@ const BouncingText = ({ text, className }: BouncingTextProps) => {
     transition: {
       duration: 0.6,
       ease: "easeInOut",
-    },
+    },  
   };
 
   return (
