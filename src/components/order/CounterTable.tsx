@@ -2,161 +2,184 @@
 
 import {
   Check,
-  CheckCheck,
-  Cross,
-  DollarSign,
-  Eye,
-  Filter,
   X,
+  DollarSign,
+  Printer,
+  MoreVertical,
+  Clock,
+  CalendarDays,
+  User2,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import ProductOrdersheet from "../sheet/ProductOrdersheet";
 import { useState } from "react";
-import ProductSheet from "@/app/(dashboard)/order/_components/Products/ProductSheet";
+import CounterTableFilters from "./CounterTableFilters";
+
 export default function CounterTable() {
-  const invoices = [
+  const orders = [
     {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
+      id: "#4",
+      type: "Onsite",
+      status: "Pending",
+      time: "60:00 min",
+      pos: "NP-4010",
+      client: "Suman Adhikari",
+      date: "13/07/25 10:53",
+      total: 0,
+      paid: false,
     },
     {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
+      id: "#3",
+      type: "Onsite",
+      status: "Preparing",
+      time: "60:00 min",
+      pos: "NP-7718",
+      client: "Suman Adhikari",
+      date: "13/07/25 10:51",
+      total: 4,
+      paid: false,
     },
   ];
 
   const [open, setOpen] = useState(false);
-
   return (
     <>
-      <main className="flex flex-col bg-white shadow-md p-2">
-        <section className="flex w-full justify-between rounded-sm  px-8 py-2 items-center">
-          {/* <!-- filter section  --> */}
-          <div className="flex items-center gap-4">
-            <Filter />
-            <div className="w-fit rounded-full border p-1 px-4 flex gap-2 bg-blue-100 text-blue-600">
-              <Check />
-              <span>All</span>
+      <div>
+        <CounterTableFilters />
+      </div>
+      <div className="bg-white rounded-md shadow overflow-hidden ">
+        {/* Header */}
+        <div
+          className="grid grid-cols-12 gap-4 p-2 px-4 text-xs font-semibold text-gray-500 bg-gray-100 
+      "
+        >
+          <div className="col-span-2">DATE</div>
+          <div className="col-span-2">STATUS</div>
+          <div className="col-span-2">TOTAL</div>
+          <div className="col-span-3">CLIENT</div>
+          <div className="col-span-3 text-center">ACTIONS</div>
+        </div>
+
+        {/* Orders */}
+        {orders.map((order, i) => (
+          <div
+            key={i}
+            className={`relative grid grid-cols-12 gap-4 p-4 border items-center ${
+              order.status !== "Pending" && "bg-gray-50"
+            }`}
+          >
+            <div
+              className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
+                order.status === "Pending" ? "bg-yellow-500" : "bg-green-500"
+              } bg-green-500 rounded" `}
+            />
+
+            {/* DATE + TIME */}
+            <div className="col-span-2 text-sm space-y-2">
+              <div className="flex items-center gap-1">
+                <span
+                  className={
+                    order.status === "Pending"
+                      ? "text-orange-500"
+                      : "text-green-600"
+                  }
+                >
+                  {order.id}
+                </span>
+                <span
+                  className={
+                    order.status === "Pending"
+                      ? "text-orange-500"
+                      : "text-green-600"
+                  }
+                >
+                  {order.type}
+                </span>
+              </div>
+              <div className="flex items-center text-red-500 text-xs gap-1">
+                <Clock size={14} />
+                {order.time}
+              </div>
+              <div className="flex items-center text-xs text-gray-500 gap-1">
+                <CalendarDays size={14} />
+                {order.date}
+              </div>
             </div>
-            <div className="w-fit rounded-full border border-input px-4 p-1 flex gap-1">
-              <span>Pending</span>
-              <span className="rounded-full bg-orange-400 text-white font-bold w-6 h-6 flex items-center justify-center text-xs">
-                1
-              </span>
+
+            {/* STATUS */}
+            <div className="col-span-2 text-sm space-y-2">
+              <div
+                className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                  order.status === "Pending"
+                    ? "bg-yellow-300 text-yellow-900"
+                    : "bg-green-200 text-green-800"
+                }`}
+              >
+                {order.status}
+              </div>
+              <div className="text-xs text-gray-500">POS {order.pos}</div>
             </div>
-            <div className="w-fit rounded-full border px-4 p-1 flex gap-1">
-              <span>On Going</span>
-              <span className="rounded-full text-white font-bold bg-green-400 w-6 h-6 flex items-center justify-center text-xs">
-                1
-              </span>
+
+            {/* TOTAL */}
+            <div className="col-span-2 text-sm font-semibold space-y-2">
+              <div className="inline-block px-2 py-1 bg-orange-400 text-white rounded-full text-xs font-bold">
+                Unpaid
+              </div>
+              <div>Rs {order.total.toFixed(2)}</div>
+            </div>
+
+            {/* CLIENT */}
+            <div className="col-span-3 text-sm ">
+              <div className="flex items-center text-xs text-gray-500 gap-1">
+                <User2 size={14} />
+                {order.client}
+              </div>
+            </div>
+
+            {/* ACTIONS */}
+            <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
+              <Button
+                variant="outline"
+                className="border text-red-600 border-red-600 hover:bg-red-50"
+              >
+                <X size={14} /> Cancel
+              </Button>
+
+              {order.status !== "Pending" && (
+                <>
+                  <Button variant="outline">
+                    <Printer size={14} />
+                  </Button>
+                  <Button variant="outline">Status</Button>
+                </>
+              )}
+
+              <Button
+                variant="outline"
+                className="border text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <DollarSign size={14} /> Pay
+              </Button>
+
+              <Button
+                className={`text-white ${
+                  order.status === "Pending" ? "bg-gray-400" : "bg-blue-600"
+                }`}
+                onClick={() => setOpen(open)}
+              >
+                <Check size={14} />{" "}
+                {order.status === "Pending" ? "Accept" : "Finish"}
+              </Button>
+
+              {order.status !== "Pending" && (
+                <MoreVertical
+                  size={18}
+                  className="cursor-pointer text-gray-500"
+                />
+              )}
             </div>
           </div>
-
-          {/* total price  */}
-
-          <div className="flex gap-1">
-            <span className="text-gray-500">Total:</span>
-            <span>Rs</span>
-            <span>1000</span>
-            <span className="ml-2">
-              <Eye />
-            </span>
-          </div>
-        </section>
-
-        {/* tables section  */}
-
-        <ProductOrdersheet open={open} setOpen={setOpen} />
-        <ProductSheet open={open} setOpen={setOpen} />
-
-        <section>
-          <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
-            <TableHeader className="border text-gray-500 bg-gray-100">
-              <TableRow>
-                <TableHead className="w-[100px]">Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead className="text-right">Client</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow key={invoice.invoice}>
-                  <TableCell className="font-medium">
-                    {invoice.invoice}
-                  </TableCell>
-                  <TableCell>{invoice.paymentStatus}</TableCell>
-                  <TableCell>{invoice.paymentMethod}</TableCell>
-                  <TableCell className="text-right">
-                    {invoice.totalAmount}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-4">
-                      <Button
-                        variant={"outline"}
-                        className="text-red-500 border-red-500"
-                      >
-                        <span className="cursor-pointer">
-                          <X />
-                        </span>
-                        <span>Cancel</span>
-                      </Button>
-
-                      <Button
-                        variant={"outline"}
-                        className="text-blue-500 border-blue-500"
-                        onClick={() => setOpen(true)}
-                      >
-                        <span className="cursor-pointer">$</span>
-                        <span>Pay</span>
-                      </Button>
-
-                      <Button
-                        variant={"default"}
-                        className="text-white bg-green-500"
-                        onClick={() => setOpen(true)}
-                      >
-                        <span className="cursor-pointer">
-                          <Check />
-                        </span>
-                        <span>Confirm</span>
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={3}>Total</TableCell>
-                <TableCell className="text-right">$2,500.00</TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </section>
-      </main>
+        ))}
+      </div>
     </>
   );
 }
