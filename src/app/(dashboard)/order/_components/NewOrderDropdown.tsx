@@ -3,12 +3,30 @@ import { ChevronDown, Plus, Utensils } from "lucide-react";
 import { TbPaperBag } from "react-icons/tb";
 
 import { MdOutlineDeliveryDining } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const NewOrderDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex   items-center gap-2 rounded-sm bg-blue-500 px-4 py-2 text-white "
@@ -46,7 +64,7 @@ const NewOrderDropdown = () => {
               <span>
                 <TbPaperBag size={16} className="text-gray-500" />
               </span>
-              <span>On site</span>
+              <span>Pick Up</span>
             </div>
             <span className="rounded-full bg-blue-300 p-1 px-2 text-xs text-white ">
               Counter
