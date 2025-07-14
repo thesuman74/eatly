@@ -5,8 +5,8 @@ import ProductCategory from "./ProductCategories";
 import ProductSidebar from "./ProductSidebar";
 
 type ProductSheetProps = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
 };
 
 const ProductSheet = ({ open, setOpen }: ProductSheetProps) => {
@@ -61,7 +61,7 @@ const ProductSheet = ({ open, setOpen }: ProductSheetProps) => {
 
       {/* Close button */}
       <button
-        onClick={() => setOpen(false)}
+        onClick={() => setOpen && setOpen(false)}
         className="absolute top-0 right-4 text-gray-500 hover:text-gray-700 text-xl"
       >
         ✕

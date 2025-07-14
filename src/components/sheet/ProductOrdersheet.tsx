@@ -17,8 +17,8 @@ import React, { useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import ProductSheet from "@/app/(dashboard)/order/_components/Products/ProductSheet";
 interface Props {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
 }
 
 const ProductOrdersheet = ({ open, setOpen }: Props) => {
@@ -85,14 +85,13 @@ const ProductOrdersheet = ({ open, setOpen }: Props) => {
             />
 
             {/* <!-- //Products section  --> */}
-            <div className="py-2  ">
+            <div className="py-2  flex-1 overflow-y-auto ">
               <div className="border-b border-gray-400 bg-blue-500  text-white">
                 <span className="text-lg font-semibold  px-4 py-1">
                   Products
                 </span>
               </div>
-              <div className="min-h-[320px] p-2 bg-white "></div>
-
+              <div className=" min-h-[320px] p-2 bg-white "></div>
               <div
                 className="py-4 px-2 border-dashed border-gray-400
             "
@@ -101,6 +100,8 @@ const ProductOrdersheet = ({ open, setOpen }: Props) => {
                 <span>$1000</span>
               </div>
             </div>
+
+            {/* Additional features section  */}
             <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2">
               <button className="rounded-md bg-green-500  px-4 py-1 text-gray-700">
                 + Discount
@@ -130,7 +131,7 @@ const ProductOrdersheet = ({ open, setOpen }: Props) => {
             <div className="my-2 w-full bg-gray-300 p-1"></div>
 
             <div className="space-y-2 px-4"></div>
-            <div className="flex justify-center w-full gap-4 px-2">
+            <div className="flex  justify-center w-full gap-4 px-2">
               <Button
                 variant={"outline"}
                 className="text-red-500 border-red-500 w-full"
@@ -160,12 +161,6 @@ const ProductOrdersheet = ({ open, setOpen }: Props) => {
               </Button>
             </div>
           </aside>
-
-          <SheetFooter>
-            <SheetClose asChild>
-              <Button type="submit">Save changes</Button>
-            </SheetClose>
-          </SheetFooter>
         </SheetContent>
       </Sheet>
     </>

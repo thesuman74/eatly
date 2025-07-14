@@ -4,9 +4,13 @@ import { TbPaperBag } from "react-icons/tb";
 
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
+import { ProductAddSheet } from "@/components/sheet/productAddSheet";
+import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 
 const NewOrderDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,6 +28,10 @@ const NewOrderDropdown = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
+
+  const handleOnDeliveryClick = () => {
+    setShowSheet(true);
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -44,10 +52,17 @@ const NewOrderDropdown = () => {
         </span>{" "}
       </button>
 
+      {showSheet && (
+        <ProductOrdersheet open={showSheet} setOpen={setShowSheet} />
+      )}
+
       {/* Dropdown */}
       {isOpen && (
         <div className="bg-white rounded-sm p-2  space-y-2  z-10 w-[200px] shadow-2xl  absolute right-0 ">
-          <div className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around">
+          <div
+            className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around cursor-pointer hover:bg-gray-100"
+            onClick={handleOnDeliveryClick}
+          >
             <div className="space-x-2 flex items-center justify-center">
               <span>
                 <Utensils size={16} className="text-gray-500" />
@@ -59,7 +74,10 @@ const NewOrderDropdown = () => {
             </span>
           </div>
 
-          <div className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around">
+          <div
+            className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around cursor-pointer hover:bg-gray-100"
+            onClick={handleOnDeliveryClick}
+          >
             <div className="space-x-2 flex items-center justify-center">
               <span>
                 <TbPaperBag size={16} className="text-gray-500" />
@@ -71,7 +89,10 @@ const NewOrderDropdown = () => {
             </span>
           </div>
 
-          <div className="space-x-2 border-b py-2 border-black/10 flex items-center px-3">
+          <div
+            className="space-x-2 border-b py-2 border-black/10 flex items-center px-3 cursor-pointer hover:bg-gray-100"
+            onClick={handleOnDeliveryClick}
+          >
             <div className="space-x-2 flex items-center justify-center">
               <span>
                 <MdOutlineDeliveryDining size={16} className="text-gray-500" />
