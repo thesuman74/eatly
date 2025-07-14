@@ -15,6 +15,7 @@ import React from "react";
 import ProductSidebar from "./ProductSidebar";
 import ProductSearch from "./ProductSearch";
 import ProductCategory from "./ProductCategories";
+import ProductCard from "./ProductCard";
 
 const ProductsList = () => {
   const categories = [
@@ -46,7 +47,7 @@ const ProductsList = () => {
     <>
       <div className="w-full   h-full flex bg-white">
         {/* Sidebar */}
-        <ProductSidebar categories={categories} />
+        {/* <ProductSidebar categories={categories} /> */}
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-4">
@@ -63,11 +64,16 @@ const ProductsList = () => {
           </div>
 
           {categories.map((category) => (
-            <ProductCategory
-              key={category.name}
-              name={category.name}
-              products={category.products}
-            />
+            <>
+              <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {category.products.map((p) => (
+                  <div className="mb-6">
+                    <ProductCard key={p.name} product={p} />
+                  </div>
+                ))}
+              </div>
+            </>
           ))}
         </div>
       </div>
