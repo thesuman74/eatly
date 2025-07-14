@@ -20,6 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import ProductOrdersheet from "../sheet/ProductOrdersheet";
+import { useState } from "react";
+import ProductSheet from "@/app/(dashboard)/order/_components/Products/ProductSheet";
 export default function CounterTable() {
   const invoices = [
     {
@@ -41,6 +44,8 @@ export default function CounterTable() {
       paymentMethod: "Bank Transfer",
     },
   ];
+
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -81,6 +86,9 @@ export default function CounterTable() {
 
         {/* tables section  */}
 
+        <ProductOrdersheet open={open} setOpen={setOpen} />
+        <ProductSheet open={open} setOpen={setOpen} />
+
         <section>
           <Table>
             <TableCaption>A list of your recent invoices.</TableCaption>
@@ -119,6 +127,7 @@ export default function CounterTable() {
                       <Button
                         variant={"outline"}
                         className="text-blue-500 border-blue-500"
+                        onClick={() => setOpen(true)}
                       >
                         <span className="cursor-pointer">$</span>
                         <span>Pay</span>
@@ -127,6 +136,7 @@ export default function CounterTable() {
                       <Button
                         variant={"default"}
                         className="text-white bg-green-500"
+                        onClick={() => setOpen(true)}
                       >
                         <span className="cursor-pointer">
                           <Check />
