@@ -12,37 +12,13 @@ import {
 } from "lucide-react";
 
 import React from "react";
-import ProductSidebar from "./ProductSidebar";
 import ProductSearch from "./ProductSearch";
-import ProductCategory from "./ProductCategories";
 import ProductCard from "./ProductCard";
+import { ProductCategoriesData } from "../../../../../../data/menu";
 
 const ProductsList = () => {
-  const categories = [
-    {
-      name: "Tea Specials",
-      products: [
-        { name: "Masala Tea", price: 5, img: "/images/coffee.png" },
-        { name: "Green Tea", price: 4, img: "/images/coffee.png" },
-        { name: "Lemon Tea", price: 5, img: "/images/coffee.png" },
-        { name: "Product 4", price: 0, img: "/images/coffee.png" },
-      ],
-    },
-    {
-      name: "Desserts",
-      products: [
-        { name: "Chocolate cake", price: 22, img: "/images/coffee.png" },
-        { name: "Açaí", price: 15, img: "/images/coffee.png" },
-      ],
-    },
-    {
-      name: "Drinks",
-      products: [
-        { name: "Water", price: 6, img: "/images/coffee.png" },
-        { name: "Coca Cola", price: 8, img: "/images/coffee.png" },
-      ],
-    },
-  ];
+  const categories = ProductCategoriesData;
+
   return (
     <>
       <div className="w-full   h-full flex bg-white">
@@ -64,16 +40,16 @@ const ProductsList = () => {
           </div>
 
           {categories.map((category) => (
-            <>
+            <div key={category.id}>
               <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {category.products.map((p) => (
-                  <div className="mb-6">
-                    <ProductCard key={p.name} product={p} />
+                  <div className="mb-6" key={p.id}>
+                    <ProductCard product={p} />
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           ))}
         </div>
       </div>

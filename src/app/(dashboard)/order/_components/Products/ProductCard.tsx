@@ -1,22 +1,15 @@
+import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import { Info, Plus } from "lucide-react";
 
-type ProductCardProps = {
-  product: {
-    name: string;
-    price: number;
-    img: string;
-  };
-};
-
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product }: { product: ProductTypes }) => {
   return (
     <div className="w-full bg-white rounded shadow p-2 flex flex-col items-center">
       {/* Wrap image and plus icon in relative container */}
       <div className="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden relative group">
-        {product.img ? (
+        {product ? (
           <img
-            src={product.img}
-            alt={product.name}
+            src={product.image.url}
+            alt={product.image.alt}
             className="w-full h-full object-cover"
           />
         ) : (
