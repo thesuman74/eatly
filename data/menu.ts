@@ -97,6 +97,40 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     ],
   },
   {
+    id: "rat-desserts",
+    name: "Desserts",
+    slug: "desserts",
+    description: "Delicious desserts for your sweet tooth.",
+    products: [
+      {
+        id: "prod-chocolate-cake",
+        name: "Chocolate Cake",
+        slug: "chocolate-cake",
+        description: "Rich and moist chocolate cake with creamy frosting.",
+        price: 2200,
+        currency: "NPR",
+        image: {
+          url: "/images/coffee.png",
+          alt: "Chocolate cake slice",
+        },
+        available: true,
+      },
+      {
+        id: "prod-acai",
+        name: "Açaí",
+        slug: "acai",
+        description: "Açaí bowl topped with fresh fruits and granola.",
+        price: 1500,
+        currency: "NPR",
+        image: {
+          url: "/images/coffee.png",
+          alt: "Acai bowl",
+        },
+        available: true,
+      },
+    ],
+  },
+  {
     id: "cat-drinks",
     name: "Drinks",
     slug: "drinks",

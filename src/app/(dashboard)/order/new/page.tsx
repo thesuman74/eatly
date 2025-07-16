@@ -5,10 +5,15 @@ import ProductOrderSideBar from "../_components/Products/ProductOrderSideBar";
 
 const page = () => {
   return (
-    <div className="flex">
-      <ProductsList />
-      <ProductOrdersheet open={false} />
-      <ProductOrderSideBar />
+    <div className="flex  w-full overflow-hidden relative">
+      {/* Main content scrolls */}
+      <div className="flex-grow h-full max-w-[70%]  ">
+        <ProductsList />
+      </div>
+      {/* Sidebar */}
+      <div className="fixed right-0  top-18 h-full ">
+        <ProductOrderSideBar />
+      </div>
     </div>
   );
 };

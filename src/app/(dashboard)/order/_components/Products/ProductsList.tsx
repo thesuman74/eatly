@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  ArrowUpRight,
   Calendar,
   Check,
   Clock,
@@ -11,47 +12,80 @@ import {
   X,
 } from "lucide-react";
 
-import React from "react";
+import React, { useState } from "react";
 import ProductSearch from "./ProductSearch";
 import ProductCard from "./ProductCard";
 import { ProductCategoriesData } from "../../../../../../data/menu";
+import { ProductTypes } from "@/lib/types/menu-types";
+import BouncingText from "@/components/animation/BouncingText";
+import Link from "next/link";
 
 const ProductsList = () => {
   const categories = ProductCategoriesData;
 
+  const [cartItems, setCartItems] = useState<ProductTypes[]>([]);
+  const [total, setTotal] = useState(0);
+
+  const handleAddToCart = (product: ProductTypes) => {
+    setCartItems((prev) => {
+      const updated = [...prev, product];
+      const newTotal = updated.reduce((sum, item) => sum + item.price, 0);
+      setTotal(newTotal);
+      return updated;
+    });
+  };
+
   return (
     <>
-      <div className="w-full   h-full flex bg-white">
-        {/* Sidebar */}
-        {/* <ProductSidebar categories={categories} /> */}
+      <div className="w-full h-full flex flex-col relative z-0">
+        {/* Top section with search + sidebar */}
+        <div className="flex flex-1 w-full pb-10">
+          {/* <ProductSidebar categories={categories} /> */}
 
-        {/* Main Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="flex justify-between items-center mb-4">
-            <ProductSearch />
-            <h2 className="text-gray-700 text-lg font-semibold">
-              <div className="space-x-4 flex">
-                <span>
-                  <Settings />
-                </span>
-                <span>PRODUCTS</span>
-              </div>
-            </h2>
-          </div>
-
-          {categories.map((category) => (
-            <div key={category.id}>
-              <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {category.products.map((p) => (
-                  <div className="mb-6" key={p.id}>
-                    <ProductCard product={p} />
-                  </div>
-                ))}
-              </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex justify-between items-center mb-4">
+              <ProductSearch />
+              <h2 className="text-gray-700 text-lg font-semibold">PRODUCTS</h2>
             </div>
-          ))}
+
+            {categories.map((category) => (
+              <div key={category.id}>
+                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {category.products.map((p) => (
+                    <div className="mb-6" key={p.id}>
+                      <ProductCard product={p} onAddToCart={handleAddToCart} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Cart Section at the page bottom */}
+        {cartItems.length > 0 && (
+          <div className="fixed right-74 bottom-0 z-10 w-[880px] flex bg-white border-t py-4 px-6 shadow-md  justify-between items-center">
+            <>
+              <div className="flex items-center">
+                <span>{cartItems.length} Products</span>
+                <BouncingText
+                  text={`Rs ${(total / 100).toFixed(2)}`}
+                  className="text-xl font-bold ml-4"
+                />
+              </div>
+              <Button asChild>
+                <Link
+                  href="/cart"
+                  className="rounded-lg bg-blue-500 py-2 px-4 text-white"
+                >
+                  Confirm Order
+                  <ArrowUpRight />
+                </Link>
+              </Button>
+            </>
+          </div>
+        )}
       </div>
     </>
   );
