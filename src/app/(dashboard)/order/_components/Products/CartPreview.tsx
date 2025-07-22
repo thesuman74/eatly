@@ -7,11 +7,9 @@ export default function CartPreview() {
   const { cartItems, updateQuantity, removeFromCart } = useCartStore();
   const cartTotal = useCartStore((state) => state.cartTotal());
 
-  // const products = useProductStore((state) => state.getProducts());
+  const paymentStatus = useCartStore((state) => state.paymentStatus);
 
-  // console.log("products", products);
-
-  console.log("cart items", cartItems);
+  console.log("cart items paymentStatus", paymentStatus);
 
   return (
     <>
@@ -79,8 +77,12 @@ export default function CartPreview() {
         <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
 
         <div className="flex justify-between w-full items-center px-1">
-          <span className="text-lg font-semibold rounded-full px-4 py-1 mx-1 bg-yellow-400 text-white">
-            Unpaid
+          <span
+            className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
+              paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+            }`}
+          >
+            {paymentStatus?.toUpperCase() || "PENDING"}
           </span>
           <div className="space-x-2">
             <span>Total:</span>

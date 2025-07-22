@@ -23,11 +23,18 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const [tips, setTips] = useState("");
   const [amountReceived, setAmountReceived] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const { paymentStatus, setPaymentStatus } = useCartStore();
 
   const tipsAmount = parseFloat(tips) || 0;
   const received = parseFloat(amountReceived) || 0;
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
+
+  const handleRegisterPayment = () => {
+    console.log("Register Payment");
+    setPaymentStatus("paid");
+    setOpen(false);
+  };
 
   return (
     <>
@@ -36,6 +43,13 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
         <div className="flex border-b p-2 space-x-4 items-center">
           <MoveLeft className="cursor-pointer" onClick={() => setOpen(false)} />
           <span className="text-xl font-bold">Register Payment</span>
+          <span
+            className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
+              paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+            }`}
+          >
+            {paymentStatus?.toUpperCase() || "PENDING"}
+          </span>
         </div>
         {/* Payment Inputs */}
         <div className="px-4 bg-white space-y-4 py-4">
@@ -146,6 +160,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           <Button
             variant="outline"
             className="w-full border-blue-600 text-blue-600 hover:bg-blue-100"
+            onClick={() => handleRegisterPayment()}
           >
             Register Payment
           </Button>

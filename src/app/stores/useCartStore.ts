@@ -6,8 +6,14 @@ interface CartItem {
   quantity: number;
 }
 
+type PaymentStatus = "pending" | "paid" | "cancled" | null;
+
 interface CartState {
   cartItems: CartItem[];
+  paymentStatus: PaymentStatus;
+
+  setPaymentStatus: (status: PaymentStatus) => void;
+
   addToCart: (product: ProductTypes) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -17,6 +23,9 @@ interface CartState {
 
 export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
+  paymentStatus: null,
+
+  setPaymentStatus: (status: PaymentStatus) => set({ paymentStatus: status }),
 
   addToCart: (product) => {
     const existing = get().cartItems.find(

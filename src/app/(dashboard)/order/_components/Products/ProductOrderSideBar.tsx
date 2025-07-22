@@ -5,13 +5,40 @@ import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import React, { useState } from "react";
 import CartPreview from "./CartPreview";
 import PaymentSummary from "../payments/PaymentSummary";
+import { useCartStore } from "@/app/stores/useCartStore";
+import { toast } from "react-toastify";
 
 const ProductOrderSideBar = () => {
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
+  const paymentStatus = useCartStore((state) => state.paymentStatus);
+
+  const cartItems = useCartStore((state) => state.cartItems);
+
+  const handlePayment = () => {
+    if (cartItems.length === 0) {
+      toast.error("Cart is empty");
+      return;
+    }
+    setShowPaymentPanel(true);
+  };
+
+  const handleConfirm = () => {
+    if (cartItems.length === 0) {
+      toast.error("Cart is empty");
+      return;
+    }
+    {
+      {
+        paymentStatus === "pending" || paymentStatus === null
+          ? setShowPaymentPanel(true)
+          : null;
+      }
+    }
+  };
 
   return (
     <>
-      <aside className="h-screen max-w-sm w-full flex flex-col bg-gray-100 overflow-y-auto">
+      <aside className="h-screen  max-w-sm w-full flex flex-col bg-gray-100 overflow-y-auto">
         {showPaymentPanel ? (
           <PaymentSummary
             open={showPaymentPanel}
@@ -21,7 +48,11 @@ const ProductOrderSideBar = () => {
           <div className="">
             {/* Top Section */}
             <div className="shrink-0 ">
-              <div className="flex px-4 py-2 bg-yellow-500 text-white">
+              <div
+                className={`flex px-4 py-2  text-white ${
+                  paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+                }`}
+              >
                 <div className="flex space-x-2">
                   <Hash />
                   <span className="text-lg font-semibold">1</span>
@@ -31,7 +62,7 @@ const ProductOrderSideBar = () => {
                     <Utensils size={20} />
                   </span>
                   <span className="px-1">On site</span> <span> | </span>{" "}
-                  <span>Pending</span>
+                  <span> {paymentStatus?.toUpperCase() || "PENDING"}</span>
                 </div>
               </div>
 
@@ -94,7 +125,7 @@ const ProductOrderSideBar = () => {
 
                     <Button
                       variant={"outline"}
-                      onClick={() => setShowPaymentPanel(true)}
+                      onClick={() => handlePayment()}
                       className="text-blue-500 border-blue-500 w-full"
                     >
                       <span className="cursor-pointer">$</span>
@@ -104,6 +135,7 @@ const ProductOrderSideBar = () => {
                     <Button
                       variant={"default"}
                       className="text-white bg-green-500 w-full"
+                      onClick={() => handleConfirm()}
                     >
                       <span className="cursor-pointer">
                         <Check />
