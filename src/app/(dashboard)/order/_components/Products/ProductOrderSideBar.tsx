@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import React from "react";
+import CartPreview from "./CartPreview";
 
 const ProductOrderSideBar = () => {
   return (
@@ -23,7 +24,7 @@ const ProductOrderSideBar = () => {
             </div>
           </div>
 
-          <div className="flex justify-between items-center bg-yellow-50 px-2">
+          <div className="flex justify-between items-center bg-yellow-50/80 px-2">
             <div className="flex justify-between py-2">
               <span className="font-semibold bg-gray-200 px-4 py-1 mx-1 rounded-full text-xs">
                 POS
@@ -64,7 +65,7 @@ const ProductOrderSideBar = () => {
 
         {/* Middle (scrollable) */}
         <div className="flex-1 overflow-y-auto ">
-          <div className="border-b border-gray-400 bg-blue-500 text-white">
+          {/* <div className="border-b border-gray-400 bg-blue-500 text-white">
             <span className="text-lg font-semibold px-4 py-1">Products</span>
           </div>
           <div className="min-h-[280px] p-2 bg-white"></div>
@@ -73,35 +74,12 @@ const ProductOrderSideBar = () => {
           <div className="py-2 px-2 border-dashed border-gray-400">
             <span className="text-gray-700">Sub total: </span>{" "}
             <span>$1000</span>
-          </div>
+          </div> */}
+          <CartPreview />
 
           {/* Bottom Section */}
           <div className="shrink-0  pb-4 ">
             <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
-              <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
-                + Discount
-              </button>
-              <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
-                + Servicing
-              </button>
-              <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
-                + Packaging
-              </button>
-              <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
-
-              <div className="flex justify-between w-full items-center px-1">
-                <span className="text-lg font-semibold rounded-full px-4 py-1 mx-1 bg-yellow-400 text-white">
-                  Unpaid
-                </span>
-                <div className="space-x-2">
-                  <span>Total:</span>
-                  <span>RS</span>
-                  <span className="text-2xl">$1000</span>
-                </div>
-              </div>
-
-              <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
-
               <div className="flex justify-center w-full gap-4 px-2 py-2 ">
                 <Button
                   variant={"outline"}

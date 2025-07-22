@@ -5,7 +5,7 @@ import { Info, Plus } from "lucide-react";
 
 type ProductCardProps = {
   product: ProductTypes;
-  onAddToCart: (product: ProductTypes) => void;
+  onAddToCart: (categoryId: string, product: ProductTypes) => void;
 };
 
 const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
@@ -26,7 +26,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           )}
 
           <div
-            onClick={() => onAddToCart(product)}
+            onClick={() => onAddToCart(product.id, product)}
             className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 opacity-0 cursor-pointer group-hover:opacity-100 transition-opacity"
           >
             <Plus size={60} className="text-white" />

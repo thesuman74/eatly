@@ -19,22 +19,24 @@ import { ProductCategoriesData } from "../../../../../../data/menu";
 import { ProductTypes } from "@/lib/types/menu-types";
 import BouncingText from "@/components/animation/BouncingText";
 import Link from "next/link";
+import { useProductStore } from "@/app/stores/useProductStores";
+import { useCartStore } from "@/app/stores/useCartStore";
 
 const ProductsList = () => {
   const categories = ProductCategoriesData;
 
   const [cartItems, setCartItems] = useState<ProductTypes[]>([]);
   const [total, setTotal] = useState(0);
-
-  const handleAddToCart = (product: ProductTypes) => {
+  const { addToCart } = useCartStore();
+  const handleAddToCart = (categoryId: string, product: ProductTypes) => {
     setCartItems((prev) => {
       const updated = [...prev, product];
       const newTotal = updated.reduce((sum, item) => sum + item.price, 0);
       setTotal(newTotal);
       return updated;
     });
+    addToCart(product);
   };
-
   return (
     <>
       <div className="w-full h-full flex flex-col relative z-0">
@@ -54,7 +56,10 @@ const ProductsList = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {category.products.map((p) => (
                     <div className="mb-6" key={p.id}>
-                      <ProductCard product={p} onAddToCart={handleAddToCart} />
+                      <ProductCard
+                        product={p}
+                        onAddToCart={() => handleAddToCart(category.id, p)}
+                      />
                     </div>
                   ))}
                 </div>
