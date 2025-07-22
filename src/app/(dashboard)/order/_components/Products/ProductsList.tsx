@@ -69,7 +69,7 @@ const ProductsList = () => {
         </div>
 
         {/* Cart Section at the page bottom */}
-        {cartItems.length > 0 && (
+        {/* {cartItems.length > 0 && (
           <div className="fixed right-74 bottom-0 z-10 w-[880px] flex bg-white border-t py-4 px-6 shadow-md  justify-between items-center">
             <>
               <div className="flex items-center">
@@ -79,18 +79,13 @@ const ProductsList = () => {
                   className="text-xl font-bold ml-4"
                 />
               </div>
-              <Button asChild>
-                <Link
-                  href="/cart"
-                  className="rounded-lg bg-blue-500 py-2 px-4 text-white"
-                >
-                  Confirm Order
-                  <ArrowUpRight />
-                </Link>
+              <Button onClick={() => {}}>
+                Confirm Order
+                <ArrowUpRight />
               </Button>
             </>
           </div>
-        )}
+        )} */}
       </div>
     </>
   );
