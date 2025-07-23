@@ -29,3 +29,5 @@ export interface ProductCategoryTypes {
   description: string;
   products: ProductTypes[];
 }
+
+export type OrderType = "onsite" | "pickup" | "delivery";

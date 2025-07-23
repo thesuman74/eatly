@@ -7,10 +7,16 @@ import CartPreview from "./CartPreview";
 import PaymentSummary from "../payments/PaymentSummary";
 import { useCartStore } from "@/app/stores/useCartStore";
 import { toast } from "react-toastify";
+import { useParams, useSearchParams } from "next/navigation";
 
 const ProductOrderSideBar = () => {
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
+
+  const searchParams = useSearchParams();
+  const orderType = searchParams.get("type");
+
+  console.log("orderType", orderType);
 
   const cartItems = useCartStore((state) => state.cartItems);
 
@@ -61,7 +67,10 @@ const ProductOrderSideBar = () => {
                   <span>
                     <Utensils size={20} />
                   </span>
-                  <span className="px-1">On site</span> <span> | </span>{" "}
+                  <span className="px-1">
+                    {orderType?.toUpperCase() || "On site"}
+                  </span>{" "}
+                  <span> | </span>{" "}
                   <span> {paymentStatus?.toUpperCase() || "PENDING"}</span>
                 </div>
               </div>
@@ -90,19 +99,21 @@ const ProductOrderSideBar = () => {
               </div>
               <hr className="border-gray-400" />
 
-              <Input
-                type="text"
-                name="product_title"
-                placeholder="Add title"
-                className="w-full border"
-              />
+              <div className="space-y-2 py-2">
+                <Input
+                  type="text"
+                  name="product_title"
+                  placeholder="Add title"
+                  className="w-full border"
+                />
 
-              <Input
-                type="text"
-                name="client_name"
-                placeholder="Add Client Name"
-                className="w-full border text-lg"
-              />
+                <Input
+                  type="text"
+                  name="client_name"
+                  placeholder="Add Client Name"
+                  className="w-full border text-lg"
+                />
+              </div>
             </div>
 
             {/* Middle (scrollable) */}
@@ -110,8 +121,8 @@ const ProductOrderSideBar = () => {
               <CartPreview />
 
               {/* Bottom Section */}
-              <div className="shrink-0  pb-4 ">
-                <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
+              <div className="shrink-0  mt-auto  ">
+                <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
                   <div className="flex justify-center w-full gap-4 px-2 py-2 ">
                     <Button
                       variant={"outline"}

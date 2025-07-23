@@ -1,7 +1,7 @@
 "use client";
 import { useCartStore } from "@/app/stores/useCartStore";
-import { useProductStore } from "@/app/stores/useProductStores";
 import { X } from "lucide-react";
+import Link from "next/link";
 
 export default function CartPreview() {
   const { cartItems, updateQuantity, removeFromCart } = useCartStore();
@@ -9,15 +9,16 @@ export default function CartPreview() {
 
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
-  console.log("cart items paymentStatus", paymentStatus);
-
   return (
     <>
       <div className="w-full max-w-md  bg-white border rounded shadow-md ">
         <div className="flex items-center justify-between border-b  ">
-          <h2 className="font-bold text-lg w-full text-white bg-blue-500 p-2">
+          <Link
+            href={"/order/new"}
+            className="font-bold text-lg w-full text-white bg-blue-500 p-2"
+          >
             + Products
-          </h2>
+          </Link>
           {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 

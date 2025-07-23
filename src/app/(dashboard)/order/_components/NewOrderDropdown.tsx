@@ -6,6 +6,7 @@ import { MdOutlineDeliveryDining } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
+import Link from "next/link";
 
 const NewOrderDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,9 +60,9 @@ const NewOrderDropdown = () => {
       {/* Dropdown */}
       {isOpen && (
         <div className="bg-white rounded-sm p-2  space-y-2  z-10 w-[200px] shadow-2xl  absolute right-0 ">
-          <div
+          <Link
+            href={"/order/new?type=onsite"}
             className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around cursor-pointer hover:bg-gray-100"
-            onClick={handleOnDeliveryClick}
           >
             <div className="space-x-2 flex items-center justify-center">
               <span>
@@ -72,11 +73,11 @@ const NewOrderDropdown = () => {
             <span className="rounded-full bg-blue-300 p-1 px-2 text-xs text-white ">
               Counter
             </span>
-          </div>
+          </Link>
 
-          <div
+          <Link
+            href={"/order/new?type=pickup"}
             className="space-x-2 border-b py-2 border-black/10 flex items-center justify-around cursor-pointer hover:bg-gray-100"
-            onClick={handleOnDeliveryClick}
           >
             <div className="space-x-2 flex items-center justify-center">
               <span>
@@ -87,11 +88,11 @@ const NewOrderDropdown = () => {
             <span className="rounded-full bg-blue-300 p-1 px-2 text-xs text-white ">
               Counter
             </span>
-          </div>
+          </Link>
 
-          <div
+          <Link
+            href={"/order/new?type=delivery"}
             className="space-x-2 border-b py-2 border-black/10 flex items-center px-3 cursor-pointer hover:bg-gray-100"
-            onClick={handleOnDeliveryClick}
           >
             <div className="space-x-2 flex items-center justify-center">
               <span>
@@ -99,7 +100,7 @@ const NewOrderDropdown = () => {
               </span>
               <span>Delivery </span>
             </div>
-          </div>
+          </Link>
         </div>
       )}
     </div>
