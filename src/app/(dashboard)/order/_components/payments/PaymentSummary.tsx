@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoveLeft } from "lucide-react";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -34,6 +35,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
     console.log("Register Payment");
     setPaymentStatus("paid");
     setOpen(false);
+    toast.success("Simulating Payment Success ");
   };
 
   return (
