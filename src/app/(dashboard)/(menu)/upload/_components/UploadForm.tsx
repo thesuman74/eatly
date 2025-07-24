@@ -6,12 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, MoveLeft, X } from "lucide-react";
 import PreviewMenuForm from "./ReviewExtractedMenu";
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [reviewMenu, setReviewMenu] = useState(false);
+  const [reviewMenuData, setReviewMenuData] = useState<ProductCategoryTypes[]>(
+    []
+  );
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -45,23 +49,23 @@ export default function UploadPage() {
     if (files.length === 0) return;
 
     const formData = new FormData();
-    files.forEach((file) => formData.append("images", file));
+    formData.append("image", files[0]);
 
-    setTimeout(() => {
-      setLoading(false);
-      setReviewMenu(true);
-    }, 5000);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   setReviewMenu(true);
+    // }, 5000);
 
-    // const res = await fetch("/api/gemini", {
-    //   method: "POST",
-    //   body: formData,
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //   },
-    // });
+    const res = await fetch("/api/gemini", {
+      method: "POST",
+      body: formData,
+    });
 
-    // const data = await res.json();
-    // console.log(data);
+    const data = await res.json();
+    setReviewMenuData(data.data);
+    console.log("response  form upload page", data);
+    setLoading(false);
+    setReviewMenu(true);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -76,6 +80,7 @@ export default function UploadPage() {
         <PreviewMenuForm
           reviewMenu={reviewMenu}
           setReviewMenu={setReviewMenu}
+          reviewMenuData={reviewMenuData}
         />
       ) : (
         <div className="max-w-5xl mx-auto mt-10 p-6 border rounded-lg shadow bg-white relative">

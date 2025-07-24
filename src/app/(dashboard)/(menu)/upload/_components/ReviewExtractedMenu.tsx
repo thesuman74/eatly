@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { MoveLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
-const sampleData = [
+const sampleData: ProductCategoryTypes[] = [
   {
     id: "cat-tea-specials",
     name: "Tea Specials",
@@ -80,18 +81,36 @@ const sampleData = [
     ],
   },
 ];
-
 interface PreviewMenuFormProps {
   reviewMenu: boolean;
   setReviewMenu: (open: boolean) => void;
+  reviewMenuData: ProductCategoryTypes[];
 }
 
 export default function PreviewMenuForm({
   reviewMenu,
   setReviewMenu,
+  reviewMenuData,
 }: PreviewMenuFormProps) {
-  const [selectedCategory, setSelectedCategory] = useState(sampleData[0]);
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] =
+    useState<ProductCategoryTypes | null>(null);
+
+  useEffect(() => {
+    if (reviewMenuData && reviewMenuData.length > 0) {
+      setSelectedCategory(reviewMenuData[0]);
+    }
+  }, [reviewMenuData]);
+
+  console.log("reviewMenuData", reviewMenuData);
+
+  if (!reviewMenuData) {
+    return <div>Loading menu data...</div>;
+  }
+
+  if (reviewMenuData.length === 0) {
+    return <div>No menu data available.</div>;
+  }
 
   const handleSubmit = () => {
     // TODO: Gather form data and send to backend
@@ -113,10 +132,10 @@ export default function PreviewMenuForm({
 
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-3 mb-6">
-        {sampleData.map((cat) => (
+        {reviewMenuData.map((cat) => (
           <Button
             key={cat.id}
-            variant={selectedCategory.id === cat.id ? "default" : "outline"}
+            variant={selectedCategory?.id === cat.id ? "default" : "outline"}
             onClick={() => setSelectedCategory(cat)}
           >
             {cat.name} ({cat.products.length})
@@ -125,48 +144,42 @@ export default function PreviewMenuForm({
       </div>
 
       {/* Products Grid */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-        {selectedCategory.products.map((product) => (
-          <Card key={product.id} className="p-4 flex flex-col gap-4">
-            <div className="flex justify-center">
-              <img
-                src={product.image.url}
-                alt={product.image.alt}
-                className="w-24 h-24 object-cover rounded"
-              />
-            </div>
+      {selectedCategory ? (
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+          {selectedCategory.products.map((product) => (
+            <Card key={product.id} className="p-4 flex flex-col gap-4">
+              <div className="flex justify-center">
+                <img
+                  src={product.image.url}
+                  alt={product.image.alt}
+                  className="w-24 h-24 object-cover rounded"
+                />
+              </div>
 
-            <div>
-              <Label htmlFor={`name-${product.id}`}>Name</Label>
-              <Input
-                id={`name-${product.id}`}
-                defaultValue={product.name}
-                className="mt-1"
-              />
-            </div>
+              <div>
+                <Label htmlFor={`name-${product.id}`}>Name</Label>
+                <Input
+                  id={`name-${product.id}`}
+                  defaultValue={product.name}
+                  className="mt-1"
+                />
+              </div>
 
-            <div>
-              <Label htmlFor={`price-${product.id}`}>Price (in NPR)</Label>
-              <Input
-                id={`price-${product.id}`}
-                type="number"
-                defaultValue={product.price}
-                className="mt-1"
-              />
-            </div>
-
-            {/* <div>
-              <Label htmlFor={`desc-${product.id}`}>Description</Label>
-              <Textarea
-                id={`desc-${product.id}`}
-                defaultValue={product.description}
-                className="mt-1"
-                rows={2}
-              />
-            </div> */}
-          </Card>
-        ))}
-      </div>
+              <div>
+                <Label htmlFor={`price-${product.id}`}>Price (in NPR)</Label>
+                <Input
+                  id={`price-${product.id}`}
+                  type="number"
+                  defaultValue={product.price}
+                  className="mt-1"
+                />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div>Loading selected category...</div>
+      )}
 
       <div className="text-center">
         <Button onClick={handleSubmit} className="text-lg px-6 py-2">

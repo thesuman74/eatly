@@ -4,7 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const fromData = await req.formData();
+    console.log("fromData", fromData);
     const image = fromData.get("image") as File;
+    console.log("image", image);
 
     if (!image) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
@@ -13,8 +15,15 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await image.arrayBuffer());
     const base64Image = buffer.toString("base64");
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const ApiKey = process.env.GEMINI_API_KEY;
+    console.log("ApiKey", ApiKey);
+
+    if (!ApiKey) {
+      return NextResponse.json({ error: "No API key found" }, { status: 400 });
+    }
+
+    const genAI = new GoogleGenerativeAI(ApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 You are an expert menu data extractor.
@@ -56,14 +65,20 @@ Only return the JSON array. Assume currency is NPR. Use placeholder image "/imag
       },
     ]);
 
-    const text = await result.response.text();
+    let raw = await result.response.text();
+
+    // Remove markdown code block if present
+    if (raw.startsWith("```")) {
+      raw = raw.replace(/```(?:json)?\n?/, "").replace(/```$/, "");
+    }
 
     try {
-      const data = JSON.parse(text);
+      const data = JSON.parse(raw);
+      console.log("Data from gemini", data);
       return NextResponse.json({ data }, { status: 200 });
     } catch {
       return NextResponse.json(
-        { error: "Failed to parse Gemini response", raw: text },
+        { error: "Failed to parse Gemini response", raw: raw },
         { status: 500 }
       );
     }
