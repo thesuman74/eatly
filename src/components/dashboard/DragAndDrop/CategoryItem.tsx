@@ -13,13 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
+import { Badge } from "@/components/ui/badge";
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
 interface CategoryProps {
-  category: {
-    id: string;
-    name: string;
-    items: { id: string; name: string; price: string; image: string }[];
-  };
+  category: ProductCategoryTypes;
 }
 
 const CategoryItem = ({ category }: CategoryProps) => {
@@ -59,18 +57,21 @@ const CategoryItem = ({ category }: CategoryProps) => {
 
           {/* Right side */}
           <div className="flex items-center space-x-2">
-            <span className="bg-gray-200 px-2 py-1 rounded-full text-xs">
-              {category.items.length}
-            </span>
+            <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              {category.products.length}
+            </Badge>
             {/* <Button variant="outline">+ Product</Button> */}
             <ProductAddSheet />
             <EllipsisVertical />
-            <button onClick={() => setIsOpen(!isOpen)}>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="bg-gray-200 rounded-full p-2"
+            >
               {isOpen ? <ChevronDown /> : <ChevronRight />}
             </button>
           </div>
         </div>
-        {isOpen && <SubItemList items={category.items} />}
+        {isOpen && <SubItemList products={category.products} />}
       </motion.div>
     </>
   );

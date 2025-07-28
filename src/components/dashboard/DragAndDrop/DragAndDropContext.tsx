@@ -7,6 +7,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
 // Define types
 interface SubItem {
@@ -19,12 +20,12 @@ interface SubItem {
 interface Category {
   id: string;
   name: string;
-  items: SubItem[];
+  products: SubItem[];
 }
 
 interface DragAndDropContextType {
-  categories: Category[];
-  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+  categories: ProductCategoryTypes[];
+  setCategories: React.Dispatch<React.SetStateAction<ProductCategoryTypes[]>>;
 }
 
 const DragContext = createContext<DragAndDropContextType | null>(null);
@@ -34,46 +35,78 @@ export const DragAndDropProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [categories, setCategories] = useState<Category[]>([
+  const [categories, setCategories] = useState<ProductCategoryTypes[]>([
     {
       id: "1",
       name: "Tea Specials",
-      items: [
+      slug: "tea-specials",
+      position: 0,
+      products: [
         {
           id: "1-1",
           name: "Green Tea",
-          price: "Rs 4.00",
-          image: "/Images/coffee.png",
+          slug: "green-tea",
+          description: "Green Tea description",
+          price: 400, // Rs 4.00 → 400 cents
+          currency: "NPR",
+          image: {
+            url: "/Images/coffee.png",
+            alt: "Green Tea",
+          },
+          available: true,
         },
         {
           id: "1-2",
           name: "Masala Tea",
-          price: "Rs 5.00",
-          image: "/Images/coffee.png",
+          slug: "masala-tea",
+          description: "Masala Tea description",
+          price: 500,
+          currency: "NPR",
+          image: {
+            url: "/Images/coffee.png",
+            alt: "Masala Tea",
+          },
+          available: true,
         },
         {
           id: "1-3",
           name: "Lemon Tea",
-          price: "Rs 5.00",
-          image: "/Images/coffee.png",
+          slug: "lemon-tea",
+          description: "Lemon Tea description",
+          price: 500,
+          currency: "NPR",
+          image: {
+            url: "/Images/coffee.png",
+            alt: "Lemon Tea",
+          },
+          available: true,
         },
       ],
     },
     {
       id: "2",
       name: "Desserts",
-      items: [
+      slug: "desserts",
+      position: 1,
+      products: [
         {
           id: "2-1",
           name: "Chocolate Cake",
-          price: "Rs 8.00",
-          image: "/Images/coffee.png",
+          slug: "chocolate-cake",
+          description: "Chocolate Cake description",
+          price: 800,
+          currency: "NPR",
+          image: {
+            url: "/Images/coffee.png",
+            alt: "Chocolate Cake",
+          },
+          available: true,
         },
       ],
     },
   ]);
 
-  // Handle Drag End for both categories and sub-items
+  // Handle Drag End for both categories and sub-products
   //   const handleDragEnd = (event: DragEndEvent) => {
   //     const { active, over } = event;
   //     if (!over || active.id === over.id) return;
@@ -92,26 +125,26 @@ export const DragAndDropProvider = ({
   //       let overCategory: Category | undefined;
 
   //       for (let cat of updatedCategories) {
-  //         const foundActiveItem = cat.items.find((item) => item.id === active.id);
-  //         const foundOverItem = cat.items.find((item) => item.id === over.id);
+  //         const foundActiveItem = cat.products.find((item) => item.id === active.id);
+  //         const foundOverItem = cat.products.find((item) => item.id === over.id);
   //         if (foundActiveItem) activeCategory = cat;
   //         if (foundOverItem) overCategory = cat;
   //       }
 
-  //       // If both items belong to the same category
+  //       // If both products belong to the same category
   //       if (
   //         activeCategory &&
   //         overCategory &&
   //         activeCategory.id === overCategory.id
   //       ) {
-  //         const oldIndex = activeCategory.items.findIndex(
+  //         const oldIndex = activeCategory.products.findIndex(
   //           (item) => item.id === active.id
   //         );
-  //         const newIndex = overCategory.items.findIndex(
+  //         const newIndex = overCategory.products.findIndex(
   //           (item) => item.id === over.id
   //         );
-  //         activeCategory.items = arrayMove(
-  //           activeCategory.items,
+  //         activeCategory.products = arrayMove(
+  //           activeCategory.products,
   //           oldIndex,
   //           newIndex
   //         );
@@ -136,17 +169,21 @@ export const DragAndDropProvider = ({
 
       // 🔹 2. Otherwise, it's a sub-item move within the same category
       return prevCategories.map((category) => {
-        const oldProductIndex = category.items.findIndex(
+        const oldProductIndex = category.products.findIndex(
           (p) => p.id === active.id
         );
-        const newProductIndex = category.items.findIndex(
+        const newProductIndex = category.products.findIndex(
           (p) => p.id === over.id
         );
 
         if (oldProductIndex !== -1 && newProductIndex !== -1) {
           return {
             ...category,
-            items: arrayMove(category.items, oldProductIndex, newProductIndex),
+            products: arrayMove(
+              category.products,
+              oldProductIndex,
+              newProductIndex
+            ),
           };
         }
 

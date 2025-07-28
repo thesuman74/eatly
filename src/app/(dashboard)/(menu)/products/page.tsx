@@ -1,21 +1,25 @@
+// app/(dashboard)/menu/page.tsx or similar
 import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
 import TopSection from "@/components/menu/TopSection";
-import React from "react";
+import { createClient } from "@/lib/supabase/server";
 
-const page = () => {
+export default async function Page() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/menu/structured`);
+  const categoriesData = await res.json();
+
+  console.log("categoriesData", categoriesData);
+
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
-      {/* Top Section */}
       <TopSection />
 
       <div>
         <DragAndDropProvider>
-          <CategoryList />
+          <CategoryList categoriesData={categoriesData.data} />
         </DragAndDropProvider>
       </div>
     </div>
   );
-};
-
-export default page;
+}

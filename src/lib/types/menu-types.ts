@@ -25,8 +25,9 @@ export interface ProductTypes {
 export interface ProductCategoryTypes {
   id: string;
   name: string;
-  slug: string;
-  description: string;
+  slug?: string;
+  // description: string;
+  position: number;
   products: ProductTypes[];
 }
 

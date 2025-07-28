@@ -1,15 +1,15 @@
-import { createClient } from '@/utils/supabase/server'
-import { NextResponse } from 'next/server'
+import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data, error } = await supabase.from('instruments').select('*')
-  console.log('data', data)
-  console.log('error', error)
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("instruments").select("*");
+  console.log("data", data);
+  console.log("error", error);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  
-  return NextResponse.json(data)
+
+  return NextResponse.json(data);
 }

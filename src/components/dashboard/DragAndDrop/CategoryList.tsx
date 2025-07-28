@@ -8,18 +8,54 @@ import {
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { SquareMenu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UploadPage from "@/app/(dashboard)/(menu)/upload/_components/UploadForm";
-const CategoryList = () => {
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
+
+interface CategoryListProps {
+  categoriesData: ProductCategoryTypes[];
+}
+const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const { categories } = useDragAndDrop();
   const [scanMenu, setScanMenu] = useState(false);
+  const [loading, isLoading] = useState(false);
+
+  const handleAddCategory = async () => {
+    try {
+      isLoading(true);
+      const response = await fetch("/api/menu/structured", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert("Error: " + data.error);
+        return;
+      }
+      isLoading(false);
+
+      alert("Created category: " + data.category.name);
+      // You can update your UI here with the returned data
+    } catch (error) {
+      alert("Network error");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="max-w-full  mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
       <div className="flex space-x-2">
         <Button className="text-xl font-bold mb-4">Menu Categories</Button>
 
-        <Button variant={"outline"} className="text-lg font-bold mb-4">
+        <Button
+          variant={"outline"}
+          onClick={() => handleAddCategory()}
+          className="text-lg font-bold mb-4"
+        >
           Add New Category
         </Button>
         <Button
@@ -32,6 +68,18 @@ const CategoryList = () => {
             <SquareMenu />
           </span>
         </Button>
+      </div>
+
+      <div>
+        <div className="flex space-x-2 ">
+          {categoriesData?.map((category) => (
+            <ul key={category.id}>
+              <li>
+                {category.name} {">"}
+              </li>
+            </ul>
+          ))}
+        </div>
       </div>
 
       <SortableContext

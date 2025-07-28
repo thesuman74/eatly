@@ -16,6 +16,7 @@ export default function VisaFormTest() {
     phoneNumber: "",
     email: "",
     confirmEmail: "",
+    university: "",
     residenceAddress: "",
     reasonForAppointment: "",
   });
@@ -201,6 +202,19 @@ export default function VisaFormTest() {
             type="email"
             name="confirmEmail"
             value={formData.confirmEmail}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label htmlFor="university" className="block font-medium">
+            university
+          </label>
+          <input
+            id="university"
+            type="text"
+            name="university"
+            value={formData.university}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />

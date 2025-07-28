@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductTypes } from "@/lib/types/menu-types";
 import { useSortable } from "@dnd-kit/sortable";
 import { motion } from "framer-motion";
 import {
@@ -13,7 +14,7 @@ import {
 import { useState } from "react";
 
 interface SubItemProps {
-  item: { id: string; name: string; price: string; image: string };
+  item: ProductTypes;
 }
 
 const SubItem = ({ item }: SubItemProps) => {
@@ -47,8 +48,8 @@ const SubItem = ({ item }: SubItemProps) => {
         <Grip size={16} className="text-gray-500" />
       </span>
       <img
-        src={item.image}
-        alt={item.name}
+        src={item.image.url || "/Images/coffee.png"}
+        alt={item.image.alt}
         className="w-8 h-8 rounded-full mr-3"
       />
       <span className="flex-1 text-sm">{item.name}</span>

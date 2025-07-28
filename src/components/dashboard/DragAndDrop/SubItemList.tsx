@@ -5,16 +5,17 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SubItem from "./SubItem";
+import { ProductTypes } from "@/lib/types/menu-types";
 
 interface SubItemListProps {
-  items: { id: string; name: string; price: string; image: string }[];
+  products: ProductTypes[];
 }
 
-const SubItemList = ({ items }: SubItemListProps) => {
+const SubItemList = ({ products }: SubItemListProps) => {
   return (
-    <SortableContext items={items} strategy={verticalListSortingStrategy}>
+    <SortableContext items={products} strategy={verticalListSortingStrategy}>
       <div className="ml-6 mt-2">
-        {items.map((item) => (
+        {products.map((item) => (
           <SubItem key={item.id} item={item} />
         ))}
       </div>
