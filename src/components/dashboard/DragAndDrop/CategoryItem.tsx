@@ -75,7 +75,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
               <input
                 type="text"
                 className="font-semibold w-[200px] outline-none  border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
-                value={editcategory.id}
+                value={editcategory.name}
                 onChange={(e) =>
                   setCategory({ ...editcategory, name: e.target.value })
                 }
