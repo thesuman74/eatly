@@ -20,6 +20,8 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [loading, isLoading] = useState(false);
 
+  console.log("categoriesfrom category list", categories);
+
   const handleAddCategory = async () => {
     try {
       isLoading(true);
@@ -83,7 +85,7 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
       </div>
 
       <SortableContext
-        items={categories}
+        items={categories.map((category) => category.id)} // No need to sort
         strategy={verticalListSortingStrategy}
       >
         {categories.map((category) => (

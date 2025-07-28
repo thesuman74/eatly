@@ -48,8 +48,8 @@ const SubItem = ({ item }: SubItemProps) => {
         <Grip size={16} className="text-gray-500" />
       </span>
       <img
-        src={item.image.url || "/Images/coffee.png"}
-        alt={item.image.alt}
+        src={item?.image?.url || "/Images/coffee.png"}
+        alt={item.image?.alt}
         className="w-8 h-8 rounded-full mr-3"
       />
       <span className="flex-1 text-sm">{item.name}</span>

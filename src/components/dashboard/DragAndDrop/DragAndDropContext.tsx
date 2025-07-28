@@ -8,6 +8,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
+import { updateCategoryPositions } from "@/app/(dashboard)/(menu)/products/actions/category/UpdateCategories";
 
 // Define types
 interface SubItem {
@@ -32,164 +33,68 @@ const DragContext = createContext<DragAndDropContextType | null>(null);
 
 export const DragAndDropProvider = ({
   children,
+  initialCategories,
 }: {
   children: React.ReactNode;
+  initialCategories: ProductCategoryTypes[];
 }) => {
-  const [categories, setCategories] = useState<ProductCategoryTypes[]>([
-    {
-      id: "1",
-      name: "Tea Specials",
-      slug: "tea-specials",
-      position: 0,
-      products: [
-        {
-          id: "1-1",
-          name: "Green Tea",
-          slug: "green-tea",
-          description: "Green Tea description",
-          price: 400, // Rs 4.00 → 400 cents
-          currency: "NPR",
-          image: {
-            url: "/Images/coffee.png",
-            alt: "Green Tea",
-          },
-          available: true,
-        },
-        {
-          id: "1-2",
-          name: "Masala Tea",
-          slug: "masala-tea",
-          description: "Masala Tea description",
-          price: 500,
-          currency: "NPR",
-          image: {
-            url: "/Images/coffee.png",
-            alt: "Masala Tea",
-          },
-          available: true,
-        },
-        {
-          id: "1-3",
-          name: "Lemon Tea",
-          slug: "lemon-tea",
-          description: "Lemon Tea description",
-          price: 500,
-          currency: "NPR",
-          image: {
-            url: "/Images/coffee.png",
-            alt: "Lemon Tea",
-          },
-          available: true,
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Desserts",
-      slug: "desserts",
-      position: 1,
-      products: [
-        {
-          id: "2-1",
-          name: "Chocolate Cake",
-          slug: "chocolate-cake",
-          description: "Chocolate Cake description",
-          price: 800,
-          currency: "NPR",
-          image: {
-            url: "/Images/coffee.png",
-            alt: "Chocolate Cake",
-          },
-          available: true,
-        },
-      ],
-    },
-  ]);
+  const [categories, setCategories] =
+    useState<ProductCategoryTypes[]>(initialCategories);
 
-  // Handle Drag End for both categories and sub-products
-  //   const handleDragEnd = (event: DragEndEvent) => {
-  //     const { active, over } = event;
-  //     if (!over || active.id === over.id) return;
+  console.log("initialCategories", initialCategories);
 
-  //     setCategories((prev) => {
-  //       // 🔹 Dragging a category
-  //       const activeCategoryIndex = prev.findIndex((cat) => cat.id === active.id);
-  //       const overCategoryIndex = prev.findIndex((cat) => cat.id === over.id);
-  //       if (activeCategoryIndex !== -1 && overCategoryIndex !== -1) {
-  //         return arrayMove(prev, activeCategoryIndex, overCategoryIndex);
-  //       }
+  // const handleDragEnd = async (event: DragEndEvent) => {
+  //   const { active, over } = event;
+  //   if (!over || active.id === over.id) return;
 
-  //       // 🔹 Dragging a sub-item
-  //       let updatedCategories = [...prev];
-  //       let activeCategory: Category | undefined;
-  //       let overCategory: Category | undefined;
+  //   // Check if the item being moved is a category
+  //   const isCategory = categories.some((category) => category.id === active.id);
+  //   if (!isCategory) return;
 
-  //       for (let cat of updatedCategories) {
-  //         const foundActiveItem = cat.products.find((item) => item.id === active.id);
-  //         const foundOverItem = cat.products.find((item) => item.id === over.id);
-  //         if (foundActiveItem) activeCategory = cat;
-  //         if (foundOverItem) overCategory = cat;
-  //       }
+  //   const oldIndex = categories.findIndex(
+  //     (category) => category.id === active.id
+  //   );
+  //   console.log("oldIndex", oldIndex);
+  //   const newIndex = categories.findIndex(
+  //     (category) => category.id === over.id
+  //   );
 
-  //       // If both products belong to the same category
-  //       if (
-  //         activeCategory &&
-  //         overCategory &&
-  //         activeCategory.id === overCategory.id
-  //       ) {
-  //         const oldIndex = activeCategory.products.findIndex(
-  //           (item) => item.id === active.id
-  //         );
-  //         const newIndex = overCategory.products.findIndex(
-  //           (item) => item.id === over.id
-  //         );
-  //         activeCategory.products = arrayMove(
-  //           activeCategory.products,
-  //           oldIndex,
-  //           newIndex
-  //         );
-  //       }
+  //   console.log("newIndex", newIndex);
 
-  //       return updatedCategories;
-  //     });
-  //   };
+  //   if (oldIndex === -1 || newIndex === -1) return;
 
+  //   // Reorder locally
+  //   const reordered = arrayMove(categories, oldIndex, newIndex);
+  //   setCategories(reordered);
+
+  //   // Sync updated positions to backend
+  //   for (let i = 0; i < reordered.length; i++) {
+  //     await updateCategoryPositions(reordered[i].id, i.toString());
+  //   }
+  // };
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
+    if (!over || active.id === over.id) return;
 
-    setCategories((prevCategories) => {
-      // 🔹 1. Check if it's a category move
-      const oldIndex = prevCategories.findIndex((c) => c.id === active.id);
-      const newIndex = prevCategories.findIndex((c) => c.id === over.id);
+    console.log("categories after initial", categories);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        return arrayMove(prevCategories, oldIndex, newIndex);
-      }
+    // 🔍 Use current state, not inside setCategories
+    const oldIndex = categories.findIndex((c) => c.id === active.id);
+    const newIndex = categories.findIndex((c) => c.id === over.id);
 
-      // 🔹 2. Otherwise, it's a sub-item move within the same category
-      return prevCategories.map((category) => {
-        const oldProductIndex = category.products.findIndex(
-          (p) => p.id === active.id
-        );
-        const newProductIndex = category.products.findIndex(
-          (p) => p.id === over.id
-        );
+    console.log("oldIndex", oldIndex);
+    console.log("newIndex", newIndex);
+    console.log("Active ID:", active.id);
+    console.log("Over ID:", over.id);
+    console.log(
+      "Categories:",
+      categories.map((c) => c.id)
+    );
 
-        if (oldProductIndex !== -1 && newProductIndex !== -1) {
-          return {
-            ...category,
-            products: arrayMove(
-              category.products,
-              oldProductIndex,
-              newProductIndex
-            ),
-          };
-        }
-
-        return category;
-      });
-    });
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newOrder = arrayMove(categories, oldIndex, newIndex);
+      setCategories(newOrder); // 💾 update state
+    }
   };
 
   return (

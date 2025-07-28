@@ -16,8 +16,8 @@ export default async function Page() {
       <TopSection />
 
       <div>
-        <DragAndDropProvider>
-          <CategoryList categoriesData={categoriesData.data} />
+        <DragAndDropProvider initialCategories={categoriesData}>
+          <CategoryList categoriesData={categoriesData} />
         </DragAndDropProvider>
       </div>
     </div>
