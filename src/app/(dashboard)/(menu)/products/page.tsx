@@ -1,8 +1,7 @@
-// app/(dashboard)/menu/page.tsx or similar
 import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
 import TopSection from "@/components/menu/TopSection";
-import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 
 export default async function Page() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -16,9 +15,11 @@ export default async function Page() {
       <TopSection />
 
       <div>
-        <DragAndDropProvider initialCategories={categoriesData}>
-          <CategoryList categoriesData={categoriesData} />
-        </DragAndDropProvider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <DragAndDropProvider initialCategories={categoriesData}>
+            <CategoryList categoriesData={categoriesData} />
+          </DragAndDropProvider>
+        </Suspense>
       </div>
     </div>
   );

@@ -5,7 +5,8 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     id: "cat-tea-specials",
     name: "Tea Specials",
     slug: "tea-specials",
-    description: "A selection of our finest tea specials.",
+    position: 0,
+    // description: "A selection of our finest tea specials.",
     products: [
       {
         id: "prod-masala-tea",
@@ -66,7 +67,8 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     id: "cat-desserts",
     name: "Desserts",
     slug: "desserts",
-    description: "Delicious desserts for your sweet tooth.",
+    position: 2,
+    // description: "Delicious desserts for your sweet tooth.",
     products: [
       {
         id: "prod-chocolate-cake",
@@ -100,7 +102,8 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     id: "rat-desserts",
     name: "Desserts",
     slug: "desserts",
-    description: "Delicious desserts for your sweet tooth.",
+    position: 3,
+    // description: "Delicious desserts for your sweet tooth.",
     products: [
       {
         id: "prod-chocolate-cake",
@@ -134,7 +137,8 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     id: "cat-drinks",
     name: "Drinks",
     slug: "drinks",
-    description: "Refreshing drinks to keep you hydrated.",
+    position: 1,
+    // description: "Refreshing drinks to keep you hydrated.",
     products: [
       {
         id: "prod-water",

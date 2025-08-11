@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 import ProductsList from "../_components/Products/ProductsList";
 import ProductOrderSideBar from "../_components/Products/ProductOrderSideBar";
@@ -12,7 +12,9 @@ const page = () => {
       </div>
       {/* Sidebar */}
       <div className="fixed right-0  top-18 h-full ">
-        <ProductOrderSideBar />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProductOrderSideBar />
+        </Suspense>
       </div>
     </div>
   );

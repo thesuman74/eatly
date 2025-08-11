@@ -16,7 +16,8 @@ const sampleData: ProductCategoryTypes[] = [
     id: "cat-tea-specials",
     name: "Tea Specials",
     slug: "tea-specials",
-    description: "",
+    position: 0,
+    // description: "",
     products: [
       {
         id: "prod-masala-tea",
@@ -50,7 +51,8 @@ const sampleData: ProductCategoryTypes[] = [
     id: "cat-cold-coffees",
     name: "Cold Coffees",
     slug: "cold-coffees",
-    description: "",
+    position: 1,
+    // description: "",
     products: [
       {
         id: "prod-iced-latte",

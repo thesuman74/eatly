@@ -7,7 +7,7 @@ import CartPreview from "./CartPreview";
 import PaymentSummary from "../payments/PaymentSummary";
 import { useCartStore } from "@/app/stores/useCartStore";
 import { toast } from "react-toastify";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const ProductOrderSideBar = () => {
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
