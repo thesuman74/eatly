@@ -20,7 +20,7 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [loading, isLoading] = useState(false);
 
-  console.log("categoriesfrom category list", categories);
+  // console.log("categoriesfrom category list", categories);
 
   const handleAddCategory = async () => {
     try {
@@ -74,21 +74,22 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
 
       <div>
         <div className="flex space-x-2 ">
-          {categoriesData?.map((category) => (
-            <ul key={category.id}>
-              <li>
-                {category.name} {">"}
-              </li>
-            </ul>
-          ))}
+          {categoriesData &&
+            categoriesData?.map((category) => (
+              <ul key={category.id}>
+                <li>
+                  {category.name} {">"}
+                </li>
+              </ul>
+            ))}
         </div>
       </div>
 
       <SortableContext
-        items={categories.map((category) => category.id)} // No need to sort
+        items={categories?.map((category) => category.id)} // No need to sort
         strategy={verticalListSortingStrategy}
       >
-        {categories.map((category) => (
+        {categories?.map((category) => (
           <CategoryItem key={category.id} category={category} />
         ))}
       </SortableContext>
