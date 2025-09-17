@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-      "postbuild": "ls -R .next/server/app/dashboard/",
+      "postbuild": "ls -R .next/server/app/(dashboard)/",
 
     "lint": "next lint"
   },
