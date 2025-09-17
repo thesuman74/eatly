@@ -8,7 +8,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
-import { updateCategoryPositions } from "@/app/(dashboard)/(menu)/products/actions/category/UpdateCategories";
+import { updateCategoryPositions } from "@/app/dashboard/(menu)/products/actions/category/UpdateCategories";
 
 // Define types
 interface SubItem {

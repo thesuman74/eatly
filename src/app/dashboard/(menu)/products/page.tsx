@@ -18,6 +18,7 @@ export default async function Page() {
     });
 
     if (!res.ok) {
+      categoriesData = ProductCategoriesData;
       throw new Error(`Failed to fetch categories: ${res.status}`);
     }
 

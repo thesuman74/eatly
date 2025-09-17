@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SquareMenu } from "lucide-react";
 import { useEffect, useState } from "react";
-import UploadPage from "@/app/(dashboard)/(menu)/upload/_components/UploadForm";
+import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
 interface CategoryListProps {

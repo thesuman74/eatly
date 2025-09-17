@@ -15,7 +15,7 @@ import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 import { Badge } from "@/components/ui/badge";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
-import { updateCategoryName } from "@/app/(dashboard)/(menu)/products/actions/category/UpdateCategories";
+import { updateCategoryName } from "@/app/dashboard/(menu)/products/actions/category/UpdateCategories";
 import { toast } from "react-toastify";
 
 interface CategoryProps {
