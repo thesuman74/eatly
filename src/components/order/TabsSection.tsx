@@ -5,7 +5,7 @@ import { MdOutlineDeliveryDining } from "react-icons/md";
 import { MdOutlineTableBar } from "react-icons/md";
 import { GoChecklist } from "react-icons/go";
 import { RefreshCcw, Search } from "lucide-react";
-import NewOrderDropdown from "@/app/(dashboard)/order/_components/NewOrderDropdown";
+import NewOrderDropdown from "@/app/dashboard/order/_components/NewOrderDropdown";
 
 const OrderTabsSection = () => {
   const tablist = [
