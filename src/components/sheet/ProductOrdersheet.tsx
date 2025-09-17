@@ -15,7 +15,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import React, { useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
-import ProductSheet from "@/app/dashboard/order/_components/Products/ProductSheet";
+import ProductSheet from "@/app/(dashboard)/order/_components/Products/ProductSheet";
 interface Props {
   open?: boolean;
   setOpen?: (open: boolean) => void;
