@@ -53,7 +53,7 @@ const data = {
   navMain: [
     {
       title: "Order Pos",
-      url: "order",
+      url: "/dashboard/order",
       icon: NotebookPen,
       isActive: true,
     },
