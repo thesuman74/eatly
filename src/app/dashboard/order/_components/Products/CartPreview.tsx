@@ -22,7 +22,7 @@ export default function CartPreview() {
           {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 
-        <div className="mt-2 min-h-[300px] max-h-[300px] overflow-y-auto px-2 ">
+        <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">
           {cartItems.map(({ product, quantity }) => (
             <div
               key={product.id}
