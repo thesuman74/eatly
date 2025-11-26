@@ -20,12 +20,12 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [loading, isLoading] = useState(false);
 
-  // console.log("categoriesfrom category list", categories);
+  // console.log("categoriesData from category list", categoriesData);
 
   const handleAddCategory = async () => {
     try {
       isLoading(true);
-      const response = await fetch("/api/menu/structured", {
+      const response = await fetch("/api/menu/categories/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

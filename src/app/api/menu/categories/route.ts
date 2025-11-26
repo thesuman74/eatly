@@ -7,6 +7,9 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase.from("categories").select("*");
 
+  console.log("data", data);
+  console.log("error", error);
+
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -22,7 +22,12 @@ export default async function Page() {
       throw new Error(`Failed to fetch categories: ${res.status}`);
     }
 
-    categoriesData = await res.json();
+    const json = await res.json();
+    console.log("json", json);
+
+    categoriesData = json;
+
+    console.log("categoriesData", categoriesData);
 
     if (!categoriesData || categoriesData.length === 0) {
       error = "No categories found.";
@@ -34,7 +39,7 @@ export default async function Page() {
 
   // const categoriesData = ProductCategoriesData;
 
-  console.log("categoriesData", categoriesData);
+  // console.log("categoriesData", categoriesData);
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">

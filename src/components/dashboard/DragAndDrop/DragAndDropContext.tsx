@@ -41,7 +41,7 @@ export const DragAndDropProvider = ({
   const [categories, setCategories] =
     useState<ProductCategoryTypes[]>(initialCategories);
 
-  console.log("initialCategories", initialCategories);
+  // console.log("initialCategories", initialCategories);
 
   // const handleDragEnd = async (event: DragEndEvent) => {
   //   const { active, over } = event;
@@ -76,7 +76,7 @@ export const DragAndDropProvider = ({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    console.log("categories after initial", categories);
+    // console.log("categories after initial", categories);
 
     // 🔍 Use current state, not inside setCategories
     const oldIndex = categories.findIndex((c) => c.id === active.id);

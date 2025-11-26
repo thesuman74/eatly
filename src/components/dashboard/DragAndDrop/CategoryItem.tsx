@@ -88,7 +88,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
           {/* Right side */}
           <div className="flex items-center space-x-2">
             <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-              {category.products.length}
+              {category?.products?.length}
             </Badge>
             {/* <Button variant="outline">+ Product</Button> */}
             <ProductAddSheet />
