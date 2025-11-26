@@ -19,7 +19,7 @@ const CategoryOptions = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative ">
       {/* Ellipsis icon button */}
       <button
         onClick={() => setOpen(!open)}

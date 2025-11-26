@@ -71,24 +71,51 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
   };
 
   // DUPLICATE CATEGORY
-  const handleDuplicateCategory = () => {
-    const newCategory = {
-      ...category,
-      id: crypto.randomUUID(),
-      name: category.name + " Copy",
-    };
-    setCategories((prev) => [...prev, newCategory]);
-    toast.success("Category duplicated!");
+  const handleDuplicateCategory = async () => {
+    try {
+      const res = await fetch("/api/menu/categories/duplicate", {
+        method: "POST",
+        body: JSON.stringify({ categoryId: category.id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.category) {
+        setCategories((prev) => [...prev, data.category]);
+        toast.success(data.message || "Category duplicated!");
+      } else {
+        toast.error(data.error || "Failed to duplicate category");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Network or server error");
+    }
   };
 
   // TOGGLE VISIBILITY
-  const handleToggleVisibility = () => {
-    setCategories((prev) =>
-      prev.map((c) =>
-        c.id === category.id ? { ...c, visible: !c.isVisible } : c
-      )
-    );
-    toast.success("Visibility toggled!");
+  const handleToggleVisibility = async () => {
+    try {
+      const res = await fetch("/api/menu/categories/toggle-visibility", {
+        method: "PATCH",
+        body: JSON.stringify({ categoryId: category.id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.category) {
+        setCategories((prev) =>
+          prev.map((c) => (c.id === category.id ? data.category : c))
+        );
+        toast.success(data.message || "Visibility toggled!");
+      } else {
+        toast.error(data.error || "Failed to toggle visibility");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Network or server error");
+    }
   };
 
   return (
@@ -101,7 +128,11 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
             : undefined,
           transition,
         }}
-        className="p-3 border bg-gray-100 rounded-lg mb-2 shadow-md"
+        className={`p-3 border rounded-lg mb-2 shadow-md ${
+          category.isVisible
+            ? "bg-gray-100/10  "
+            : "bg-gray-100 opacity-80 shadow-none "
+        }`}
       >
         <div className="flex justify-between items-center">
           {/* Left side */}
