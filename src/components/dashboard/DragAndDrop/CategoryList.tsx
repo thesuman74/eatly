@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
-import { SquareMenu } from "lucide-react";
+import { Plus, SquareMenu } from "lucide-react";
 import { useEffect, useState } from "react";
 import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
@@ -116,19 +116,20 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
         <Button
           variant={"outline"}
           onClick={() => handleAddCategory()}
-          className="text-lg font-bold mb-4"
+          className="text-lg  font-bold mb-4"
         >
-          Add New Category
+          <Plus className="text-xl" size={20} />
+          <span>Add New Category</span>
         </Button>
         <Button
           variant={"outline"}
           className="text-lg font-bold mb-4"
           onClick={() => setScanMenu(true)}
         >
-          Scan Menu
           <span>
             <SquareMenu />
           </span>
+          Scan Menu
         </Button>
       </div>
 
@@ -154,7 +155,11 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
           strategy={verticalListSortingStrategy}
         >
           {categories?.map((category) => (
-            <CategoryItem key={category.id} category={category} />
+            <CategoryItem
+              key={category.id}
+              category={category}
+              setCategories={setCategories}
+            />
           ))}
         </SortableContext>
       </DndContext>

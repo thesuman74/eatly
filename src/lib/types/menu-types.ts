@@ -29,6 +29,8 @@ export interface ProductCategoryTypes {
   // description: string;
   position: number;
   products: ProductTypes[];
+  isVisible: boolean;
+  available: boolean;
 }
 
 export type OrderType = "onsite" | "pickup" | "delivery";

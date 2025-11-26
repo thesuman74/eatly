@@ -17,21 +17,46 @@ import { Badge } from "@/components/ui/badge";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import { updateCategoryName } from "@/app/dashboard/(menu)/products/actions/category/UpdateCategories";
 import { toast } from "react-toastify";
+import CategoryOptions from "./CategoryOptions";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
+  setCategories: React.Dispatch<React.SetStateAction<ProductCategoryTypes[]>>;
 }
 
-const CategoryItem = ({ category }: CategoryProps) => {
+const CategoryItem = ({ category, setCategories }: CategoryProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: category.id,
     });
   const [isOpen, setIsOpen] = useState(false);
+  const [isEllipse, setIsEllipse] = useState(false);
   const [editcategory, setCategory] = useState(category);
 
   const [isSaving, setIsSaving] = useState(false);
 
+  const handleDeleteCategory = async (categoryId: string) => {
+    console.log("categoryId from handle", categoryId);
+    try {
+      const res = await fetch(
+        `/api/menu/categories/delete?categoryId=${categoryId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        // Update UI
+        setCategories((prev) => prev.filter((c: any) => c.id !== categoryId));
+        toast.success(data.message);
+      } else {
+        toast.error(data.error);
+      }
+    } catch (error) {
+      toast.error("Network or server error");
+      console.error(error);
+    }
+  };
   const handleBlur = async () => {
     if (editcategory.name !== category.name) {
       setIsSaving(true);
@@ -43,6 +68,27 @@ const CategoryItem = ({ category }: CategoryProps) => {
       }
       toast.error("Failed to update");
     }
+  };
+
+  // DUPLICATE CATEGORY
+  const handleDuplicateCategory = () => {
+    const newCategory = {
+      ...category,
+      id: crypto.randomUUID(),
+      name: category.name + " Copy",
+    };
+    setCategories((prev) => [...prev, newCategory]);
+    toast.success("Category duplicated!");
+  };
+
+  // TOGGLE VISIBILITY
+  const handleToggleVisibility = () => {
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id === category.id ? { ...c, visible: !c.isVisible } : c
+      )
+    );
+    toast.success("Visibility toggled!");
   };
 
   return (
@@ -91,7 +137,12 @@ const CategoryItem = ({ category }: CategoryProps) => {
             </Badge>
             {/* <Button variant="outline">+ Product</Button> */}
             <ProductAddSheet />
-            <EllipsisVertical />
+            <CategoryOptions
+              onToggleVisibility={() => handleToggleVisibility()}
+              onDuplicate={() => handleDuplicateCategory()}
+              onDelete={() => handleDeleteCategory(category.id)}
+            />
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="bg-gray-200 rounded-full p-2"
