@@ -36,7 +36,6 @@ const CategoryItem = ({ category }: CategoryProps) => {
     if (editcategory.name !== category.name) {
       setIsSaving(true);
       const success = await updateCategoryName(category.id, editcategory.name);
-      console.log("success", success);
       setIsSaving(false);
       if (success === true) {
         toast.success("Category updated Sucessfully");

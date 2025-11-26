@@ -30,6 +30,8 @@ export const updateCategoryPositions = async (
     .update({ position: newPosition })
     .eq("id", categoryId);
 
+  console.log("updateCategoryPositions error", error);
+
   if (error) {
     console.error("Failed to update category position:", error.message);
     throw error;

@@ -11,14 +11,25 @@ import { SquareMenu } from "lucide-react";
 import { useEffect, useState } from "react";
 import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import { toast } from "react-toastify";
 
 interface CategoryListProps {
   categoriesData: ProductCategoryTypes[];
 }
 const CategoryList = ({ categoriesData }: CategoryListProps) => {
-  const { categories } = useDragAndDrop();
+  const { categories, setCategories } = useDragAndDrop();
   const [scanMenu, setScanMenu] = useState(false);
   const [loading, isLoading] = useState(false);
+  const [Positionupdating, isPositionUpdating] = useState(false);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   // console.log("categoriesData from category list", categoriesData);
 
@@ -45,6 +56,55 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
     } catch (error) {
       alert("Network error");
       console.error(error);
+    }
+  };
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event;
+    if (!over) return;
+    if (active.id !== over.id) {
+      const oldIndex = categories.findIndex((c) => c.id === active.id);
+      const newIndex = categories.findIndex((c) => c.id === over.id);
+
+      const newCategories = arrayMove(categories, oldIndex, newIndex);
+
+      // Update local state
+      setCategories(newCategories);
+
+      // Prepare positions for batch update
+      const updatedPositions = newCategories.map((cat, index) => ({
+        id: cat.id,
+        position: index + 1, // 1-based
+      }));
+
+      console.log("updatedPositions", updatedPositions);
+
+      // Call your new API or server function
+      try {
+        isPositionUpdating(true);
+        const res = await fetch(
+          `${baseUrl}/api/menu/categories/update/positions`,
+          {
+            method: "PATCH", // or PATCH depending on your API
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ updates: updatedPositions }),
+          }
+        );
+        const data = await res.json();
+        console.log("position update data", data);
+
+        if (data.success) {
+          toast.success(data.message || "Positions updated successfully");
+        } else {
+          toast.error(data.message || "Failed to update positions");
+        }
+      } catch (err) {
+        console.error("Failed to update positions:", err);
+      }
     }
   };
 
@@ -84,15 +144,20 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
             ))}
         </div>
       </div>
-
-      <SortableContext
-        items={categories?.map((category) => category.id)} // No need to sort
-        strategy={verticalListSortingStrategy}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        {categories?.map((category) => (
-          <CategoryItem key={category.id} category={category} />
-        ))}
-      </SortableContext>
+        <SortableContext
+          items={categories?.map((category) => category.id)} // No need to sort
+          strategy={verticalListSortingStrategy}
+        >
+          {categories?.map((category) => (
+            <CategoryItem key={category.id} category={category} />
+          ))}
+        </SortableContext>
+      </DndContext>
 
       {scanMenu && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
