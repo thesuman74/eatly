@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
-import { Plus, SquareMenu } from "lucide-react";
+import { LoaderCircle, Plus, SquareMenu } from "lucide-react";
 import { useEffect, useState } from "react";
 import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
@@ -27,7 +27,7 @@ interface CategoryListProps {
 const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const { categories, setCategories } = useDragAndDrop();
   const [scanMenu, setScanMenu] = useState(false);
-  const [loading, isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [Positionupdating, isPositionUpdating] = useState(false);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -35,7 +35,7 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
 
   const handleAddCategory = async () => {
     try {
-      isLoading(true);
+      setIsLoading(true);
       const response = await fetch("/api/menu/categories/add", {
         method: "POST",
         headers: {
@@ -46,16 +46,23 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert("Error: " + data.error);
+        toast.error("Error:" + data.error);
         return;
       }
-      isLoading(false);
 
-      alert("Created category: " + data.category.name);
+      console.log("data", data);
+      toast.success("Category created successfully!");
+      // ✅ Update the categories list in state
+      if (data.category) {
+        setCategories((prev) => [...prev, data.category]);
+      }
+
       // You can update your UI here with the returned data
     } catch (error) {
       alert("Network error");
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,7 +125,12 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
           onClick={() => handleAddCategory()}
           className="text-lg  font-bold mb-4"
         >
-          <Plus className="text-xl" size={20} />
+          {isLoading ? (
+            <LoaderCircle className="text-xl animate-spin" size={20} />
+          ) : (
+            <Plus className="text-xl" size={20} />
+          )}
+
           <span>Add New Category</span>
         </Button>
         <Button

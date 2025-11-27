@@ -23,11 +23,10 @@ export default async function Page() {
     }
 
     const json = await res.json();
-    console.log("json", json);
 
     categoriesData = json;
 
-    console.log("categoriesData", categoriesData);
+    // console.log("categoriesData", categoriesData);
 
     if (!categoriesData || categoriesData.length === 0) {
       error = "No categories found.";

@@ -14,8 +14,8 @@ export async function GET() {
     .select("*")
     .order("position", { ascending: true });
 
-  console.log("categories", categories);
-  console.log("products", products);
+  // console.log("categories", categories);
+  // console.log("products", products);
 
   if (categoriesError || productsError) {
     return NextResponse.json(

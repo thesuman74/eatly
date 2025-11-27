@@ -35,8 +35,8 @@ export async function POST() {
     .select()
     .single();
 
-  // console.log("newProduct", newProduct);
-  // console.log("productError", productError);
+  console.log("newProduct", newProduct);
+  console.log("productError", productError);
 
   if (productError || !newProduct) {
     return NextResponse.json(
