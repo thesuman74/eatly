@@ -164,7 +164,7 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
           {/* Right side */}
           <div className="flex items-center space-x-2">
             <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-              {category?.products?.length || 0}
+              {category?.products?.length || 1}
             </Badge>
             {/* <Button variant="outline">+ Product</Button> */}
             <ProductAddSheet />
@@ -182,7 +182,7 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
             </button>
           </div>
         </div>
-        {isOpen && <SubItemList products={category.products} />}
+        {isOpen && <SubItemList products={category?.products || []} />}
       </motion.div>
     </>
   );

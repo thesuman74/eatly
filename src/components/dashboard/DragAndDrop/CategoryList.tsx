@@ -1,7 +1,6 @@
 "use client";
 
 import { useDragAndDrop } from "./DragAndDropContext";
-import CategoryItem from "./CategoryItem";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -20,10 +19,15 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
 
 interface CategoryListProps {
   categoriesData: ProductCategoryTypes[];
 }
+const CategoryItem = dynamic(() => import("./CategoryItem"), {
+  ssr: false,
+});
+
 const CategoryList = ({ categoriesData }: CategoryListProps) => {
   const { categories, setCategories } = useDragAndDrop();
   const [scanMenu, setScanMenu] = useState(false);
@@ -53,9 +57,13 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
       console.log("data", data);
       toast.success("Category created successfully!");
       // ✅ Update the categories list in state
-      if (data.category) {
-        setCategories((prev) => [...prev, data.category]);
-      }
+      setCategories((prev) => [
+        ...prev,
+        {
+          ...data.category,
+          products: data.product ? [data.product] : [],
+        },
+      ]);
 
       // You can update your UI here with the returned data
     } catch (error) {
@@ -118,7 +126,7 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
   return (
     <div className="max-w-full  mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
       <div className="flex space-x-2">
-        <Button className="text-xl font-bold mb-4">Menu Categories</Button>
+        {/* <Button className="text-xl font-bold mb-4">Menu Categories</Button> */}
 
         <Button
           variant={"outline"}

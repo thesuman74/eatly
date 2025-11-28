@@ -39,7 +39,7 @@ const CategoryOptions = ({
             className="w-full flex space-x-3 border-b border-gray-300 text-left px-4 py-2 hover:bg-gray-100"
           >
             <Eye />
-            <span>Product Visibility</span>
+            <span>Category Visibility</span>
           </button>
           <button
             onClick={() => {

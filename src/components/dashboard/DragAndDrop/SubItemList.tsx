@@ -15,7 +15,7 @@ const SubItemList = ({ products }: SubItemListProps) => {
   return (
     <SortableContext items={products} strategy={verticalListSortingStrategy}>
       <div className="ml-6 mt-2">
-        {products.map((item) => (
+        {products?.map((item) => (
           <SubItem key={item.id} item={item} />
         ))}
       </div>
