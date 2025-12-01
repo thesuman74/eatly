@@ -167,7 +167,7 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
               {category?.products?.length || 1}
             </Badge>
             {/* <Button variant="outline">+ Product</Button> */}
-            <ProductAddSheet />
+            <ProductAddSheet categoryId={category.id} />
             <CategoryOptions
               onToggleVisibility={() => handleToggleVisibility()}
               onDuplicate={() => handleDuplicateCategory()}
