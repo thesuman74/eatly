@@ -9,8 +9,6 @@ interface AdminCategoryStore {
   updateCategory: (category: ProductCategoryTypes) => void;
   toggleCategoryVisibility: (id: string) => void;
   deleteCategory: (id: string) => void;
-
-  deleteCategoryAsync: (id: string) => Promise<void>;
 }
 
 export const useAdminCategoryStore = create<AdminCategoryStore>((set, get) => ({
@@ -34,27 +32,4 @@ export const useAdminCategoryStore = create<AdminCategoryStore>((set, get) => ({
     set((state) => ({
       categories: state.categories.filter((c) => c.id !== id),
     })),
-  deleteCategoryAsync: async (categoryId: string) => {
-    console.log("categoryId from handle", categoryId);
-    try {
-      const res = await fetch(
-        `/api/menu/categories/delete?categoryId=${categoryId}`,
-        {
-          method: "DELETE",
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
-        // Update UI
-        get().deleteCategory(categoryId);
-
-        toast.success(data.message);
-      } else {
-        toast.error(data.error);
-      }
-    } catch (error) {
-      toast.error("Network or server error");
-      console.error(error);
-    }
-  },
 }));

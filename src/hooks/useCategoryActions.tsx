@@ -20,9 +20,7 @@ export function useCategoryActions() {
   const toggleVisibility = useAdminCategoryStore(
     (s) => s.toggleCategoryVisibility
   );
-  const deleteCategoryAsync = useAdminCategoryStore(
-    (s) => s.deleteCategoryAsync
-  );
+  const deleteCategory = useAdminCategoryStore((s) => s.deleteCategory);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -111,7 +109,7 @@ export function useCategoryActions() {
   // Delete category
   const handleDeleteCategory = async (categoryId: string) => {
     try {
-      await deleteCategoryAsync(categoryId); // Updates Zustand state
+      await deleteCategory(categoryId); // Updates Zustand state
       await deleteCategoryAPI(categoryId);
       toast.success("Category deleted!");
     } catch (err: any) {

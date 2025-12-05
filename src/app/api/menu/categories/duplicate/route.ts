@@ -34,20 +34,65 @@ export async function POST(req: Request) {
       .insert([
         {
           name: category.name + " Copy",
-          slug: null, // optional, generate new slug if needed
-          position: category.position, // or adjust if you want it at the end
+          slug: null,
+          position: category.position,
           isVisible: category.isVisible,
         },
       ])
       .select()
       .single();
 
-    if (insertError) throw insertError;
+    if (insertError || !newCategory) throw insertError;
 
+    // Fetch original products
+    const { data: originalProducts, error: prodFetchError } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category_id", category.id);
+
+    if (prodFetchError) {
+      console.error(
+        "Error fetching original products:",
+        prodFetchError.message
+      );
+    }
+
+    let newProducts: any[] = [];
+
+    // Duplicate products
+    if (originalProducts && originalProducts.length > 0) {
+      const productsToInsert = originalProducts.map((p) => ({
+        name: p.name,
+        price: p.price,
+        description: p.description || "",
+        category_id: newCategory.id,
+      }));
+
+      const { data: insertedProducts, error: prodInsertError } = await supabase
+        .from("products")
+        .insert(productsToInsert)
+        .select("*");
+
+      if (prodInsertError) {
+        console.error("Error duplicating products:", prodInsertError.message);
+      } else {
+        newProducts = insertedProducts || [];
+      }
+    } else {
+      // Create default product if none exist
+      const { data: defaultProduct } = await supabase
+        .from("products")
+        .insert([{ name: "Item 1", price: 0, category_id: newCategory.id }])
+        .select("*");
+
+      newProducts = defaultProduct || [];
+    }
+
+    // Return new category including products
     return NextResponse.json({
       success: true,
       message: "Category duplicated successfully",
-      category: newCategory,
+      category: { ...newCategory, products: newProducts },
     });
   } catch (error: unknown) {
     if (error instanceof Error) {

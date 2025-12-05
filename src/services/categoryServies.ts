@@ -59,6 +59,7 @@ export async function duplicateCategoryAPI(categoryId: string) {
     body: JSON.stringify({ categoryId }),
   });
   const data = await res.json();
+  console.log("duplicated data", data);
   if (!res.ok) throw new Error(data.error || "Failed to duplicate category");
   return data;
 }
