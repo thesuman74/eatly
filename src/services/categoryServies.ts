@@ -70,6 +70,7 @@ export async function toggleCategoryVisibilityAPI(categoryId: string) {
     body: JSON.stringify({ categoryId }),
   });
   const data = await res.json();
+  console.log("data", data);
   if (!res.ok) throw new Error(data.error || "Failed to toggle visibility");
   return data;
 }

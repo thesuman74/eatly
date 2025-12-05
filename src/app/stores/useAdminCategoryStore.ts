@@ -27,7 +27,7 @@ export const useAdminCategoryStore = create<AdminCategoryStore>((set, get) => ({
   toggleCategoryVisibility: (id) =>
     set((state) => ({
       categories: state.categories.map((cat) =>
-        cat.id === id ? { ...cat, visible: !cat.isVisible } : cat
+        cat.id === id ? { ...cat, isVisible: !cat.isVisible } : cat
       ),
     })),
   deleteCategory: (id) =>
