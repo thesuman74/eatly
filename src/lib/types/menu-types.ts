@@ -20,6 +20,7 @@ export interface ProductTypes {
   currency: string;
   image: ProductImageTypes;
   available: boolean;
+  isVisible: boolean;
 }
 
 export interface ProductCategoryTypes {
