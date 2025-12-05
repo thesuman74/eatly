@@ -15,7 +15,7 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("products")
       .delete()
       .eq("id", productId);
@@ -27,9 +27,9 @@ export async function DELETE(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Product deleted successfully",
-      status: 200,
     });
   } catch (error) {
+    console.error("Delete product error:", error);
     return NextResponse.json(
       { error: "Failed to delete product" },
       { status: 500 }

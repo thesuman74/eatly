@@ -36,10 +36,6 @@ export default async function Page() {
     error = "Failed to load categories.";
   }
 
-  // const categoriesData = ProductCategoriesData;
-
-  // console.log("categoriesData", categoriesData);
-
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
       <TopSection />

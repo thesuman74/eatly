@@ -15,45 +15,36 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { Target } from "lucide-react";
 import { toast } from "react-toastify";
+import { useProductActions } from "@/hooks/products/useProductActions";
 
 export function ProductAddSheet({ categoryId }: { categoryId: string }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+
   const [isopen, setIsopen] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const { addProduct } = useProductActions();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    try {
-      const req = await fetch("/api/menu/products/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    addProduct.mutate(
+      {
+        name,
+        description,
+        price: Number(price),
+        category_id: categoryId,
+      },
+      {
+        onSuccess: () => {
+          setIsopen(false);
         },
-        body: JSON.stringify({
-          name,
-          description,
-          price,
-          category_id: categoryId,
-        }),
-      });
-
-      const data = await req.json();
-
-      if (req.ok) {
-        console.log("Product added successfully:", data);
-        toast.success("Product added successfully!");
-        // You can update your UI here with the returned data
-        setIsopen(false);
       }
-    } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error("Error adding product!");
-    }
+    );
   };
   return (
-    <Sheet open={isopen}>
+    <Sheet open={isopen} onOpenChange={setIsopen}>
       <SheetTrigger asChild>
         <Button variant="outline" onClick={() => setIsopen(true)}>
           + Product

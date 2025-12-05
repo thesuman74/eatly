@@ -34,14 +34,6 @@ const SubItem = ({
       id: item.id,
     });
 
-  const deleteProductAsync = useAdminProductStore(
-    (state) => state.deleteProductAsync
-  );
-
-  const handleDelete = async () => {
-    await deleteProductAsync(item.id);
-  };
-
   return (
     <motion.div
       ref={setNodeRef}
@@ -66,7 +58,7 @@ const SubItem = ({
       <ProductOptions
         onToggleVisibility={() => onToggleVisibility(item.id)}
         onDuplicate={() => onDuplicate(item.id)}
-        onDelete={() => handleDelete()}
+        onDelete={() => onDelete(item.id)}
       />
     </motion.div>
   );

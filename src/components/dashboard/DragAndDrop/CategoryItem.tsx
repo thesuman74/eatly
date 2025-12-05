@@ -106,14 +106,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
         </div>
       </div>
 
-      {isOpen && (
-        <SubItemList
-          initialProducts={products}
-          onDelete={handleProductDelete}
-          onDuplicate={() => {}}
-          onToggleVisibility={() => {}}
-        />
-      )}
+      {isOpen && <SubItemList categoryId={category.id} />}
     </motion.div>
   );
 };

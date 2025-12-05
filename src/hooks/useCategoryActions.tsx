@@ -9,7 +9,7 @@ import {
   toggleCategoryVisibilityAPI,
   updateCategoryNameAPI,
   updateCategoryPositionsAPI,
-} from "@/services/categoryServies";
+} from "@/services/categoryServices";
 
 export function useCategoryActions() {
   const addCategory = useAdminCategoryStore((s) => s.addCategory);
