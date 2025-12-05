@@ -7,6 +7,7 @@ interface AdminCategoryStore {
   setCategories: (categories: ProductCategoryTypes[]) => void;
   addCategory: (category: ProductCategoryTypes) => void;
   updateCategory: (category: ProductCategoryTypes) => void;
+  toggleCategoryVisibility: (id: string) => void;
   deleteCategory: (id: string) => void;
 
   deleteCategoryAsync: (id: string) => Promise<void>;
@@ -21,6 +22,12 @@ export const useAdminCategoryStore = create<AdminCategoryStore>((set, get) => ({
     set((state) => ({
       categories: state.categories.map((c) =>
         c.id === category.id ? category : c
+      ),
+    })),
+  toggleCategoryVisibility: (id) =>
+    set((state) => ({
+      categories: state.categories.map((cat) =>
+        cat.id === id ? { ...cat, visible: !cat.isVisible } : cat
       ),
     })),
   deleteCategory: (id) =>

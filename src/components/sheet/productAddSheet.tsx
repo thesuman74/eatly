@@ -15,7 +15,6 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { Target } from "lucide-react";
 import { toast } from "react-toastify";
-import { revalidatePath } from "next/cache";
 
 export function ProductAddSheet({ categoryId }: { categoryId: string }) {
   const [name, setName] = useState("");
