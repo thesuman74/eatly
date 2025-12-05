@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import ProductOptions from "./ProductOptions";
 import { toast } from "react-toastify";
+import { useAdminProductStore } from "@/stores/admin-product-store";
 
 interface SubItemProps {
   item: ProductTypes;
@@ -32,6 +33,14 @@ const SubItem = ({
     useSortable({
       id: item.id,
     });
+
+  const deleteProductAsync = useAdminProductStore(
+    (state) => state.deleteProductAsync
+  );
+
+  const handleDelete = async () => {
+    await deleteProductAsync(item.id);
+  };
 
   return (
     <motion.div
@@ -57,7 +66,7 @@ const SubItem = ({
       <ProductOptions
         onToggleVisibility={() => onToggleVisibility(item.id)}
         onDuplicate={() => onDuplicate(item.id)}
-        onDelete={() => onDelete(item.id)}
+        onDelete={() => handleDelete()}
       />
     </motion.div>
   );

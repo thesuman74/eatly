@@ -7,7 +7,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Plus, SquareMenu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import {
@@ -20,23 +20,34 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
+import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
 
 interface CategoryListProps {
-  categoriesData: ProductCategoryTypes[];
+  initialCategories: ProductCategoryTypes[];
 }
 const CategoryItem = dynamic(() => import("./CategoryItem"), {
   ssr: false,
 });
 
-const CategoryList = ({ categoriesData }: CategoryListProps) => {
-  const { categories, setCategories } = useDragAndDrop();
+const CategoryList = ({ initialCategories }: CategoryListProps) => {
+  console.log("initialCategories", initialCategories);
+
+  useEffect(() => {
+    setCategories(initialCategories);
+  }, [initialCategories]);
+
+  // const { categories, setCategories } = useDragAndDrop();
   const [scanMenu, setScanMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [Positionupdating, isPositionUpdating] = useState(false);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-  // console.log("categoriesData from category list", categoriesData);
+  const categories = useAdminCategoryStore((state) => state.categories);
+  const setCategories = useAdminCategoryStore((state) => state.setCategories);
+  const addCategory = useAdminCategoryStore((state) => state.addCategory);
+  const updateCategory = useAdminCategoryStore((state) => state.updateCategory);
 
+  console.log("categoriesData from category list", categories);
   const handleAddCategory = async () => {
     try {
       setIsLoading(true);
@@ -56,16 +67,8 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
 
       console.log("data", data);
       toast.success("Category created successfully!");
-      // ✅ Update the categories list in state
-      setCategories((prev) => [
-        ...prev,
-        {
-          ...data.category,
-          products: data.product ? [data.product] : [],
-        },
-      ]);
 
-      // You can update your UI here with the returned data
+      addCategory(data.category);
     } catch (error) {
       alert("Network error");
       console.error(error);
@@ -73,6 +76,30 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
       setIsLoading(false);
     }
   };
+
+  // const handleDeleteCategory = async (categoryId: string) => {
+  //   console.log("categoryId from handle", categoryId);
+  //   try {
+  //     const res = await fetch(
+  //       `/api/menu/categories/delete?categoryId=${categoryId}`,
+  //       {
+  //         method: "DELETE",
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       // Update UI
+  //       deleteCategory(categoryId);
+
+  //       toast.success(data.message);
+  //     } else {
+  //       toast.error(data.error);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Network or server error");
+  //     console.error(error);
+  //   }
+  // };
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -123,6 +150,29 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
     }
   };
 
+  // DUPLICATE CATEGORY
+  // const handleDuplicateCategory = async () => {
+  //   try {
+  //     const res = await fetch("/api/menu/categories/duplicate", {
+  //       method: "POST",
+  //       body: JSON.stringify({ categoryId: category.id }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (res.ok && data.category) {
+  //       setCategories((prev) => [...prev, data.category]);
+  //       toast.success(data.message || "Category duplicated!");
+  //     } else {
+  //       toast.error(data.error || "Failed to duplicate category");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Network or server error");
+  //   }
+  // };
+
   return (
     <div className="max-w-full  mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
       <div className="flex space-x-2">
@@ -155,8 +205,8 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
 
       <div>
         <div className="flex space-x-2 ">
-          {categoriesData &&
-            categoriesData?.map((category) => (
+          {categories &&
+            categories?.map((category) => (
               <ul key={category.id}>
                 <li>
                   {category.name} {">"}
@@ -175,11 +225,7 @@ const CategoryList = ({ categoriesData }: CategoryListProps) => {
           strategy={verticalListSortingStrategy}
         >
           {categories?.map((category) => (
-            <CategoryItem
-              key={category.id}
-              category={category}
-              setCategories={setCategories}
-            />
+            <CategoryItem key={category.id} category={category} />
           ))}
         </SortableContext>
       </DndContext>

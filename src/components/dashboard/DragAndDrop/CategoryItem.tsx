@@ -18,13 +18,13 @@ import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import { updateCategoryName } from "@/app/dashboard/(menu)/products/actions/category/UpdateCategories";
 import { toast } from "react-toastify";
 import CategoryOptions from "./CategoryOptions";
+import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
-  setCategories: React.Dispatch<React.SetStateAction<ProductCategoryTypes[]>>;
 }
 
-const CategoryItem = ({ category, setCategories }: CategoryProps) => {
+const CategoryItem = ({ category }: CategoryProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: category.id,
@@ -33,30 +33,38 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
   const [editcategory, setCategory] = useState(category);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [products, setProducts] = useState(category.products);
+  const [products, setProducts] = useState(category?.products);
 
-  const handleDeleteCategory = async (categoryId: string) => {
-    console.log("categoryId from handle", categoryId);
-    try {
-      const res = await fetch(
-        `/api/menu/categories/delete?categoryId=${categoryId}`,
-        {
-          method: "DELETE",
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
-        // Update UI
-        setCategories((prev) => prev.filter((c: any) => c.id !== categoryId));
-        toast.success(data.message);
-      } else {
-        toast.error(data.error);
-      }
-    } catch (error) {
-      toast.error("Network or server error");
-      console.error(error);
-    }
+  const deleteCategoryAsync = useAdminCategoryStore(
+    (state) => state.deleteCategoryAsync
+  );
+
+  const handleCategoryDelete = async (categoryId: string) => {
+    await deleteCategoryAsync(categoryId);
   };
+
+  // const handleDeleteCategory = async (categoryId: string) => {
+  //   console.log("categoryId from handle", categoryId);
+  //   try {
+  //     const res = await fetch(
+  //       `/api/menu/categories/delete?categoryId=${categoryId}`,
+  //       {
+  //         method: "DELETE",
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       // Update UI
+  //       setCategories((prev) => prev.filter((c: any) => c.id !== categoryId));
+  //       toast.success(data.message);
+  //     } else {
+  //       toast.error(data.error);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Network or server error");
+  //     console.error(error);
+  //   }
+  // };
   const handleBlur = async () => {
     if (editcategory.name !== category.name) {
       setIsSaving(true);
@@ -82,7 +90,7 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
       const data = await res.json();
 
       if (res.ok && data.category) {
-        setCategories((prev) => [...prev, data.category]);
+        // setCategories((prev) => [...prev, data.category]);
         toast.success(data.message || "Category duplicated!");
       } else {
         toast.error(data.error || "Failed to duplicate category");
@@ -105,9 +113,9 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
       const data = await res.json();
 
       if (res.ok && data.category) {
-        setCategories((prev) =>
-          prev.map((c) => (c.id === category.id ? data.category : c))
-        );
+        // setCategories((prev) =>
+        //   prev.map((c) => (c.id === category.id ? data.category : c))
+        // );
         toast.success(data.message || "Visibility toggled!");
       } else {
         toast.error(data.error || "Failed to toggle visibility");
@@ -199,7 +207,7 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
             <CategoryOptions
               onToggleVisibility={() => handleToggleVisibility()}
               onDuplicate={() => handleDuplicateCategory()}
-              onDelete={() => handleDeleteCategory(category.id)}
+              onDelete={() => handleCategoryDelete(category.id)}
             />
 
             <button

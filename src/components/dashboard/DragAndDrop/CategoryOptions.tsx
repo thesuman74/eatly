@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button"; // optional styling
 import { toast } from "react-toastify";
 
 interface CategoryOptionsProps {
-  onDelete: () => void;
   onDuplicate: () => void;
   onToggleVisibility: () => void;
+  onDelete: () => void;
 }
 
 const CategoryOptions = ({
-  onDelete,
   onDuplicate,
   onToggleVisibility,
+  onDelete,
 }: CategoryOptionsProps) => {
   const [open, setOpen] = useState(false);
 
@@ -53,8 +53,8 @@ const CategoryOptions = ({
           </button>
           <button
             onClick={() => {
-              onDelete();
               setOpen(false);
+              onDelete();
             }}
             className="w-full flex space-x-3 text-left px-4 border-b border-gray-300 py-2 text-red-600 hover:bg-red-100"
           >

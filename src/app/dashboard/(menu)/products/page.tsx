@@ -26,7 +26,7 @@ export default async function Page() {
 
     categoriesData = json;
 
-    // console.log("categoriesData", categoriesData);
+    console.log("categoriesData from page", categoriesData);
 
     if (!categoriesData || categoriesData.length === 0) {
       error = "No categories found.";
@@ -47,7 +47,7 @@ export default async function Page() {
       <div>
         <Suspense fallback={<div>Loading...</div>}>
           <DragAndDropProvider initialCategories={categoriesData}>
-            <CategoryList categoriesData={categoriesData} />
+            <CategoryList initialCategories={categoriesData} />
           </DragAndDropProvider>
         </Suspense>
       </div>
