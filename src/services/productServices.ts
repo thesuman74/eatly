@@ -64,3 +64,16 @@ export async function updateProductAPI(product: any) {
   if (!res.ok) throw new Error(data.error || "Failed to update product");
   return data.product;
 }
+
+export async function toggleProductVisibilityAPI(productId: string) {
+  const res = await fetch("/api/menu/products/toggle-visibility", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to toggle visibility");
+
+  return data.product;
+}

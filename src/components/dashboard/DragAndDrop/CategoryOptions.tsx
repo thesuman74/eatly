@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Copy, EllipsisVertical, Eye, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button"; // optional styling
-import { toast } from "react-toastify";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface CategoryOptionsProps {
   onDuplicate: () => void;
@@ -16,53 +19,40 @@ const CategoryOptions = ({
   onToggleVisibility,
   onDelete,
 }: CategoryOptionsProps) => {
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="relative ">
-      {/* Ellipsis icon button */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="p-2 rounded-full hover:bg-gray-200"
-      >
-        <EllipsisVertical />
-      </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="p-2 rounded-full hover:bg-gray-200">
+          <EllipsisVertical size={20} />
+        </button>
+      </DropdownMenuTrigger>
 
-      {/* Dropdown menu */}
-      {open && (
-        <div className="absolute right-0 mt-2 w-64 p-2  bg-white border  shadow-lg rounded-md z-50">
-          <button
-            onClick={() => {
-              onToggleVisibility();
-              setOpen(false);
-            }}
-            className="w-full flex space-x-3 border-b border-gray-300 text-left px-4 py-2 hover:bg-gray-100"
-          >
-            <Eye />
-            <span>Category Visibility</span>
-          </button>
-          <button
-            onClick={() => {
-              onDuplicate();
-              setOpen(false);
-            }}
-            className="w-full flex space-x-3 text-left border-b border-gray-300 px-4 py-2 hover:bg-gray-100"
-          >
-            <Copy />
-            <span>Duplicate</span>
-          </button>
-          <button
-            onClick={() => {
-              setOpen(false);
-              onDelete();
-            }}
-            className="w-full flex space-x-3 text-left px-4 border-b border-gray-300 py-2 text-red-600 hover:bg-red-100"
-          >
-            <Trash2 /> <span>Delete</span>
-          </button>
-        </div>
-      )}
-    </div>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuItem
+          onClick={onToggleVisibility}
+          className="flex items-center space-x-2 border-b-2 hover:cursor-pointer"
+        >
+          <Eye size={16} />
+          <span>Category Visibility</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={onDuplicate}
+          className="flex items-center space-x-2 border-b-2 hover:cursor-pointer"
+        >
+          <Copy size={16} />
+          <span>Duplicate</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={onDelete}
+          className="flex items-center space-x-2 text-red-600  hover:cursor-pointer"
+        >
+          <Trash2 size={16} />
+          <span>Delete</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

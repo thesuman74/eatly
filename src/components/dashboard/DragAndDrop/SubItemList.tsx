@@ -54,7 +54,9 @@ import {
   getProductsAPI,
   deleteProductAPI,
   duplicateProductAPI,
+  toggleProductVisibilityAPI,
 } from "@/services/productServices";
+import { toast } from "react-toastify";
 
 interface SubItemListProps {
   categoryId: string;
@@ -63,25 +65,47 @@ interface SubItemListProps {
 const SubItemList = ({ categoryId }: SubItemListProps) => {
   const queryClient = useQueryClient();
 
-  // Fetch products using queryKey and queryFn style
+  // Fetch products
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", categoryId],
     queryFn: () => getProductsAPI(categoryId),
-    staleTime: 1000 * 60 * 5, // 5 minutes caching
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Delete product mutation
   const deleteMutation = useMutation({
     mutationFn: (productId: string) => deleteProductAPI(productId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["products", categoryId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      toast.success("Product deleted successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to delete product");
+    },
   });
 
   // Duplicate product mutation
   const duplicateMutation = useMutation({
     mutationFn: (productId: string) => duplicateProductAPI(productId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["products", categoryId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      toast.success("Product duplicated successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to duplicate product");
+    },
+  });
+
+  // Toggle visibility mutation
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: (productId: string) => toggleProductVisibilityAPI(productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      toast.success("Product visibility updated!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to toggle product visibility");
+    },
   });
 
   if (isLoading) return <div>Loading products...</div>;
@@ -95,7 +119,7 @@ const SubItemList = ({ categoryId }: SubItemListProps) => {
             item={item}
             onDelete={() => deleteMutation.mutate(item.id)}
             onDuplicate={() => duplicateMutation.mutate(item.id)}
-            onToggleVisibility={() => {}}
+            onToggleVisibility={() => toggleVisibilityMutation.mutate(item.id)}
           />
         ))}
       </div>

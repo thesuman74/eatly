@@ -15,6 +15,7 @@ import { useState } from "react";
 import ProductOptions from "./ProductOptions";
 import { toast } from "react-toastify";
 import { useAdminProductStore } from "@/stores/admin-product-store";
+import { Badge } from "@/components/ui/badge";
 
 interface SubItemProps {
   item: ProductTypes;
@@ -43,7 +44,9 @@ const SubItem = ({
           : undefined,
         transition,
       }}
-      className="p-2 border bg-white rounded-lg mb-2 flex items-center shadow-md"
+      className={`p-2 border bg-white rounded-lg mb-2 flex items-center shadow-md ${
+        item.isVisible ? "bg-gray-100/10" : "bg-gray-100 opacity-80 shadow-none"
+      }`}
     >
       <span {...attributes} {...listeners} className="cursor-grab mr-2">
         <Grip size={16} className="text-gray-500" />
@@ -54,6 +57,11 @@ const SubItem = ({
         className="w-8 h-8 rounded-full mr-3"
       />
       <span className="flex-1 text-sm">{item.name}</span>
+      {!item.isVisible && (
+        <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
+          Hidden
+        </Badge>
+      )}
 
       <ProductOptions
         onToggleVisibility={() => onToggleVisibility(item.id)}
