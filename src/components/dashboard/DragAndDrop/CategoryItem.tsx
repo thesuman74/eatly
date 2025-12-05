@@ -30,10 +30,10 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
       id: category.id,
     });
   const [isOpen, setIsOpen] = useState(false);
-  const [isEllipse, setIsEllipse] = useState(false);
   const [editcategory, setCategory] = useState(category);
-
   const [isSaving, setIsSaving] = useState(false);
+
+  const [products, setProducts] = useState(category.products);
 
   const handleDeleteCategory = async (categoryId: string) => {
     console.log("categoryId from handle", categoryId);
@@ -118,6 +118,34 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
     }
   };
 
+  const handleProductDelete = async (productId: string) => {
+    try {
+      const res = await fetch(
+        `/api/menu/products/delete?productId=${productId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await res.json();
+
+      console.log("delete data", data);
+      if (res.ok) {
+        // Update UI
+        toast.success(data.message);
+      } else {
+        toast.error(data.error);
+      }
+      setProducts((prev) => prev.filter((p: any) => p.id !== productId));
+    } catch (error) {
+      toast.error("Network or server error");
+      console.error(error);
+    }
+  };
+
+  const handleProductDuplicate = () => {};
+  const handleProductVisibility = () => {};
+
   return (
     <>
       <motion.div
@@ -182,7 +210,14 @@ const CategoryItem = ({ category, setCategories }: CategoryProps) => {
             </button>
           </div>
         </div>
-        {isOpen && <SubItemList products={category?.products || []} />}
+        {isOpen && (
+          <SubItemList
+            initialProducts={products || []}
+            onDelete={handleProductDelete}
+            onDuplicate={handleProductDuplicate}
+            onToggleVisibility={handleProductVisibility}
+          />
+        )}
       </motion.div>
     </>
   );

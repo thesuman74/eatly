@@ -15,11 +15,13 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { Target } from "lucide-react";
 import { toast } from "react-toastify";
+import { revalidatePath } from "next/cache";
 
 export function ProductAddSheet({ categoryId }: { categoryId: string }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [isopen, setIsopen] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,6 +46,7 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
         console.log("Product added successfully:", data);
         toast.success("Product added successfully!");
         // You can update your UI here with the returned data
+        setIsopen(false);
       }
     } catch (error) {
       console.error("Error adding product:", error);
@@ -51,9 +54,11 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
     }
   };
   return (
-    <Sheet>
+    <Sheet open={isopen}>
       <SheetTrigger asChild>
-        <Button variant="outline">+ Product </Button>
+        <Button variant="outline" onClick={() => setIsopen(true)}>
+          + Product
+        </Button>
       </SheetTrigger>
       <SheetTitle></SheetTitle>
       <SheetContent className="h-full p-0">
