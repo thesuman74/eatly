@@ -9,6 +9,9 @@ export interface MenuItemsTypes {
 export interface ProductImageTypes {
   url: string;
   alt: string;
+  is_primary: boolean;
+  product_id: string;
+  sort_order: number;
 }
 
 export interface ProductTypes {
@@ -18,7 +21,7 @@ export interface ProductTypes {
   description: string;
   price: number; // in cents
   currency: string;
-  image: ProductImageTypes;
+  images: ProductImageTypes[];
   available: boolean;
   isVisible: boolean;
 }

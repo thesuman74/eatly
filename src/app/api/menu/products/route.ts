@@ -20,8 +20,10 @@ export async function GET(req: Request) {
 
     const { data: products, error } = await supabase
       .from("products")
-      .select("*")
+      .select("*, images:product_images(*)")
       .eq("category_id", categoryId);
+
+    console.log("get products api", products);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

@@ -3,18 +3,9 @@
 import { ProductTypes } from "@/lib/types/menu-types";
 import { useSortable } from "@dnd-kit/sortable";
 import { motion } from "framer-motion";
-import {
-  EllipsisVertical,
-  Eye,
-  EyeOffIcon,
-  Grip,
-  Layers2,
-  Trash2,
-} from "lucide-react";
-import { useState } from "react";
+import { Grip } from "lucide-react";
 import ProductOptions from "./ProductOptions";
-import { toast } from "react-toastify";
-import { useAdminProductStore } from "@/stores/admin-product-store";
+
 import { Badge } from "@/components/ui/badge";
 
 interface SubItemProps {
@@ -35,6 +26,7 @@ const SubItem = ({
       id: item.id,
     });
 
+  console.log(item);
   return (
     <motion.div
       ref={setNodeRef}
@@ -52,10 +44,19 @@ const SubItem = ({
         <Grip size={16} className="text-gray-500" />
       </span>
       <img
-        src={item?.image?.url || "/Images/coffee.png"}
-        alt={item.image?.alt}
+        src={
+          item?.images?.find((img) => img.is_primary)?.url ||
+          item?.images?.[0]?.url ||
+          "/Images/coffee.png"
+        }
+        alt={
+          item?.images?.find((img) => img.is_primary)?.alt ||
+          item?.images?.[0]?.alt ||
+          "Product image"
+        }
         className="w-8 h-8 rounded-full mr-3"
       />
+
       <span className="flex-1 text-sm">{item.name}</span>
       {!item.isVisible && (
         <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
