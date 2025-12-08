@@ -9,7 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import CategoryOptions from "./CategoryOptions";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
-import { useCategoryActions } from "@/hooks/useCategoryActions";
+import { useUpdateCategoryName } from "@/hooks/category/useUpdateCategoryName";
+import { useDuplicateCategory } from "@/hooks/category/useDuplicateCategory";
+import { useToggleCategoryVisibility } from "@/hooks/category/useToggleCategoryVisibility";
+import { useDeleteCategory } from "@/hooks/category/useDeleteCategory";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
@@ -21,16 +24,22 @@ const CategoryItem = ({ category }: CategoryProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(category);
 
-  const {
-    handleUpdateCategoryName,
-    handleDuplicateCategory,
-    handleToggleVisibility,
-    handleDeleteCategory,
-  } = useCategoryActions();
+  // React Query hooks
+  const updateCategoryName = useUpdateCategoryName();
+  const duplicateCategory = useDuplicateCategory();
+  const toggleVisibility = useToggleCategoryVisibility();
+  const deleteCategory = useDeleteCategory();
 
   const handleBlur = async () => {
     if (editCategory.name !== category.name) {
-      await handleUpdateCategoryName(category.id, editCategory.name);
+      try {
+        await updateCategoryName.mutateAsync({
+          categoryId: category.id,
+          name: editCategory.name,
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -86,9 +95,9 @@ const CategoryItem = ({ category }: CategoryProps) => {
           )}
 
           <CategoryOptions
-            onToggleVisibility={() => handleToggleVisibility(category.id)}
-            onDuplicate={() => handleDuplicateCategory(category.id)}
-            onDelete={() => handleDeleteCategory(category.id)}
+            onToggleVisibility={() => toggleVisibility.mutateAsync(category.id)}
+            onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
+            onDelete={() => deleteCategory.mutateAsync(category.id)}
           />
 
           <button

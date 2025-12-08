@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import {
   DndContext,
   closestCenter,
@@ -16,11 +15,16 @@ import {
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Plus, SquareMenu } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
-import { useCategoryActions } from "@/hooks/useCategoryActions";
 import CategoryItem from "./CategoryItem";
+
+import { useAddCategory } from "@/hooks/category/useAddCategory";
+import { useUpdateCategoryPositions } from "@/hooks/category/useUpdateCategoryPositions";
+import { getCategoriesAPI } from "@/services/categoryServices";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -28,33 +32,32 @@ interface CategoryListProps {
 
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Get everything from the custom hook
-  const {
-    categories,
-    setCategories,
-    handleAddCategory,
-    isLoading,
-    handleUpdatePositions,
-  } = useCategoryActions();
+  // Fetch categories from API (or use SSR initial categories)
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategoriesAPI,
+    initialData: initialCategories,
+  });
 
-  // Initialize Zustand state from SSR props
-  useEffect(() => {
-    setCategories(initialCategories);
-  }, [initialCategories, setCategories]);
+  // React Query mutations
+  const addCategory = useAddCategory();
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const updatePositions = useUpdateCategoryPositions(baseUrl);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  // Drag & Drop handler
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (!over) return;
     if (active.id !== over.id) {
       const oldIndex = categories.findIndex((c) => c.id === active.id);
       const newIndex = categories.findIndex((c) => c.id === over.id);
-
       const newCategories = arrayMove(categories, oldIndex, newIndex);
-      handleUpdatePositions(newCategories);
+
+      updatePositions.mutate(newCategories);
     }
   };
 
@@ -64,10 +67,10 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       <div className="flex space-x-2 mb-4">
         <Button
           variant="outline"
-          onClick={handleAddCategory}
-          className="text-lg font-bold"
+          onClick={() => addCategory.mutate()}
+          className="text-lg font-bold flex items-center"
         >
-          {isLoading ? (
+          {addCategory.isPending ? (
             <LoaderCircle className="animate-spin" size={20} />
           ) : (
             <Plus size={20} />
@@ -77,7 +80,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
         <Button
           variant="outline"
-          className="text-lg font-bold"
+          className="text-lg font-bold flex items-center"
           onClick={() => setScanMenu(true)}
         >
           <SquareMenu />
@@ -88,7 +91,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       {/* Category list preview */}
       <div className="overflow-x-hidden scrollbar-hide mb-4">
         <div className="flex space-x-4 px-2">
-          {categories.map((category, index) => (
+          {categories?.map((category) => (
             <div
               key={category.id}
               className="flex items-center space-x-1 whitespace-nowrap rounded-md bg-gray-100 px-3 py-1 hover:bg-gray-200 transition"
