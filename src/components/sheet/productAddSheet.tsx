@@ -17,6 +17,7 @@ import { Target } from "lucide-react";
 import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
+import { FileUploader } from "../file-uploader";
 
 export function ProductAddSheet({ categoryId }: { categoryId: string }) {
   const [name, setName] = useState("");
@@ -55,6 +56,7 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
             });
 
             const data = await res.json();
+
             console.log("Image upload response:", data);
           }
           setName("");
@@ -84,38 +86,7 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
               <span>:</span>
             </div>
             <hr className="border-gray-400" />
-            <div className="my-2 flex items-center justify-between space-x-4 p-2">
-              <div className="p-4">
-                <Label className="font-medium">Images</Label>
-
-                <div className="mt-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        setImages(Array.from(e.target.files));
-                      }
-                    }}
-                    className="block w-full text-sm"
-                  />
-                </div>
-
-                {/* PREVIEWS */}
-                {images.length > 0 && (
-                  <div className="flex gap-3 mt-3 overflow-x-auto">
-                    {images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={URL.createObjectURL(img)}
-                        className="w-20 h-20 rounded-md object-cover border"
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
+            <div className="my-2 flex flex-col items-center justify-between space-x-4 p-2">
               <div className="w-full space-y-2">
                 <Input
                   type="text"
@@ -132,6 +103,11 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
                   className="w-full border"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                />
+                <FileUploader
+                  files={images}
+                  onChange={setImages}
+                  multiple={true}
                 />
               </div>
             </div>

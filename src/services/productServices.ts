@@ -4,7 +4,6 @@
 export async function getProductsAPI(categoryId: string) {
   const res = await fetch(`/api/menu/products?categoryId=${categoryId}`);
   const data = await res.json();
-  console.log("getProductsAPI data", data);
   if (!res.ok) throw new Error(data.error || "Failed to fetch products");
   return data.products;
 }
