@@ -26,7 +26,7 @@ export default async function Page() {
 
     categoriesData = json;
 
-    console.log("categoriesData from page", categoriesData);
+    // console.log("categoriesData from page", categoriesData);
 
     if (!categoriesData || categoriesData.length === 0) {
       error = "No categories found.";

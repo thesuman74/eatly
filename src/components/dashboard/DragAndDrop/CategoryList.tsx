@@ -59,7 +59,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
   };
 
   return (
-    <div className="max-w-full mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
+    <div className="max-w-3xl w-auto mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
       {/* Buttons */}
       <div className="flex space-x-2 mb-4">
         <Button
@@ -86,12 +86,17 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       </div>
 
       {/* Category list preview */}
-      <div className="flex space-x-2 mb-4">
-        {categories.map((category) => (
-          <ul key={category.id}>
-            <li>{category.name} &gt;</li>
-          </ul>
-        ))}
+      <div className="overflow-x-hidden scrollbar-hide mb-4">
+        <div className="flex space-x-4 px-2">
+          {categories.map((category, index) => (
+            <div
+              key={category.id}
+              className="flex items-center space-x-1 whitespace-nowrap rounded-md bg-gray-100 px-3 py-1 hover:bg-gray-200 transition"
+            >
+              <span className="text-gray-700 font-medium">{category.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Drag & Drop context */}

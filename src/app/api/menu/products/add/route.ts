@@ -6,18 +6,6 @@ export async function POST(req: Request) {
 
   const { name, price, description, category_id } = await req.json();
 
-  console.log(
-    "from route ",
-    "name",
-    name,
-    "price",
-    price,
-    "description",
-    description,
-    "category_id",
-    category_id
-  );
-
   if (!name || !price || !description || !category_id) {
     return NextResponse.json(
       { error: "Missing required fields" },
@@ -25,7 +13,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { data, error } = await supabase
+  const { data: newProduct, error } = await supabase
     .from("products")
     .insert([
       {
@@ -35,14 +23,19 @@ export async function POST(req: Request) {
         category_id: category_id,
       },
     ])
-    .select();
+    .select()
+    .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json(
-    { data, message: "Product added successfully", success: true },
+    {
+      product: newProduct,
+      message: "Product added successfully",
+      success: true,
+    },
     { status: 200 }
   );
 }

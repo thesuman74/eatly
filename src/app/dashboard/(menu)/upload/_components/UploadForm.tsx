@@ -109,11 +109,11 @@ export default function UploadPage() {
             </p>
             <div className="w-full justify-center items-center flex py-4">
               <img
-                src="images/uploadplaceholder.png"
+                src="/images/uploadplaceholder.png"
                 alt="Upload placeholder"
                 height={100}
                 width={100}
-                className="opacity-50"
+                className="opacity-50 bg-blue-500"
               />
             </div>
           </div>

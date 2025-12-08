@@ -16,17 +16,19 @@ import { useState } from "react";
 import { Target } from "lucide-react";
 import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
+import { uploadProductImages } from "@/lib/actions/uploadImages";
 
 export function ProductAddSheet({ categoryId }: { categoryId: string }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [images, setImages] = useState<File[]>([]);
 
   const [isopen, setIsopen] = useState(false);
 
   const { addProduct } = useProductActions();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     addProduct.mutate(
@@ -37,12 +39,35 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
         category_id: categoryId,
       },
       {
-        onSuccess: () => {
+        onSuccess: async (product) => {
+          if (images.length > 0) {
+            const urls = await uploadProductImages(product.id, images);
+            console.log("Uploaded URLs:", urls);
+
+            // Insert URLs into product_images table
+            const res = await fetch("/api/menu/products/images", {
+              method: "POST",
+              body: JSON.stringify({
+                productId: product.id,
+                ImageName: product.name,
+                images: urls,
+              }),
+            });
+
+            const data = await res.json();
+            console.log("Image upload response:", data);
+          }
+          setName("");
+          setDescription("");
+          setPrice("");
+          setImages([]);
+
           setIsopen(false);
         },
       }
     );
   };
+
   return (
     <Sheet open={isopen} onOpenChange={setIsopen}>
       <SheetTrigger asChild>
@@ -51,7 +76,7 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
         </Button>
       </SheetTrigger>
       <SheetTitle></SheetTitle>
-      <SheetContent className="h-full p-0">
+      <SheetContent className="h-full overflow-y-auto p-0">
         <form onSubmit={handleSubmit}>
           <aside className=" max-w-sm min-w-[300px] bg-gray-100">
             <div className="flex justify-between px-4 py-2">
@@ -60,11 +85,36 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
             </div>
             <hr className="border-gray-400" />
             <div className="my-2 flex items-center justify-between space-x-4 p-2">
-              <img
-                src="https://picsum.photos/200"
-                alt=""
-                className="size-24 w-fit rounded-lg"
-              />
+              <div className="p-4">
+                <Label className="font-medium">Images</Label>
+
+                <div className="mt-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setImages(Array.from(e.target.files));
+                      }
+                    }}
+                    className="block w-full text-sm"
+                  />
+                </div>
+
+                {/* PREVIEWS */}
+                {images.length > 0 && (
+                  <div className="flex gap-3 mt-3 overflow-x-auto">
+                    {images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={URL.createObjectURL(img)}
+                        className="w-20 h-20 rounded-md object-cover border"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div className="w-full space-y-2">
                 <Input
