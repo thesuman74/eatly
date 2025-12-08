@@ -20,7 +20,6 @@ const CategoryItem = ({ category }: CategoryProps) => {
     useSortable({ id: category.id });
   const [isOpen, setIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(category);
-  const [products, setProducts] = useState(category.products || []);
 
   const {
     handleUpdateCategoryName,
@@ -33,11 +32,6 @@ const CategoryItem = ({ category }: CategoryProps) => {
     if (editCategory.name !== category.name) {
       await handleUpdateCategoryName(category.id, editCategory.name);
     }
-  };
-
-  // TODO: Implement handleProductDuplicate and handleProductVisibility
-  const handleProductDelete = (productId: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
   return (
