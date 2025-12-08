@@ -109,7 +109,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
         </div>
       </div>
 
-      {isOpen && <SubItemList categoryId={category.id} />}
+      {isOpen && <SubItemList products={category.products} />}
     </motion.div>
   );
 };

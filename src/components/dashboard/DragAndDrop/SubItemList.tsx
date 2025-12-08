@@ -57,26 +57,27 @@ import {
   toggleProductVisibilityAPI,
 } from "@/services/productServices";
 import { toast } from "react-toastify";
+import { ProductTypes } from "@/lib/types/menu-types";
 
 interface SubItemListProps {
-  categoryId: string;
+  products: ProductTypes[];
 }
 
-const SubItemList = ({ categoryId }: SubItemListProps) => {
+const SubItemList = ({ products }: SubItemListProps) => {
   const queryClient = useQueryClient();
 
-  // Fetch products
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", categoryId],
-    queryFn: () => getProductsAPI(categoryId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // // Fetch products
+  // const { data: products = [], isLoading } = useQuery({
+  //   queryKey: ["products", categoryId],
+  //   queryFn: () => getProductsAPI(categoryId),
+  //   staleTime: 1000 * 60 * 5, // 5 minutes
+  // });
 
   // Delete product mutation
   const deleteMutation = useMutation({
     mutationFn: (productId: string) => deleteProductAPI(productId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Product deleted successfully!");
     },
     onError: (error: any) => {
@@ -88,7 +89,7 @@ const SubItemList = ({ categoryId }: SubItemListProps) => {
   const duplicateMutation = useMutation({
     mutationFn: (productId: string) => duplicateProductAPI(productId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Product duplicated successfully!");
     },
     onError: (error: any) => {
@@ -100,7 +101,7 @@ const SubItemList = ({ categoryId }: SubItemListProps) => {
   const toggleVisibilityMutation = useMutation({
     mutationFn: (productId: string) => toggleProductVisibilityAPI(productId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Product visibility updated!");
     },
     onError: (error: any) => {
@@ -108,7 +109,7 @@ const SubItemList = ({ categoryId }: SubItemListProps) => {
     },
   });
 
-  if (isLoading) return <div>Loading products...</div>;
+  // if (isLoading) return <div>Loading products...</div>;
 
   return (
     <SortableContext items={products} strategy={verticalListSortingStrategy}>

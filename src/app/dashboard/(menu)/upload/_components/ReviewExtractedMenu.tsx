@@ -12,6 +12,7 @@ import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import { Textarea } from "@/components/ui/textarea";
 import { set } from "react-hook-form";
 import SubmitButton from "@/components/ui/SubmitButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PreviewMenuFormProps {
   reviewMenu: boolean;
@@ -41,9 +42,11 @@ export default function PreviewMenuForm({
 
   if (!reviewMenuData) return <div>Loading menu data...</div>;
   if (reviewMenuData.length === 0) return <div>No menu data available.</div>;
+  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     setIsLoading(true);
+
     try {
       const res = await fetch("/api/menu/import", {
         method: "POST",
@@ -58,7 +61,9 @@ export default function PreviewMenuForm({
       }
 
       toast.success("Menu imported successfully!");
+
       setReviewMenu(false);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     } finally {

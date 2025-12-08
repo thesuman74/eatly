@@ -9,7 +9,6 @@ import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
 
 export function useUpdateCategoryPositions(baseUrl: string) {
   const queryClient = useQueryClient();
-  const setCategories = useAdminCategoryStore((s) => s.setCategories);
 
   return useMutation({
     mutationFn: async (updates: CategoryPositionUpdate[]) => {
@@ -22,7 +21,7 @@ export function useUpdateCategoryPositions(baseUrl: string) {
         id: upd.id,
         position: upd.position,
       }));
-      setCategories(newCategories as any); // cast if needed
+      // setCategories(newCategories as any); // cast if needed
       toast.success("Category positions updated!");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },

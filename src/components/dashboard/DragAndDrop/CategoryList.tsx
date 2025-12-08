@@ -24,7 +24,10 @@ import CategoryItem from "./CategoryItem";
 
 import { useAddCategory } from "@/hooks/category/useAddCategory";
 import { useUpdateCategoryPositions } from "@/hooks/category/useUpdateCategoryPositions";
-import { getCategoriesAPI } from "@/services/categoryServices";
+import {
+  CategoryPositionUpdate,
+  getCategoriesAPI,
+} from "@/services/categoryServices";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -32,10 +35,12 @@ interface CategoryListProps {
 
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
+  const [categories, setCategories] = useState<ProductCategoryTypes[]>([]);
+
   const queryClient = useQueryClient();
 
   // Fetch categories from API (or use SSR initial categories)
-  const { data: categories = [] } = useQuery({
+  const { data: fetchedCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesAPI,
     initialData: initialCategories,
@@ -49,15 +54,30 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  useEffect(() => {
+    if (fetchedCategories) setCategories(fetchedCategories);
+  }, [fetchedCategories]);
+
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (!over) return;
     if (active.id !== over.id) {
       const oldIndex = categories.findIndex((c) => c.id === active.id);
       const newIndex = categories.findIndex((c) => c.id === over.id);
-      const newCategories = arrayMove(categories, oldIndex, newIndex);
 
-      updatePositions.mutate(newCategories);
+      const newCategories = arrayMove(categories, oldIndex, newIndex);
+      setCategories(newCategories);
+
+      // Map to positions for API
+      const updatedPositions: CategoryPositionUpdate[] = newCategories.map(
+        (cat, index) => ({ id: cat.id, position: index + 1 })
+      );
+
+      updatePositions.mutate(updatedPositions, {
+        onSuccess() {
+          queryClient.setQueryData(["categories"], newCategories);
+        },
+      });
     }
   };
 
