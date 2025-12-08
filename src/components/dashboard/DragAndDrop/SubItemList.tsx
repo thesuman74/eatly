@@ -58,20 +58,15 @@ import {
 } from "@/services/productServices";
 import { toast } from "react-toastify";
 import { ProductTypes } from "@/lib/types/menu-types";
+import { useProductSheet } from "@/app/stores/useProductSheet";
 
 interface SubItemListProps {
   products: ProductTypes[];
+  categoryID: string;
 }
 
-const SubItemList = ({ products }: SubItemListProps) => {
+const SubItemList = ({ products, categoryID }: SubItemListProps) => {
   const queryClient = useQueryClient();
-
-  // // Fetch products
-  // const { data: products = [], isLoading } = useQuery({
-  //   queryKey: ["products", categoryId],
-  //   queryFn: () => getProductsAPI(categoryId),
-  //   staleTime: 1000 * 60 * 5, // 5 minutes
-  // });
 
   // Delete product mutation
   const deleteMutation = useMutation({
@@ -121,6 +116,7 @@ const SubItemList = ({ products }: SubItemListProps) => {
             onDelete={() => deleteMutation.mutate(item.id)}
             onDuplicate={() => duplicateMutation.mutate(item.id)}
             onToggleVisibility={() => toggleVisibilityMutation.mutate(item.id)}
+            categoryID={categoryID}
           />
         ))}
       </div>

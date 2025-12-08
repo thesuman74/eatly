@@ -26,11 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-
-      // className="color-scheme: dark"
-    >
+    <html lang="en" className="color-scheme: light">
       <body className={`${quicksand.className} antialiased`}>
         <Provider>{children}</Provider>
       </body>

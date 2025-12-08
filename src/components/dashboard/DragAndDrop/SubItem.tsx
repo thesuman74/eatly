@@ -7,16 +7,19 @@ import { Grip } from "lucide-react";
 import ProductOptions from "./ProductOptions";
 
 import { Badge } from "@/components/ui/badge";
+import { useProductSheet } from "@/app/stores/useProductSheet";
 
 interface SubItemProps {
   item: ProductTypes;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onToggleVisibility: (id: string) => void;
+  categoryID: string;
 }
 
 const SubItem = ({
   item,
+  categoryID,
   onDelete,
   onDuplicate,
   onToggleVisibility,
@@ -26,7 +29,6 @@ const SubItem = ({
       id: item.id,
     });
 
-  console.log(item);
   return (
     <motion.div
       ref={setNodeRef}
@@ -68,6 +70,8 @@ const SubItem = ({
         onToggleVisibility={() => onToggleVisibility(item.id)}
         onDuplicate={() => onDuplicate(item.id)}
         onDelete={() => onDelete(item.id)}
+        productId={item.id}
+        categoryId={categoryID}
       />
     </motion.div>
   );

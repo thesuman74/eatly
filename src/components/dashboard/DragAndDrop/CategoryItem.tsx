@@ -13,6 +13,8 @@ import { useUpdateCategoryName } from "@/hooks/category/useUpdateCategoryName";
 import { useDuplicateCategory } from "@/hooks/category/useDuplicateCategory";
 import { useToggleCategoryVisibility } from "@/hooks/category/useToggleCategoryVisibility";
 import { useDeleteCategory } from "@/hooks/category/useDeleteCategory";
+import { useProductSheet } from "@/app/stores/useProductSheet";
+import { Button } from "@/components/ui/button";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
@@ -23,6 +25,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
     useSortable({ id: category.id });
   const [isOpen, setIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(category);
+  const { openAddSheet, closeSheet } = useProductSheet();
 
   // React Query hooks
   const updateCategoryName = useUpdateCategoryName();
@@ -43,6 +46,8 @@ const CategoryItem = ({ category }: CategoryProps) => {
     }
   };
 
+  // edit -> productId filter -> ProductAddSheet -> if initial data update else add
+
   return (
     <motion.div
       ref={setNodeRef}
@@ -58,6 +63,8 @@ const CategoryItem = ({ category }: CategoryProps) => {
           : "bg-gray-100 opacity-80 shadow-none"
       }`}
     >
+      {" "}
+      <ProductAddSheet />
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <span
@@ -87,11 +94,16 @@ const CategoryItem = ({ category }: CategoryProps) => {
         </div>
 
         <div className="flex items-center space-x-2">
+          <Button
+            variant={"outline"}
+            onClick={() => openAddSheet(category.id)}
+            className="mx-8"
+          >
+            + Product
+          </Button>
           <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
             {category.products?.length || 1}
           </Badge>
-
-          <ProductAddSheet categoryId={category.id} />
 
           {!category.isVisible && (
             <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
@@ -113,8 +125,9 @@ const CategoryItem = ({ category }: CategoryProps) => {
           </button>
         </div>
       </div>
-
-      {isOpen && <SubItemList products={category.products} />}
+      {isOpen && (
+        <SubItemList products={category.products} categoryID={category.id} />
+      )}
     </motion.div>
   );
 };

@@ -12,77 +12,135 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Target } from "lucide-react";
 import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
+import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
+import { getCategoriesAPI } from "@/services/categoryServices";
+import SubmitButton from "../ui/SubmitButton";
 
-export function ProductAddSheet({ categoryId }: { categoryId: string }) {
+export function ProductAddSheet() {
+  const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
+    useProductSheet();
+
+  const { data: categories } = useQuery<ProductCategoryTypes[]>({
+    queryKey: ["categories"],
+    queryFn: getCategoriesAPI,
+  });
+
+  const queryClient = useQueryClient();
+
+  const product = useMemo(() => {
+    if (!categories || !categoryId || !productId || mode === "add") return null;
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category?.products.find((p) => p.id === productId) || null;
+  }, [categories, categoryId, productId, mode]);
+
+  // ✅ Initialize form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<File[]>([]);
 
-  const [isopen, setIsopen] = useState(false);
+  useEffect(() => {
+    if (product && mode === "edit") {
+      setName(product.name);
+      setDescription(product.description);
+      setPrice((product.price / 100).toString()); // Convert cents to dollars
+      // Handle existing images if needed
+    } else {
+      // Reset for add mode
+      setName("");
+      setDescription("");
+      setPrice("");
+      setImages([]);
+    }
+  }, [product, mode]);
 
-  const { addProduct } = useProductActions();
+  const { addProduct, updateProduct } = useProductActions(); // ✅ Single declaration
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    addProduct.mutate(
-      {
-        name,
-        description,
-        price: Number(price),
-        category_id: categoryId,
-      },
-      {
-        onSuccess: async (product) => {
-          if (images.length > 0) {
-            const urls = await uploadProductImages(product.id, images);
-            console.log("Uploaded URLs:", urls);
+    if (!categoryId) return;
 
-            // Insert URLs into product_images table
-            const res = await fetch("/api/menu/products/images", {
-              method: "POST",
-              body: JSON.stringify({
-                productId: product.id,
-                ImageName: product.name,
-                images: urls,
-              }),
-            });
-
-            const data = await res.json();
-
-            console.log("Image upload response:", data);
-          }
-          setName("");
-          setDescription("");
-          setPrice("");
-          setImages([]);
-
-          setIsopen(false);
+    // ✅ Handle both add and edit
+    if (mode === "edit" && productId) {
+      // Update existing product
+      updateProduct.mutate(
+        {
+          product_id: productId,
+          name,
+          description,
+          price: Number(price) * 100, // Convert to cents
+          category_id: categoryId,
         },
-      }
-    );
+        {
+          onSuccess: async (updatedProduct) => {
+            if (images.length > 0) {
+              const urls = await uploadProductImages(updatedProduct.id, images);
+              await fetch("/api/menu/products/images", {
+                method: "POST",
+                body: JSON.stringify({
+                  productId: updatedProduct.id,
+                  ImageName: updatedProduct.name,
+                  images: urls,
+                }),
+              });
+            }
+            queryClient.invalidateQueries({ queryKey: ["categories"] });
+            closeSheet();
+          },
+        }
+      );
+    } else {
+      // Add new product
+      addProduct.mutate(
+        {
+          name,
+          description,
+          price: Number(price) * 100, // Convert to cents
+          category_id: categoryId,
+        },
+        {
+          onSuccess: async (product) => {
+            if (images.length > 0) {
+              const urls = await uploadProductImages(product.id, images);
+              await fetch("/api/menu/products/images", {
+                method: "POST",
+                body: JSON.stringify({
+                  productId: product.id,
+                  ImageName: product.name,
+                  images: urls,
+                }),
+              });
+            }
+            queryClient.invalidateQueries({ queryKey: ["categories"] });
+
+            closeSheet();
+          },
+        }
+      );
+    }
   };
 
+  // ✅ Add conditional rendering
+  if (!isOpen) return null;
   return (
-    <Sheet open={isopen} onOpenChange={setIsopen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" onClick={() => setIsopen(true)}>
-          + Product
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={closeSheet}>
       <SheetTitle></SheetTitle>
       <SheetContent className="h-full overflow-y-auto p-0">
         <form onSubmit={handleSubmit}>
           <aside className=" max-w-sm min-w-[300px] bg-gray-100">
             <div className="flex justify-between px-4 py-2">
-              <span className="text-lg font-semibold">Add products</span>
+              <span className="text-lg font-semibold">
+                {mode === "edit" ? "Edit Product" : "Add Product"}
+              </span>
               <span>:</span>
             </div>
             <hr className="border-gray-400" />
@@ -188,9 +246,12 @@ export function ProductAddSheet({ categoryId }: { categoryId: string }) {
           </aside>
 
           <SheetFooter className=" py-2 w-full mt-4 flex  ">
-            <Button type="submit" className="mx-auto">
-              Save changes
-            </Button>
+            <SubmitButton
+              isLoading={updateProduct.isPending}
+              className="mx-auto"
+            >
+              {mode === "edit" ? "Update" : "Add"}
+            </SubmitButton>
           </SheetFooter>
         </form>
       </SheetContent>
