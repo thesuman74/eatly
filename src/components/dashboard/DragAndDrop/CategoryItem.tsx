@@ -69,15 +69,20 @@ const CategoryItem = ({ category }: CategoryProps) => {
           </span>
           <div className="flex flex-col">
             <span className="text-sm text-gray-500">Category Name</span>
-            <input
-              type="text"
-              className="font-semibold w-[200px] outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
-              value={editCategory.name}
-              onChange={(e) =>
-                setEditCategory({ ...editCategory, name: e.target.value })
-              }
-              onBlur={handleBlur}
-            />
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                className="font-semibold w-[200px] outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
+                value={editCategory.name}
+                onChange={(e) =>
+                  setEditCategory({ ...editCategory, name: e.target.value })
+                }
+                onBlur={handleBlur}
+              />
+              {updateCategoryName.isPending ? (
+                <span className="text-xs text-gray-500">saving....</span>
+              ) : null}
+            </div>
           </div>
         </div>
 
