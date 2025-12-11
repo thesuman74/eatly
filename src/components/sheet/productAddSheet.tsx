@@ -13,16 +13,20 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useMemo, useState } from "react";
-import { Target } from "lucide-react";
+import { Loader, Target } from "lucide-react";
 import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
 import { useProductSheet } from "@/app/stores/useProductSheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
-import { ProductCategoryTypes } from "@/lib/types/menu-types";
+import {
+  ProductCategoryTypes,
+  ProductImageTypes,
+} from "@/lib/types/menu-types";
 import { getCategoriesAPI } from "@/services/categoryServices";
 import SubmitButton from "../ui/SubmitButton";
+import { set } from "react-hook-form";
 
 export function ProductAddSheet() {
   const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
@@ -46,12 +50,20 @@ export function ProductAddSheet() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<ProductImageTypes[]>([]);
+  const [deletingImages, setDeletingImages] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     if (product && mode === "edit") {
+      console.log("product", product);
+
       setName(product.name);
       setDescription(product.description);
       setPrice((product.price / 100).toString()); // Convert cents to dollars
+      setExistingImages(product.images || []); // ⬅️ HERE
+
       // Handle existing images if needed
     } else {
       // Reset for add mode
@@ -59,73 +71,68 @@ export function ProductAddSheet() {
       setDescription("");
       setPrice("");
       setImages([]);
+      setExistingImages([]); // reset
     }
   }, [product, mode]);
 
   const { addProduct, updateProduct } = useProductActions(); // ✅ Single declaration
+
+  console.log("existingImages", existingImages);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!categoryId) return;
 
-    // ✅ Handle both add and edit
     if (mode === "edit" && productId) {
-      // Update existing product
-      updateProduct.mutate(
-        {
-          product_id: productId,
-          name,
-          description,
-          price: Number(price) * 100, // Convert to cents
-          category_id: categoryId,
-        },
-        {
-          onSuccess: async (updatedProduct) => {
-            if (images.length > 0) {
-              const urls = await uploadProductImages(updatedProduct.id, images);
-              await fetch("/api/menu/products/images", {
-                method: "POST",
-                body: JSON.stringify({
-                  productId: updatedProduct.id,
-                  ImageName: updatedProduct.name,
-                  images: urls,
-                }),
-              });
-            }
-            queryClient.invalidateQueries({ queryKey: ["categories"] });
-            closeSheet();
-          },
-        }
-      );
+      // Update product
+      updateProduct.mutate({
+        product_id: productId,
+        name,
+        description,
+        price: Number(price) * 100,
+        category_id: categoryId,
+        images, // Pass new images only
+      });
+
+      // ✅ Reset images AFTER calling mutate
+      setImages([]);
+      closeSheet();
     } else {
       // Add new product
-      addProduct.mutate(
-        {
-          name,
-          description,
-          price: Number(price) * 100, // Convert to cents
-          category_id: categoryId,
-        },
-        {
-          onSuccess: async (product) => {
-            if (images.length > 0) {
-              const urls = await uploadProductImages(product.id, images);
-              await fetch("/api/menu/products/images", {
-                method: "POST",
-                body: JSON.stringify({
-                  productId: product.id,
-                  ImageName: product.name,
-                  images: urls,
-                }),
-              });
-            }
-            queryClient.invalidateQueries({ queryKey: ["categories"] });
+      addProduct.mutate({
+        name,
+        description,
+        price: Number(price) * 100,
+        category_id: categoryId,
+        images, // if your addProduct mutation handles images
+      });
 
-            closeSheet();
-          },
-        }
-      );
+      setImages([]);
+      closeSheet();
+    }
+  };
+
+  const handleDeleteImage = async (image_id: string) => {
+    setDeletingImages((prev) => ({ ...prev, [image_id]: true }));
+    try {
+      const res = await fetch("/api/menu/products/images/delete", {
+        method: "DELETE",
+        body: JSON.stringify({ image_id }),
+      });
+
+      if (res.ok) {
+        setExistingImages((prev) => prev.filter((img) => img.id !== image_id));
+        queryClient.invalidateQueries({ queryKey: ["categories"] });
+        toast.success("Image deleted");
+        setImages([]);
+      } else {
+        toast.error("Failed to delete image");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeletingImages((prev) => ({ ...prev, [image_id]: false }));
     }
   };
 
@@ -162,11 +169,52 @@ export function ProductAddSheet() {
                   value={description || ""}
                   onChange={(e) => setDescription(e.target.value)}
                 />
-                <FileUploader
-                  files={images}
-                  onChange={setImages}
-                  multiple={true}
-                />
+                <div className="flex space-x-2 items-center">
+                  <FileUploader
+                    files={images}
+                    onChange={setImages}
+                    multiple={true}
+                  />
+                  {mode === "edit" && existingImages.length > 0 && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="font-semibold">Existing Images</Label>
+
+                        <div className="flex">
+                          <div className="flex flex-wrap gap-3">
+                            {existingImages.map((img) => (
+                              <div key={img.id} className="relative w-24 h-24">
+                                <img
+                                  src={img.url}
+                                  alt={img.alt || "image"}
+                                  className="w-full h-full object-cover rounded-md border"
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteImage(img.id)}
+                                  className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1"
+                                >
+                                  ✕
+                                </button>
+                                {deletingImages[img.id] && (
+                                  <span className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                    <Loader
+                                      className="animate-spin"
+                                      width={24}
+                                      height={24}
+                                      aria-label="loader"
+                                    />
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="w-full bg-gray-300 p-1"></div>

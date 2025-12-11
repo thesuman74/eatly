@@ -5,90 +5,67 @@ import { useDropzone } from "react-dropzone";
 import { PlusCircle } from "lucide-react";
 
 type FileUploaderProps = {
-  files?: File[]; // use this for React Hook form ||  form.getValues("bannerImages")
-  initialFiles?: string[];
-  onChange: (files: File[]) => void; // Handle changes in files || {(files) => form.setValue("bannerImages", files)}
-  multiple?: boolean; // Allow multiple files
-  maxFiles?: number; // Maximum number of files allowed
-  imageResolution?: { width: number; height: number }; // Optional resolution
-  previewClassName?: string; // Custom class name for styling previews
+  files?: File[];
+  onChange: (files: File[]) => void;
+  multiple?: boolean;
+  maxFiles?: number;
+  imageResolution?: { width: number; height: number };
+  previewClassName?: string;
 };
 
 export const FileUploader = ({
   files: externalFiles = [],
-  initialFiles = [], //urls
   onChange,
-  multiple = false,
-  maxFiles = 5, // Default maximum for multiple files
+  multiple = true,
+  maxFiles = 5,
   imageResolution,
   previewClassName = "",
 }: FileUploaderProps) => {
-  const [localInitialFiles, setLocalInitialFiles] =
-    useState<string[]>(initialFiles);
   const [files, setFiles] = useState<File[]>(externalFiles);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
-  // Sync internal files state with external changes
+  // Sync internal state with external files
   useEffect(() => {
     setFiles(externalFiles);
   }, [externalFiles]);
 
-  // Generate combined previews
+  // Generate previews for ONLY the newly uploaded files
   useEffect(() => {
-    const objectUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviewUrls([...localInitialFiles, ...objectUrls]);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
 
-    // Cleanup Object URLs
     return () => {
-      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [files, localInitialFiles]);
+  }, [files]);
 
-  // Handle file drop
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (multiple) {
-        const newFiles = [...files, ...acceptedFiles].slice(0, maxFiles); // Limit total files to maxFiles
+        const newFiles = [...files, ...acceptedFiles].slice(0, maxFiles);
         setFiles(newFiles);
         onChange(newFiles);
       } else {
-        const newFiles = [acceptedFiles[0]];
-        setFiles(newFiles);
-        onChange(newFiles);
+        const newFile = [acceptedFiles[0]];
+        setFiles(newFile);
+        onChange(newFile);
       }
     },
     [files, multiple, maxFiles, onChange]
   );
 
-  // Remove a specific file
-  const removeFile = (
-    index: number,
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault(); // Prevent form submission
-
-    if (index < localInitialFiles.length) {
-      // Remove an initial file
-      const updatedInitialFiles = [...localInitialFiles];
-      updatedInitialFiles.splice(index, 1);
-      setLocalInitialFiles(updatedInitialFiles);
-    } else {
-      // Remove an uploaded file
-      const adjustedIndex = index - localInitialFiles.length;
-      const updatedFiles = [...files];
-      updatedFiles.splice(adjustedIndex, 1);
-      setFiles(updatedFiles);
-      onChange(updatedFiles);
-    }
+  const removeFile = (index: number) => {
+    const updated = [...files];
+    updated.splice(index, 1);
+    setFiles(updated);
+    onChange(updated);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     multiple,
     maxFiles,
-    accept: {
-      "image/*": [],
-    },
+    accept: { "image/*": [] },
     maxSize: 5 * 1024 * 1024, // 5MB
   });
 
@@ -126,12 +103,13 @@ export const FileUploader = ({
           >
             <img
               src={preview}
-              alt={`Uploaded file ${index + 1}`}
               className={`w-full h-full rounded-lg object-cover ${previewClassName}`}
+              alt="preview"
             />
+
             <button
-              onClick={(event) => removeFile(index, event)}
-              className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full hover:bg-red-600"
+              onClick={() => removeFile(index)}
+              className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
             >
               ✕
             </button>

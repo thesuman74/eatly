@@ -7,6 +7,7 @@ export interface MenuItemsTypes {
 }
 
 export interface ProductImageTypes {
+  id: string;
   url: string;
   alt: string;
   is_primary: boolean;

@@ -41,7 +41,6 @@ export function useProductActions() {
         if (!res.ok) throw new Error(data.error || "Failed to insert images");
       }
 
-      // ✅ Return the product (images are now already inserted)
       return product;
     },
 
