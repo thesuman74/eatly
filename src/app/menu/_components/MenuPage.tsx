@@ -42,26 +42,26 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
     }
   }, []);
 
-  //   const filteredCategories = categories.reduce(
-  //     (acc: ProductCategoryTypes[], category) => {
-  //       // Filter products in this category
-  //       const filteredProducts = category.products.filter(
-  //         (product) =>
-  //           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //           product.description.toLowerCase().includes(searchQuery.toLowerCase())
-  //       );
+  const filteredCategories = categories.reduce(
+    (acc: ProductCategoryTypes[], category) => {
+      // Filter products in this category
+      const filteredProducts = category.products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
-  //       if (filteredProducts.length > 0) {
-  //         acc.push({
-  //           ...category,
-  //           products: filteredProducts,
-  //         });
-  //       }
+      if (filteredProducts.length > 0) {
+        acc.push({
+          ...category,
+          products: filteredProducts,
+        });
+      }
 
-  //       return acc;
-  //     },
-  //     [] as ProductCategoryTypes[]
-  //   );
+      return acc;
+    },
+    [] as ProductCategoryTypes[]
+  );
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto ">
@@ -115,7 +115,7 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
         </div>
 
         <div className="py-8 ">
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <div key={category.id} className="mb-8">
               <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
               <div
