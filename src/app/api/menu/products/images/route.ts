@@ -1,22 +1,11 @@
-export const runtime = "node";
-
 import { supabaseService } from "@/lib/supabase/serverService";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  console.log("Inserting into product_images:");
+  // console.log("Inserting into product_images:");
 
   try {
     const { productId, ImageName, images } = await req.json();
-
-    console.log(
-      "productId",
-      productId,
-      "ImageName",
-      ImageName,
-      "images",
-      images
-    );
 
     if (!productId || !ImageName || !Array.isArray(images)) {
       return NextResponse.json(
