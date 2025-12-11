@@ -15,8 +15,8 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
         <div className="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden relative group">
           {product ? (
             <img
-              src={product.image.url}
-              alt={product.image.alt}
+              src={product?.images[0].url}
+              alt={product.images[0].alt}
               className="w-full h-full object-cover"
             />
           ) : (

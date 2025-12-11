@@ -4,10 +4,7 @@
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
-import {
-  type CounterStore,
-  createCounterStore,
-} from "@/app/stores/ProductCart";
+import { type CounterStore, createCounterStore } from "@/stores/counter-store";
 
 export type CounterStoreApi = ReturnType<typeof createCounterStore>;
 

@@ -22,14 +22,14 @@ export default function CartPreview() {
           {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 
-        <div className="mt-2 min-h-[300px] max-h-[300px] overflow-y-auto px-2 ">
+        <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">
           {cartItems.map(({ product, quantity }) => (
             <div
               key={product.id}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
               <img
-                src={product.image.url}
+                src={product?.images[0]?.url || "/Images/coffee.png"}
                 alt={product.name}
                 className="h-16 w-16 object-cover rounded-lg"
               />

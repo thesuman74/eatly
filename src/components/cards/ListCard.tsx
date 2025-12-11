@@ -3,28 +3,34 @@ import React from "react";
 import { Button } from "../ui/button";
 import { MenuItemTypes } from "../../../types/menu";
 import Image from "next/image";
+import { ProductTypes } from "@/lib/types/menu-types";
 
 interface ItemCardProps {
-  data: MenuItemTypes;
+  data: ProductTypes;
   onAddToCart?: () => void;
 }
 const ListCard: React.FC<ItemCardProps> = ({ data, onAddToCart }) => {
+  // console.log("data in list card", data);
+  const imageUrl = data?.images?.[0]?.url || "/Images/coffee.png";
+  const imageAlt = data?.images?.[0]?.alt || data.name || "product image";
+
+  console.log("imageUrl in list card", imageUrl);
   return (
     <>
       <section className="rouded-lg flex flex-grow h-32  my-1 mb-4  gap-0 bg-card    w-full  border-b-2  hover:scale-105 transition-all duration-300">
         {/* image section  */}
         <div className="w-40 my-auto h-24 overflow-hidden rounded-xl p-1 ">
-          <Image
+          <img
             width={100}
             height={100}
-            src={`${data.image}`}
-            alt={data.title}
-            className=" rounded-xl object-cover "
+            src={imageUrl}
+            alt={imageAlt}
+            className="rounded-xl object-cover"
           />
         </div>
         {/* content section  */}
         <div className=" w-full flex-col px-2 py-1 items-center">
-          <span className="font-bold">{data.title}</span>
+          <span className="font-bold">{data.name}</span>
           <p className="text-gray-600 text-xs line-clamp-2">
             {data.description}
           </p>

@@ -2,7 +2,6 @@ import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
 import TopSection from "@/components/menu/TopSection";
 import { Suspense } from "react";
-import { ProductCategoriesData } from "../../../../../data/menu";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +17,15 @@ export default async function Page() {
     });
 
     if (!res.ok) {
-      categoriesData = ProductCategoriesData;
+      // categoriesData = ProductCategoriesData;
       throw new Error(`Failed to fetch categories: ${res.status}`);
     }
 
-    categoriesData = await res.json();
+    const json = await res.json();
+
+    categoriesData = json;
+
+    // console.log("categoriesData from page", categoriesData);
 
     if (!categoriesData || categoriesData.length === 0) {
       error = "No categories found.";
@@ -32,10 +35,6 @@ export default async function Page() {
     error = "Failed to load categories.";
   }
 
-  // const categoriesData = ProductCategoriesData;
-
-  console.log("categoriesData", categoriesData);
-
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
       <TopSection />
@@ -43,7 +42,7 @@ export default async function Page() {
       <div>
         <Suspense fallback={<div>Loading...</div>}>
           <DragAndDropProvider initialCategories={categoriesData}>
-            <CategoryList categoriesData={categoriesData} />
+            <CategoryList initialCategories={categoriesData} />
           </DragAndDropProvider>
         </Suspense>
       </div>

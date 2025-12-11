@@ -12,6 +12,9 @@ export async function POST() {
     .select()
     .single();
 
+  // console.log("newCategory", newCategory);
+  // console.log("categoryError", categoryError);
+
   if (categoryError || !newCategory) {
     return NextResponse.json(
       { error: "Failed to create category", details: categoryError?.message },
@@ -32,6 +35,9 @@ export async function POST() {
     .select()
     .single();
 
+  console.log("newProduct", newProduct);
+  console.log("productError", productError);
+
   if (productError || !newProduct) {
     return NextResponse.json(
       {
@@ -43,7 +49,7 @@ export async function POST() {
   }
 
   return NextResponse.json({
-    message: "Category and default product created",
+    message: "Default Category and  product created",
     category: newCategory,
     product: newProduct,
   });

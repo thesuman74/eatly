@@ -7,8 +7,12 @@ export interface MenuItemsTypes {
 }
 
 export interface ProductImageTypes {
+  id: string;
   url: string;
   alt: string;
+  is_primary: boolean;
+  product_id: string;
+  sort_order: number;
 }
 
 export interface ProductTypes {
@@ -18,8 +22,9 @@ export interface ProductTypes {
   description: string;
   price: number; // in cents
   currency: string;
-  image: ProductImageTypes;
+  images: ProductImageTypes[];
   available: boolean;
+  isVisible: boolean;
 }
 
 export interface ProductCategoryTypes {
@@ -29,6 +34,8 @@ export interface ProductCategoryTypes {
   // description: string;
   position: number;
   products: ProductTypes[];
+  isVisible: boolean;
+  available: boolean;
 }
 
 export type OrderType = "onsite" | "pickup" | "delivery";
