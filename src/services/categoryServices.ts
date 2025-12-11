@@ -5,6 +5,8 @@ import { ProductCategoryTypes } from "@/lib/types/menu-types";
 export async function getCategoriesAPI(): Promise<ProductCategoryTypes[]> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+  // console.log("baseUrl", baseUrl);
+
   const res = await fetch(`${baseUrl}/api/menu/structured`, {
     cache: "no-store", // ensures fresh fetch
   });
