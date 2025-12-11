@@ -77,8 +77,6 @@ export function ProductAddSheet() {
 
   const { addProduct, updateProduct } = useProductActions(); // ✅ Single declaration
 
-  console.log("existingImages", existingImages);
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
