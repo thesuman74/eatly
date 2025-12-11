@@ -14,70 +14,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
 import { MenuItemTypes } from "../../../../types/menu";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
-
-// const menuItems = {
-//   "Tea Specials": [
-//     {
-//       id: "1",
-//       title: "Masala Tea",
-//       description:
-//         "Masala Chai is an Indian beverage made by brewing black tea with fragrant spices and herbs.",
-//       price: "  500",
-//       image: "/Images/coffee.png",
-//     },
-//     {
-//       id: "2",
-//       title: "Green Tea",
-//       description:
-//         "Green tea contains antioxidants and other compounds that may help with overall health.",
-//       price: "  400",
-//       image: "/Images/coffee.png",
-//     },
-//     {
-//       id: "3",
-//       title: "Lemon Tea",
-//       description:
-//         "Lemon tea is a refreshing tea where lemon juice is added in black or green tea.",
-//       price: "  450",
-//       image: "/Images/coffee.png",
-//     },
-//   ],
-//   Coffee: [
-//     {
-//       id: "1",
-//       title: "Cappuccino",
-//       description:
-//         "Espresso with steamed milk foam, perfect balance of coffee and milk.",
-//       price: "  600",
-//       image: "/Images/coffee.png",
-//     },
-//     {
-//       id: "2",
-//       title: "Latte",
-//       description: "Espresso with steamed milk and a light layer of milk foam.",
-//       price: "  550",
-//       image: "/Images/coffee.png",
-//     },
-//   ],
-//   Breakfast: [
-//     {
-//       id: "1",
-//       title: "English Breakfast",
-//       description: "Eggs, bacon, toast, and beans served with tea or coffee.",
-//       price: "  1200",
-//       image: "/Images/coffee.png",
-//     },
-//     {
-//       id: "2",
-
-//       title: "Continental",
-//       description:
-//         "Croissant, jam, butter, and fresh fruits with your choice of beverage.",
-//       price: "  1000",
-//       image: "/Images/coffee.png",
-//     },
-//   ],
-// };
+import useCartStore from "@/stores/user/userCartStore";
 
 interface MenuPageProps {
   initialCategories: ProductCategoryTypes[];
@@ -86,28 +23,16 @@ interface MenuPageProps {
 export default function MenuPage({ initialCategories }: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [fullUrl, setFullUrl] = useState<string>("");
-  const [cartItems, setCartItems] = useState<ProductTypes[]>([]);
-  const [total, setTotal] = useState(0);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesAPI,
     initialData: initialCategories,
   });
+  const { cartItems, addToCart, total } = useCartStore();
 
   const handleAddToCart = (items: ProductTypes) => {
-    setCartItems((preItems) => {
-      const updatedCart = [...preItems, items];
-
-      const total = updatedCart.reduce((total, item) => {
-        const priceNumber = Number(item.price);
-        return total + priceNumber;
-      }, 0);
-
-      setTotal(total);
-
-      return updatedCart;
-    });
+    addToCart(items);
   };
 
   useEffect(() => {

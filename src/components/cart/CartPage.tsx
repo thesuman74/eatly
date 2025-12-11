@@ -5,6 +5,8 @@ import { FaArrowLeft } from "react-icons/fa6";
 import CartItem from "./CartItem";
 import ServiceButton from "./ServiceButton";
 import CartFooter from "./CartFooter";
+import useCartStore from "@/stores/user/userCartStore";
+import BouncingText from "../animation/BouncingText";
 
 const CartPage = () => {
   const router = useRouter();
@@ -12,22 +14,24 @@ const CartPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
-  const cartItems = [
-    {
-      id: 1,
-      name: "Lemon Tea",
-      price: 5000,
-      image: "https://picsum.photos/200",
-      quantity: 1,
-    },
-    {
-      id: 2,
-      name: "Green Tea",
-      price: 4000,
-      image: "https://picsum.photos/200",
-      quantity: 2,
-    },
-  ];
+  // const cartItems = [
+  //   {
+  //     id: 1,
+  //     name: "Lemon Tea",
+  //     price: 5000,
+  //     image: "https://picsum.photos/200",
+  //     quantity: 1,
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Green Tea",
+  //     price: 4000,
+  //     image: "https://picsum.photos/200",
+  //     quantity: 2,
+  //   },
+  // ];
+
+  const { cartItems, total } = useCartStore();
 
   const handleServiceClick = (serviceType: string) => {
     setSelectedService(serviceType);
@@ -49,7 +53,12 @@ const CartPage = () => {
           </div>
           <div className="flex flex-col items-center">
             <span className="text-gray-500">Your Cart</span>
-            <span className="font-bold">Rs 5000</span>
+            <span className="font-bold">
+              <BouncingText
+                text={total.toString()}
+                className="text-xl font-bold"
+              />
+            </span>
           </div>
         </div>
         <div>

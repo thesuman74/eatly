@@ -169,3 +169,67 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
     ],
   },
 ];
+
+// const menuItems = {
+//   "Tea Specials": [
+//     {
+//       id: "1",
+//       title: "Masala Tea",
+//       description:
+//         "Masala Chai is an Indian beverage made by brewing black tea with fragrant spices and herbs.",
+//       price: "  500",
+//       image: "/Images/coffee.png",
+//     },
+//     {
+//       id: "2",
+//       title: "Green Tea",
+//       description:
+//         "Green tea contains antioxidants and other compounds that may help with overall health.",
+//       price: "  400",
+//       image: "/Images/coffee.png",
+//     },
+//     {
+//       id: "3",
+//       title: "Lemon Tea",
+//       description:
+//         "Lemon tea is a refreshing tea where lemon juice is added in black or green tea.",
+//       price: "  450",
+//       image: "/Images/coffee.png",
+//     },
+//   ],
+//   Coffee: [
+//     {
+//       id: "1",
+//       title: "Cappuccino",
+//       description:
+//         "Espresso with steamed milk foam, perfect balance of coffee and milk.",
+//       price: "  600",
+//       image: "/Images/coffee.png",
+//     },
+//     {
+//       id: "2",
+//       title: "Latte",
+//       description: "Espresso with steamed milk and a light layer of milk foam.",
+//       price: "  550",
+//       image: "/Images/coffee.png",
+//     },
+//   ],
+//   Breakfast: [
+//     {
+//       id: "1",
+//       title: "English Breakfast",
+//       description: "Eggs, bacon, toast, and beans served with tea or coffee.",
+//       price: "  1200",
+//       image: "/Images/coffee.png",
+//     },
+//     {
+//       id: "2",
+
+//       title: "Continental",
+//       description:
+//         "Croissant, jam, butter, and fresh fruits with your choice of beverage.",
+//       price: "  1000",
+//       image: "/Images/coffee.png",
+//     },
+//   ],
+// };

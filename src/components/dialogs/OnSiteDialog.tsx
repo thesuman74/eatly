@@ -19,8 +19,11 @@ import {
   SelectTrigger,
 } from "../ui/select";
 import { SelectValue } from "@radix-ui/react-select";
+import useCartStore from "@/stores/user/userCartStore";
 
 export function OnsiteDialog({ name }: { name: string }) {
+  const { cartItems, total } = useCartStore();
+
   return (
     <Dialog>
       <DialogTrigger
@@ -44,8 +47,8 @@ export function OnsiteDialog({ name }: { name: string }) {
             <div className="flex flex-col">
               <span className="font-bold text-md">Bill summary</span>
               <div className="flex space-x-2 text-xs">
-                <span>8 Products</span>
-                <span>Rs. 5000</span>
+                <span>{cartItems.length} Products</span>
+                <span>Rs. {total}</span>
               </div>
             </div>
             <span>{">"}</span>
@@ -84,7 +87,7 @@ export function OnsiteDialog({ name }: { name: string }) {
 
         <DialogFooter className="w-full  flex   my-auto">
           <Button type="submit" className="w-full">
-            To order (Rs 1000)
+            To order (Rs {total})
           </Button>
         </DialogFooter>
       </DialogContent>
