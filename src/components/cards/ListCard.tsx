@@ -14,7 +14,7 @@ const ListCard: React.FC<ItemCardProps> = ({ data, onAddToCart }) => {
   const imageUrl = data?.images?.[0]?.url || "/Images/coffee.png";
   const imageAlt = data?.images?.[0]?.alt || data.name || "product image";
 
-  console.log("imageUrl in list card", imageUrl);
+  // console.log("imageUrl in list card", imageUrl);
   return (
     <>
       <section className="rouded-lg flex flex-grow h-32  my-1 mb-4  gap-0 bg-card    w-full  border-b-2  hover:scale-105 transition-all duration-300">
