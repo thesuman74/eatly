@@ -10,7 +10,7 @@ export async function getCategoriesAPI(): Promise<ProductCategoryTypes[]> {
   });
 
   const data = await res.json();
-  console.log("data", data);
+  // console.log("data", data);
 
   if (!res.ok) {
     throw new Error(data.error || "Failed to fetch categories");

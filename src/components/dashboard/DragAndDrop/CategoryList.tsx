@@ -85,7 +85,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   return (
     <>
-      <div className="max-w-3xl w-auto mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
+      <div className=" w-auto mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
         {/* Buttons */}
         <div className="flex space-x-2 mb-4">
           <Button
