@@ -159,7 +159,7 @@ export function ProductAddSheet() {
                   id=""
                   placeholder="Description"
                   className="w-full border"
-                  value={description}
+                  value={description || ""}
                   onChange={(e) => setDescription(e.target.value)}
                 />
                 <FileUploader

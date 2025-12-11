@@ -11,7 +11,7 @@ export async function GET() {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("*")
+    .select("*, images:product_images(*)")
     .order("position", { ascending: true });
 
   // console.log("categories", categories);
