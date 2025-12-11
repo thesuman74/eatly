@@ -27,7 +27,7 @@ export default function UploadPage() {
       setReviewMenuData(JSON.parse(savedMenu));
       setReviewMenu(true); // directly open review page
     }
-  }, []);
+  }, [previews]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -45,7 +45,7 @@ export default function UploadPage() {
     setPreviews(newPreviews);
 
     return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
-  }, [files]);
+  }, [previews, files]);
 
   const removeFile = (index: number) => {
     const newFiles = [...files];

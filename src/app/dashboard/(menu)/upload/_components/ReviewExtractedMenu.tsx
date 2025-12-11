@@ -29,6 +29,8 @@ export default function PreviewMenuForm({
   reviewMenuData,
   setReviewMenuData,
 }: PreviewMenuFormProps) {
+  const queryClient = useQueryClient();
+
   const [selectedCategory, setSelectedCategory] =
     useState<ProductCategoryTypes | null>(null);
 
@@ -42,7 +44,6 @@ export default function PreviewMenuForm({
 
   if (!reviewMenuData) return <div>Loading menu data...</div>;
   if (reviewMenuData.length === 0) return <div>No menu data available.</div>;
-  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     setIsLoading(true);

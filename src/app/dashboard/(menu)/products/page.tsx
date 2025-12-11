@@ -2,7 +2,6 @@ import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
 import TopSection from "@/components/menu/TopSection";
 import { Suspense } from "react";
-import { ProductCategoriesData } from "../../../../../data/menu";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +17,7 @@ export default async function Page() {
     });
 
     if (!res.ok) {
-      categoriesData = ProductCategoriesData;
+      // categoriesData = ProductCategoriesData;
       throw new Error(`Failed to fetch categories: ${res.status}`);
     }
 

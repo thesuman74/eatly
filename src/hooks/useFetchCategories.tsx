@@ -14,9 +14,7 @@ export const useFetchCategories = () => {
   return useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
-    onSuccess: (data) => {
-      setCategories(data);
-    },
+
     staleTime: 1000 * 60, // 1 minute
   });
 };

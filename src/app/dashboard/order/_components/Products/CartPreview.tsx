@@ -29,7 +29,7 @@ export default function CartPreview() {
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
               <img
-                src={product.image.url}
+                src={product?.images[0]?.url || "/Images/coffee.png"}
                 alt={product.name}
                 className="h-16 w-16 object-cover rounded-lg"
               />
