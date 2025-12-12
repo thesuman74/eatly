@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { MoveLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useCreateOrder } from "@/hooks/order/useOrders";
+import { CreateOrderPayload, PaymentMethod } from "@/lib/types/order-types";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -21,9 +23,10 @@ interface PaymentSummaryProps {
 
 const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const cartTotal = useCartStore((state) => state.cartTotal());
+  const cartItems = useCartStore((state) => state.cartItems);
   const [tips, setTips] = useState("");
   const [amountReceived, setAmountReceived] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">(""); // allow empty initially
   const { paymentStatus, setPaymentStatus } = useCartStore();
 
   const tipsAmount = parseFloat(tips) || 0;
@@ -31,11 +34,51 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
 
+  const createOrderMutation = useCreateOrder();
+
   const handleRegisterPayment = () => {
     console.log("Register Payment");
     setPaymentStatus("paid");
     setOpen(false);
     toast.success("Simulating Payment Success ");
+  };
+
+  const handleRegisterAndAcceptOrder = async () => {
+    if (!paymentMethod) {
+      toast.error("Please select a payment method");
+      return;
+    }
+
+    const payload: CreateOrderPayload = {
+      order: {
+        customer_name: "", // add input if needed
+        order_type: "on_site",
+        title: "",
+        payment_status: "paid",
+      },
+      items: cartItems.map((item) => ({
+        product_id: item.product.id,
+        name: item.product.name,
+        quantity: item.quantity,
+        unit_price: item.product.price,
+        total_price: item.product.price * item.quantity,
+      })),
+      payment: {
+        method: paymentMethod as PaymentMethod, // ensure type matches
+        amount_paid: parseFloat(amountReceived) || 0,
+        tip: parseFloat(tips) || 0,
+        change_returned: change >= 0 ? change : 0,
+      },
+    };
+
+    try {
+      await createOrderMutation.mutateAsync(payload); // payload is sent to API
+      toast.success("Order registered successfully!");
+      setPaymentStatus("paid");
+      setOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to register order"); // API error will show
+    }
   };
 
   return (
@@ -60,7 +103,11 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
             <label className="text-sm font-medium text-gray-700">
               Payment Method
             </label>
-            <Select onValueChange={setPaymentMethod}>
+            <Select
+              onValueChange={(value) =>
+                setPaymentMethod(value as PaymentMethod)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select Method" />
               </SelectTrigger>
@@ -169,6 +216,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           <Button
             variant="outline"
             className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
+            onClick={handleRegisterAndAcceptOrder}
           >
             Register and Accept Order
           </Button>

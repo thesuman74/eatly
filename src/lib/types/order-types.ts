@@ -58,3 +58,26 @@ export type OrderStatus =
   | "completed"
   | "cancelled";
 export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
+
+export interface CreateOrderPayload {
+  order: {
+    customer_name: string;
+    order_type: OrderType;
+    title?: string;
+    payment_status: PaymentStatus;
+  };
+  items: {
+    product_id: string;
+    name: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+    notes?: string;
+  }[];
+  payment: {
+    method: PaymentMethod;
+    amount_paid: number;
+    tip: number;
+    change_returned: number;
+  };
+}

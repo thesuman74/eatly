@@ -1,42 +1,103 @@
-import { ProductTypes } from "@/lib/types/menu-types";
+// app/stores/useCartStore.ts
 import { create } from "zustand";
+import { ProductTypes } from "@/lib/types/menu-types";
+import {
+  OrderType,
+  PaymentStatus,
+  OrderStatus,
+  PaymentMethod,
+  OrderItemAddon,
+} from "@/lib/types/order-types";
 
-interface CartItem {
+export interface CartItem {
   product: ProductTypes;
   quantity: number;
+  addons?: OrderItemAddon[];
 }
 
-export type PaymentStatus = "pending" | "paid" | "cancelled" | null;
-export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "preparing"
-  | "ready"
-  | "completed"
-  | "cancelled";
-export type OrderType = "on_site" | "takeaway" | "delivery";
-
 interface CartState {
+  // Cart
   cartItems: CartItem[];
+  cartTotal: () => number;
 
+  // Order metadata
+  customerName?: string;
+  orderTitle?: string;
+  orderType: OrderType;
+  notes?: string;
+
+  // Payment
   paymentStatus: PaymentStatus;
+  paymentMethod?: PaymentMethod;
+  tips?: number;
+  amountReceived?: number;
+
+  // Order lifecycle
+  orderStatus: OrderStatus;
+
+  // Actions
+  setCustomerName: (name: string) => void;
+  setOrderTitle: (title: string) => void;
+  setOrderType: (type: OrderType) => void;
+  setNotes: (notes: string) => void;
 
   setPaymentStatus: (status: PaymentStatus) => void;
+  setPaymentMethod: (method: PaymentMethod) => void;
+  setTips: (amount: number) => void;
+  setAmountReceived: (amount: number) => void;
 
-  addToCart: (product: ProductTypes) => void;
+  setOrderStatus: (status: OrderStatus) => void;
+
+  addToCart: (product: ProductTypes, addons?: OrderItemAddon[]) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
-  cartTotal: () => number;
+  updateItemAddons: (productId: string, addons: OrderItemAddon[]) => void;
   clearCart: () => void;
+
+  // Derived helpers
+  totalToPay: () => number;
+  getOrderPayload: () => any;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
-  paymentStatus: null,
+  cartTotal: () =>
+    get().cartItems.reduce(
+      (total, item) =>
+        total +
+        item.product.price * item.quantity +
+        (item.addons?.reduce(
+          (a, addon) => a + addon.price * addon.quantity,
+          0
+        ) || 0),
+      0
+    ),
 
-  setPaymentStatus: (status: PaymentStatus) => set({ paymentStatus: status }),
+  customerName: "",
+  orderTitle: "",
+  orderType: "on_site",
+  notes: "",
 
-  addToCart: (product) => {
+  paymentStatus: "pending",
+  paymentMethod: undefined,
+  tips: 0,
+  amountReceived: 0,
+
+  orderStatus: "pending",
+
+  setCustomerName: (name) => set({ customerName: name }),
+  setOrderTitle: (title) => set({ orderTitle: title }),
+  setOrderType: (type) => set({ orderType: type }),
+  setNotes: (notes) => set({ notes }),
+
+  setPaymentStatus: (status) => set({ paymentStatus: status }),
+  setPaymentMethod: (method) => set({ paymentMethod: method }),
+  setTips: (amount) => set({ tips: amount }),
+  setAmountReceived: (amount) => set({ amountReceived: amount }),
+
+  setOrderStatus: (status) => set({ orderStatus: status }),
+
+  addToCart: (product, addons) => {
     const existing = get().cartItems.find(
       (item) => item.product.id === product.id
     );
@@ -44,12 +105,18 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({
         cartItems: get().cartItems.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                addons: addons || item.addons,
+              }
             : item
         ),
       });
     } else {
-      set({ cartItems: [...get().cartItems, { product, quantity: 1 }] });
+      set({
+        cartItems: [...get().cartItems, { product, quantity: 1, addons }],
+      });
     }
   },
 
@@ -73,11 +140,53 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  cartTotal: () =>
-    get().cartItems.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0
-    ),
+  updateItemAddons: (productId, addons) => {
+    set({
+      cartItems: get().cartItems.map((item) =>
+        item.product.id === productId ? { ...item, addons } : item
+      ),
+    });
+  },
 
-  clearCart: () => set({ cartItems: [] }),
+  clearCart: () =>
+    set({
+      cartItems: [],
+      customerName: "",
+      orderTitle: "",
+      notes: "",
+      tips: 0,
+      amountReceived: 0,
+      paymentMethod: undefined,
+      paymentStatus: "pending",
+      orderStatus: "pending",
+      orderType: "on_site",
+    }),
+
+  totalToPay: () => get().cartTotal() + (get().tips || 0),
+
+  getOrderPayload: () => ({
+    customer_name: get().customerName,
+    order_type: get().orderType,
+    title: get().orderTitle,
+    notes: get().notes,
+    payment_status: get().paymentStatus,
+    payment: {
+      method: get().paymentMethod,
+      amount_paid: get().amountReceived,
+      tip: get().tips,
+    },
+    items: get().cartItems.map((item) => ({
+      product_id: item.product.id,
+      name: item.product.name,
+      quantity: item.quantity,
+      unit_price: item.product.price,
+      total_price:
+        item.product.price * item.quantity +
+        (item.addons?.reduce(
+          (a, addon) => a + addon.price * addon.quantity,
+          0
+        ) || 0),
+      addons: item.addons || [],
+    })),
+  }),
 }));
