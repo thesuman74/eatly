@@ -1,4 +1,4 @@
-import { supabaseService } from "@/lib/supabase/serverService";
+import { serverService } from "@/lib/supabase/serverService";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       alt: ImageName, // ← product name as alt
     }));
 
-    const { error } = await supabaseService
+    const { error } = await serverService
       .from("product_images")
       .insert(inserts);
 

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
+  console.log("GET /api/menu/structured called");
   const supabase = await createClient();
 
   const { data: categories, error: categoriesError } = await supabase

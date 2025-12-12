@@ -1,24 +1,46 @@
 // Add a new category
 
-import { ProductCategoryTypes } from "@/lib/types/menu-types";
+import { serverAxiosInstance } from "@/lib/axios/ServerAxiosInstance";
 
-export async function getCategoriesAPI(): Promise<ProductCategoryTypes[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { serverService } from "@/lib/supabase/serverService";
 
-  // console.log("baseUrl", baseUrl);
+// export async function getCategoriesServerSide() {
+//   const { data: categories, error: categoriesError } = await serverService
+//     .from("categories")
+//     .select("*")
+//     .order("position", { ascending: true });
 
-  const res = await fetch(`${baseUrl}/api/menu/structured`, {
-    cache: "no-store", // ensures fresh fetch
-  });
+//   const { data: products, error: productsError } = await serverService
+//     .from("products")
+//     .select("*, images:product_images(*)")
+//     .order("position", { ascending: true });
 
-  const data = await res.json();
-  // console.log("data", data);
+//   if (categoriesError || productsError) {
+//     throw new Error(categoriesError?.message || productsError?.message);
+//   }
 
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to fetch categories");
+//   // Optional: structure products under categories
+//   const structured = categories.map((cat) => ({
+//     ...cat,
+//     products: products.filter((p) => p.category_id === cat.id),
+//   }));
+
+//   return structured;
+// }
+
+export async function getCategoriesAPI() {
+  try {
+    const res = await serverAxiosInstance.get("/api/menu/structured"); // relative path works on client
+    return res.data; // already parsed JSON
+  } catch (error: any) {
+    console.error(
+      "Error fetching categories:",
+      error.response?.data || error.message
+    );
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch categories"
+    );
   }
-
-  return data;
 }
 export async function addCategoryAPI() {
   const response = await fetch("/api/menu/categories/add", {

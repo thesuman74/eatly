@@ -1,16 +1,16 @@
-// import axios from "axios";
-// import { getClientAccessToken } from "./custom/ClientAccesstoken";
-// import { handleError, handleResponse } from "./custom/PreparedResponse";
+import axios from "axios";
+import { getClientAccessToken } from "./custom/ClientAccesstoken";
+import { handleError, handleResponse } from "./custom/PreparedResponse";
 
-// const BaseURL = process.env.NEXT_PUBLIC_BASEURL;
+const BaseURL = process.env.NEXT_PUBLIC_BASEURL;
 
-// export const clientAxiosInstance = axios.create({
-//   baseURL: BaseURL,
-//   headers: {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//   },
-// });
+export const clientAxiosInstance = axios.create({
+  baseURL: BaseURL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
 
 // // Request Interceptor for Dynamic Token Inclusion
 // clientAxiosInstance.interceptors.request.use(
