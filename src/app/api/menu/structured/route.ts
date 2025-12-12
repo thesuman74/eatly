@@ -1,34 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+// src/pages/api/menu/structured.ts
+import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  console.log("GET /api/menu/structured called");
-  const supabase = await createClient();
-
-  const { data: categories, error: categoriesError } = await supabase
-    .from("categories")
-    .select("*")
-    .order("position", { ascending: true });
-
-  const { data: products, error: productsError } = await supabase
-    .from("products")
-    .select("*, images:product_images(*)")
-    .order("position", { ascending: true });
-
-  // console.log("categories", categories);
-  // console.log("products", products);
-
-  if (categoriesError || productsError) {
-    return NextResponse.json(
-      { error: categoriesError?.message || productsError?.message },
-      { status: 500 }
-    );
+  try {
+    const structured = await getCategoriesFromDB();
+    return NextResponse.json(structured, { status: 200 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  const structured = categories.map((cat) => ({
-    ...cat,
-    products: products.filter((p) => p.category_id === cat.id),
-  }));
-
-  return NextResponse.json(structured, { status: 200 });
 }
