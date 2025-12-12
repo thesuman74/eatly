@@ -6,10 +6,19 @@ interface CartItem {
   quantity: number;
 }
 
-type PaymentStatus = "pending" | "paid" | "cancled" | null;
+export type PaymentStatus = "pending" | "paid" | "cancelled" | null;
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "completed"
+  | "cancelled";
+export type OrderType = "on_site" | "takeaway" | "delivery";
 
 interface CartState {
   cartItems: CartItem[];
+
   paymentStatus: PaymentStatus;
 
   setPaymentStatus: (status: PaymentStatus) => void;

@@ -1,0 +1,72 @@
+// app/api/orders/[id]/status/route.ts
+import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+// 1️⃣ Validation schema
+const statusSchema = z.object({
+  status: z.enum([
+    "pending",
+    "confirmed",
+    "preparing",
+    "ready",
+    "completed",
+    "cancelled",
+  ]),
+});
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const supabase = await createClient();
+  const orderId = params.id;
+
+  if (!orderId) {
+    return NextResponse.json(
+      { error: "Order ID is required" },
+      { status: 400 }
+    );
+  }
+
+  // 2️⃣ Parse and validate body
+  const body = await req.json();
+  const parseResult = statusSchema.safeParse(body);
+
+  if (!parseResult.success) {
+    return NextResponse.json(
+      { error: parseResult.error.message },
+      { status: 400 }
+    );
+  }
+
+  const { status } = parseResult.data;
+
+  // 3️⃣ Update order status
+  const { data: updatedOrder, error: updateError } = await supabase
+    .from("orders")
+    .update({ status })
+    .eq("id", orderId)
+    .select()
+    .single();
+
+  if (updateError || !updatedOrder) {
+    return NextResponse.json(
+      { error: updateError?.message || "Order not found" },
+      { status: 400 }
+    );
+  }
+
+  // 4️⃣ Insert status log
+  const { error: logError } = await supabase.from("order_status_logs").insert({
+    order_id: orderId,
+    status,
+  });
+
+  if (logError) {
+    return NextResponse.json({ error: logError.message }, { status: 400 });
+  }
+
+  // 5️⃣ Return updated order
+  return NextResponse.json(updatedOrder);
+}
