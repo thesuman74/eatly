@@ -41,6 +41,7 @@ export function NavUser({
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
+    console.log("logged out");
     if (error) {
       console.error("Logout error:", error.message);
       return;
