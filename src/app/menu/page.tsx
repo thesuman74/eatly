@@ -1,9 +1,9 @@
 import React, { Suspense } from "react";
 import MenuPage from "./_components/MenuPage";
-import { getCategoriesServerSide } from "@/services/server/ServerCategoryServices";
+import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 
 export default async function Page() {
-  const data = await getCategoriesServerSide();
+  const data = await getCategoriesFromDB();
 
   // console.log("data from page", data);
 

@@ -41,6 +41,7 @@ export function NavUser({
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
+    console.log("logged out");
     if (error) {
       console.error("Logout error:", error.message);
       return;
@@ -110,7 +111,10 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="hover:cursor-pointer text-red-500 "
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

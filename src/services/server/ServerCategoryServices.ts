@@ -1,6 +1,6 @@
 import { serverService } from "@/lib/supabase/serverService";
 
-export async function getCategoriesServerSide() {
+export async function getCategoriesFromDB() {
   const { data: categories, error: categoriesError } = await serverService
     .from("categories")
     .select("*")
