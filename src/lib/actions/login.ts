@@ -18,11 +18,11 @@ export async function login(formData: FormData) {
 
   const { data, error } = await supabase.auth.signInWithPassword(credentials);
 
-  console.log("🔐 Login attempt:");
-  console.log("User:", credentials.email);
-  console.log("Error:", error);
-  console.log("Session:", data?.session);
-  console.log("User:", data?.user);
+  // console.log("🔐 Login attempt:");
+  // console.log("User:", credentials.email);
+  // console.log("Error:", error);
+  // console.log("Session:", data?.session);
+  // console.log("User:", data?.user);
 
   if (error) {
     return error.message; // ❌ login failed
