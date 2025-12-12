@@ -13,10 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import CounterTableFilters from "./CounterTableFilters";
-import { useOrders } from "@/hooks/order/useOrders";
+import { useOrders, useUpdateOrderStatus } from "@/hooks/order/useOrders";
 import { timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import { OrderStatusActions } from "./OrderStatusActions";
+import { OrderStatus } from "@/lib/types/order-types";
+import { toast } from "react-toastify";
 
 export default function CounterTable() {
   // const orders = [
@@ -45,6 +47,23 @@ export default function CounterTable() {
   // ];
 
   const { data: orders = [], isLoading, error } = useOrders();
+  const updateStatus = useUpdateOrderStatus();
+
+  const updateOrderStatus = useUpdateOrderStatus();
+
+  const handleStatusChange = (id: string, status: OrderStatus) => {
+    updateOrderStatus.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          toast.success("Order status updated successfully!");
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to update order status");
+        },
+      }
+    );
+  };
 
   console.log("orders", orders);
 
@@ -120,9 +139,9 @@ export default function CounterTable() {
               <div className="col-span-2 text-sm space-y-2">
                 <div
                   className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                    order.status === "Pending"
-                      ? "bg-yellow-300 text-yellow-900"
-                      : "bg-yellow-100 text-black/60"
+                    ["Pending", "Preparing"].includes(order.status)
+                      ? "bg-green-300 text-black/60"
+                      : "bg-blue-300 text-black/60"
                   }`}
                 >
                   {order.status.toLocaleUpperCase()}
@@ -147,7 +166,9 @@ export default function CounterTable() {
               </div>
 
               {/* ACTIONS */}
+              {/* ACTIONS */}
               <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
+                {/* Cancel button */}
                 <Button
                   variant="outline"
                   className="border text-red-600 border-red-600 hover:bg-red-50"
@@ -155,17 +176,16 @@ export default function CounterTable() {
                   <X size={14} /> Cancel
                 </Button>
 
+                {/* Only show Status dropdown if not pending */}
                 {order.status !== "Pending" && (
-                  <>
-                    <OrderStatusActions
-                      onStatusChange={(status) => {
-                        // call your API here
-                        console.log("Status selected:", status);
-                      }}
-                    />
-                  </>
+                  <OrderStatusActions
+                    onStatusChange={(status) =>
+                      handleStatusChange(order.id, status)
+                    }
+                  />
                 )}
 
+                {/* Pay button */}
                 <Button
                   variant="outline"
                   className="border text-blue-600 border-blue-600 hover:bg-blue-50"
@@ -173,14 +193,22 @@ export default function CounterTable() {
                   <DollarSign size={14} /> Pay
                 </Button>
 
+                {/* Accept / Finish button */}
                 <Button
                   className={`text-white ${
-                    order.status === "Pending" ? "bg-gray-400" : "bg-blue-600"
+                    order.status === "Pending" ? "bg-green-500" : "bg-blue-600"
                   }`}
-                  onClick={() => setOpen(open)}
+                  onClick={() => {
+                    if (order.status === "Pending") {
+                      // Change pending -> preparing
+                      handleStatusChange(order.id, "Preparing");
+                    } else {
+                      // Finish action (you can define)
+                    }
+                  }}
                 >
                   <Check size={14} />{" "}
-                  {order.status !== "Pending" ? "Accept" : "Finish"}
+                  {order.status === "Pending" ? "Accept" : "Finish"}
                 </Button>
 
                 {order.status === "Pending" && (

@@ -5,14 +5,7 @@ import { z } from "zod";
 
 // 1️⃣ Validation schema
 const statusSchema = z.object({
-  status: z.enum([
-    "pending",
-    "confirmed",
-    "preparing",
-    "ready",
-    "completed",
-    "cancelled",
-  ]),
+  status: z.enum(["Ready", "Delivered", "Cancelled", "Pending", "Preparing"]),
 });
 
 export async function PATCH(
@@ -20,7 +13,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const supabase = await createClient();
-  const orderId = params.id;
+
+  const resolvedParams = await params;
+  const orderId = resolvedParams.id;
 
   if (!orderId) {
     return NextResponse.json(

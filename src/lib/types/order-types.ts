@@ -57,12 +57,11 @@ export type PaymentStatus =
   | "Cancelled"
   | "Unpaid";
 export type OrderStatus =
-  | "Pending"
-  | "Confirmed"
-  | "Preparing"
   | "Ready"
-  | "Completed"
-  | "Cancelled";
+  | "Delivered"
+  | "Cancelled"
+  | "Pending"
+  | "Preparing";
 export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
 
 export interface CreateOrderPayload {

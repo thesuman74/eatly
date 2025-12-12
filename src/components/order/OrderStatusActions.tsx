@@ -5,12 +5,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OrderStatus } from "@/lib/types/order-types";
 import { Printer } from "lucide-react";
 
 export function OrderStatusActions({
   onStatusChange,
 }: {
-  onStatusChange: (s: string) => void;
+  onStatusChange: (s: OrderStatus) => void; // <-- use OrderStatus here
 }) {
   return (
     <>
@@ -29,6 +30,9 @@ export function OrderStatusActions({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusChange("Delivered")}>
             Delivered
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusChange("Cancelled")}>
+            Cancelled
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
