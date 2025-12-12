@@ -38,7 +38,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
 
   const handleRegisterPayment = () => {
     console.log("Register Payment");
-    setPaymentStatus("paid");
+    setPaymentStatus("Paid");
     setOpen(false);
     toast.success("Simulating Payment Success ");
   };
@@ -52,9 +52,9 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
     const payload: CreateOrderPayload = {
       order: {
         customer_name: "", // add input if needed
-        order_type: "on_site",
+        order_type: "OnSite",
         title: "",
-        payment_status: "paid",
+        payment_status: "Paid",
       },
       items: cartItems.map((item) => ({
         product_id: item.product.id,
@@ -74,7 +74,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
     try {
       await createOrderMutation.mutateAsync(payload); // payload is sent to API
       toast.success("Order registered successfully!");
-      setPaymentStatus("paid");
+      setPaymentStatus("Paid");
       setOpen(false);
     } catch (error: any) {
       toast.error(error.message || "Failed to register order"); // API error will show
@@ -90,7 +90,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           <span className="text-xl font-bold">Register Payment</span>
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
             }`}
           >
             {paymentStatus?.toUpperCase() || "PENDING"}

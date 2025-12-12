@@ -12,6 +12,7 @@ export interface Order {
   items: OrderItem[];
   payments: OrderPayment[];
   status_logs?: OrderStatusLog[];
+  total_amount: number;
 }
 
 export interface OrderItem {
@@ -48,15 +49,20 @@ export interface OrderStatusLog {
 }
 
 // ENUMS
-export type OrderType = "on_site" | "takeaway" | "delivery";
-export type PaymentStatus = "pending" | "paid" | "refunded";
+export type OrderType = "OnSite" | "Takeaway" | "Delivery";
+export type PaymentStatus =
+  | "Pending"
+  | "Paid"
+  | "Refunded"
+  | "Cancelled"
+  | "Unpaid";
 export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "preparing"
-  | "ready"
-  | "completed"
-  | "cancelled";
+  | "Pending"
+  | "Confirmed"
+  | "Preparing"
+  | "Ready"
+  | "Completed"
+  | "Cancelled";
 export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
 
 export interface CreateOrderPayload {

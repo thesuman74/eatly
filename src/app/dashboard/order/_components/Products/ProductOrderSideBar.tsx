@@ -35,7 +35,7 @@ const ProductOrderSideBar = () => {
     }
     {
       {
-        paymentStatus === "pending" || paymentStatus === null
+        paymentStatus === "Pending" || paymentStatus === null
           ? setShowPaymentPanel(true)
           : null;
       }
@@ -56,7 +56,7 @@ const ProductOrderSideBar = () => {
             <div className="shrink-0 ">
               <div
                 className={`flex px-4 py-2  text-white ${
-                  paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+                  paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
                 }`}
               >
                 <div className="flex space-x-2">

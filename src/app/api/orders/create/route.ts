@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
         customer_name: order.customer_name,
         payment_status: order.payment_status || "unpaid",
         status: "pending",
+        order_type: order.order_type,
         subtotal,
         total,
       })
