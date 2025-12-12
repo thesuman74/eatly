@@ -43,7 +43,7 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
   }, []);
 
   const filteredCategories = categories.reduce(
-    (acc: ProductCategoryTypes[], category) => {
+    (acc: ProductCategoryTypes[], category: ProductCategoryTypes) => {
       // Filter products in this category
       const filteredProducts = category.products.filter(
         (product) =>
@@ -115,7 +115,7 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
         </div>
 
         <div className="py-8 ">
-          {filteredCategories.map((category) => (
+          {filteredCategories.map((category: ProductCategoryTypes) => (
             <div key={category.id} className="mb-8">
               <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
               <div
