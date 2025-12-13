@@ -75,15 +75,15 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   customerName: "",
   orderTitle: "",
-  orderType: "on_site",
+  orderType: "OnSite",
   notes: "",
 
-  paymentStatus: "pending",
+  paymentStatus: "Pending",
   paymentMethod: undefined,
   tips: 0,
   amountReceived: 0,
 
-  orderStatus: "pending",
+  orderStatus: "Pending",
 
   setCustomerName: (name) => set({ customerName: name }),
   setOrderTitle: (title) => set({ orderTitle: title }),
@@ -157,9 +157,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       tips: 0,
       amountReceived: 0,
       paymentMethod: undefined,
-      paymentStatus: "pending",
-      orderStatus: "pending",
-      orderType: "on_site",
+      paymentStatus: "Pending",
+      orderStatus: "Pending",
+      orderType: "OnSite",
     }),
 
   totalToPay: () => get().cartTotal() + (get().tips || 0),

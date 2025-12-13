@@ -18,8 +18,11 @@ import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSu
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 
 const ProductOrdersheet = () => {
-  const { isOpen, orderId, closeSheet } = useOrderSheet();
+  const { openProductOrderSheet, orderId } = useOrderWorkspace();
+
   const { data, isLoading, error } = useOrder(orderId);
+  console.log("orderId", orderId);
+  console.log("data", data);
 
   // ✅ Local state for editable fields
   const [title, setTitle] = useState("suman");
@@ -32,12 +35,10 @@ const ProductOrdersheet = () => {
 
   const deleteOrderItemMutation = useDeleteOrderItem();
 
-  const {
-    isProductListOpen,
-    closeProductList,
-    isProductOrderSheetOpen,
-    closeProductOrderSheet,
-  } = useOrderWorkspace();
+  const { isProductOrderSheetOpen, closeProductOrderSheet } =
+    useOrderWorkspace();
+
+  console.log("isProductOrderSheetOpen", isProductOrderSheetOpen);
 
   console.log("data.items", items);
   // ✅ Populate state when order changes
@@ -62,21 +63,36 @@ const ProductOrdersheet = () => {
     updateOrderItemMutation.mutate({ itemId, quantity });
   };
 
+  // Function to add product from ProductsList
+  const handleAddProduct = (product: any) => {
+    // Check if product already exists
+    const existingIndex = items.findIndex((i) => i.id === product.id);
+    if (existingIndex !== -1) {
+      const updated = [...items];
+      updated[existingIndex].quantity += 1;
+      updated[existingIndex].total_price =
+        updated[existingIndex].quantity * updated[existingIndex].price;
+      setItems(updated);
+    } else {
+      setItems((prev) => [
+        ...prev,
+        { ...product, quantity: 1, total_price: product.price },
+      ]);
+    }
+  };
   const handleRemoveItem = (itemId: string) => {
     setItems((prev) => prev.filter((i) => i.id !== itemId));
     deleteOrderItemMutation.mutate({ itemId: itemId });
   };
-  if (!isOpen) return null;
+  if (!isProductOrderSheetOpen) return null;
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
-      <Sheet open={isOpen} onOpenChange={closeSheet}>
-        <SheetTitle>{null}</SheetTitle>
-
-        <SheetContent className="flex items-center justify-center">
+      <div>
+        <p className="flex items-center justify-center">
           Loading order details...
-        </SheetContent>
-      </Sheet>
+        </p>
+      </div>
     );
   }
 

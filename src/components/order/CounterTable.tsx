@@ -204,6 +204,10 @@ export default function CounterTable() {
 
                         // open sheet only after data is fetched
                         openProductOrderSheet(order.id);
+                        console.log(
+                          "Store orderId after openProductOrderSheet:",
+                          useOrderWorkspace.getState().orderId
+                        );
                       } catch (err) {
                         console.error(err);
                       } finally {
