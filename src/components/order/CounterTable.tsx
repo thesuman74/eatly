@@ -23,9 +23,10 @@ import { toast } from "react-toastify";
 import { useOrderSheet } from "@/app/stores/useOrderSheet";
 import { getOrderDetailsAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
+import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 
 export default function CounterTable() {
-  const { openSheet } = useOrderSheet(); // ✅ define it here
+  const { openProductOrderSheet } = useOrderWorkspace();
   const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading, error } = useOrders();
@@ -202,7 +203,7 @@ export default function CounterTable() {
                         });
 
                         // open sheet only after data is fetched
-                        openSheet(order.id);
+                        openProductOrderSheet(order.id);
                       } catch (err) {
                         console.error(err);
                       } finally {

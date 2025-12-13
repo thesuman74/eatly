@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { X } from "lucide-react";
+import { useProductListSheet } from "@/app/stores/useProductListSheet";
+import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 
 interface ProductImage {
   url: string;
@@ -51,13 +53,19 @@ export default function EditableOrderItemsList({
     () => itemsWithDetails.reduce((sum, item) => sum + item.total_price, 0),
     [itemsWithDetails]
   );
+  const { openProductList } = useOrderWorkspace();
 
   return (
     <>
       <div className="w-full max-w-md bg-white border rounded shadow-md flex flex-col">
         {/* Fixed Header */}
         <div className="flex items-center justify-between border-b bg-blue-500 p-2 text-white">
-          <span className="font-bold text-lg">+ Products</span>
+          <span
+            className="font-bold text-lg hover:cursor-pointer"
+            onClick={openProductList}
+          >
+            + Products
+          </span>
         </div>
 
         {/* Scrollable Items List */}
