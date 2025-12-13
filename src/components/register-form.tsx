@@ -32,7 +32,6 @@ export function RegisterForm({
 
     try {
       const response = await doRegister(formData);
-      console.log("response in register form", response);
       if (response.error) {
         setError(response.error);
       } else {
@@ -45,7 +44,6 @@ export function RegisterForm({
       // }
     } catch (error: any) {
       setError(error);
-      console.log("error while logging", error);
     }
     setLoading(false);
 

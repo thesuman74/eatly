@@ -9,6 +9,7 @@ import {
   Clock,
   CalendarDays,
   User2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -20,12 +21,23 @@ import { OrderStatusActions } from "./OrderStatusActions";
 import { OrderStatus } from "@/lib/types/order-types";
 import { toast } from "react-toastify";
 import { useOrderSheet } from "@/app/stores/useOrderSheet";
+import { getOrderDetailsAPI } from "@/services/orderServices";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CounterTable() {
   const { openSheet } = useOrderSheet(); // ✅ define it here
+  const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading, error } = useOrders();
-  const updateStatus = useUpdateOrderStatus();
+  const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
+
+  const prefetchOrderDetails = (orderId: string) => {
+    queryClient.prefetchQuery({
+      queryKey: ["order-details", orderId],
+      queryFn: () => getOrderDetailsAPI(orderId),
+      staleTime: 1000 * 60, // 1 min
+    });
+  };
 
   const updateOrderStatus = useUpdateOrderStatus();
 
@@ -42,8 +54,6 @@ export default function CounterTable() {
       }
     );
   };
-
-  console.log("orders", orders);
 
   const [open, setOpen] = useState(false);
   return (
@@ -176,23 +186,42 @@ export default function CounterTable() {
                   className={`text-white ${
                     order.status === "Pending" ? "bg-green-500" : "bg-blue-600"
                   }`}
-                  onClick={() => {
+                  disabled={loadingOrderId === order.id}
+                  onClick={async () => {
                     if (order.status === "Pending") {
                       handleStatusChange(order.id, "Preparing");
-                    } else {
-                      // Only open sidebar if payment_status is unpaid
-                      if (order.payment_status === "Unpaid") {
+                    } else if (order.payment_status === "Unpaid") {
+                      try {
+                        setLoadingOrderId(order.id); // start loader
+
+                        // fetch data and wait
+                        await queryClient.fetchQuery({
+                          queryKey: ["order-details", order.id],
+                          queryFn: () => getOrderDetailsAPI(order.id),
+                          staleTime: 1000 * 60, // 1 min
+                        });
+
+                        // open sheet only after data is fetched
                         openSheet(order.id);
+                      } catch (err) {
+                        console.error(err);
+                      } finally {
+                        setLoadingOrderId(null); // stop loader
                       }
                     }
                   }}
                 >
-                  <Check size={14} />{" "}
+                  {loadingOrderId === order.id ? (
+                    <span className="animate-spin">
+                      <Loader2 />
+                    </span> // loader icon or spinner
+                  ) : (
+                    <>
+                      <Check size={14} />{" "}
+                    </>
+                  )}
                   {order.status === "Pending" ? "Accept" : "Finish"}
                 </Button>
-                <button onClick={() => openSheet("123")}>
-                  Open Sheet Test
-                </button>
 
                 {order.status === "Pending" && (
                   <MoreVertical

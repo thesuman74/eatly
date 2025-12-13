@@ -80,7 +80,7 @@ export default function CartPreview() {
         <div className="flex justify-between w-full items-center px-1">
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
             }`}
           >
             {paymentStatus?.toUpperCase() || "PENDING"}

@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const fromData = await req.formData();
-    console.log("fromData", fromData);
+    // console.log("fromData", fromData);
     const image = fromData.get("image") as File;
-    console.log("image", image);
+    // console.log("image", image);
 
     if (!image) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });

@@ -16,7 +16,6 @@ const ProductOrderSideBar = () => {
   const searchParams = useSearchParams();
   const orderType = searchParams.get("type");
 
-  console.log("orderType", orderType);
 
   const cartItems = useCartStore((state) => state.cartItems);
 

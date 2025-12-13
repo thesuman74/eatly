@@ -22,7 +22,6 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   setCategories: (categories) => set({ categories }),
 
   addProduct: (categoryId, product) => {
-    console.log("add product data in store", product);
     const updatedCategories = get().categories.map((cat) =>
       cat.id === categoryId
         ? { ...cat, products: [...cat.products, product] }
@@ -38,7 +37,6 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   // cart-related logic
   cart: [],
   addToCart: (product) => {
-    console.log("add to cart", product);
     const existing = get().cart.find((item) => item.id === product.id);
     if (!existing) {
       set((state) => ({

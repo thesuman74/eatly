@@ -82,15 +82,6 @@ export const DragAndDropProvider = ({
     const oldIndex = categories.findIndex((c) => c.id === active.id);
     const newIndex = categories.findIndex((c) => c.id === over.id);
 
-    console.log("oldIndex", oldIndex);
-    console.log("newIndex", newIndex);
-    console.log("Active ID:", active.id);
-    console.log("Over ID:", over.id);
-    console.log(
-      "Categories:",
-      categories.map((c) => c.id)
-    );
-
     if (oldIndex !== -1 && newIndex !== -1) {
       const newOrder = arrayMove(categories, oldIndex, newIndex);
       setCategories(newOrder); // 💾 update state

@@ -37,7 +37,6 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const createOrderMutation = useCreateOrder();
 
   const handleRegisterPayment = () => {
-    console.log("Register Payment");
     setPaymentStatus("Paid");
     setOpen(false);
     toast.success("Simulating Payment Success ");

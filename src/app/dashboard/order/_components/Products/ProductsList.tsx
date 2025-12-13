@@ -36,8 +36,6 @@ const ProductsList = () => {
     queryFn: getCategoriesAPI,
   });
 
-  console.log("categories", categories);
-
   const handleAddToCart = (categoryId: string, product: ProductTypes) => {
     setCartItems((prev) => {
       const updated = [...prev, product];
