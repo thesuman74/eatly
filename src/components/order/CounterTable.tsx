@@ -19,32 +19,10 @@ import { formatCreatedDate } from "@/utils/date";
 import { OrderStatusActions } from "./OrderStatusActions";
 import { OrderStatus } from "@/lib/types/order-types";
 import { toast } from "react-toastify";
+import { useOrderSheet } from "@/app/stores/useOrderSheet";
 
 export default function CounterTable() {
-  // const orders = [
-  //   {
-  //     id: "#4",
-  //     type: "Onsite",
-  //     status: "Pending",
-  //     time: "60:00 min",
-  //     pos: "NP-4010",
-  //     client: "Suman Adhikari",
-  //     date: "13/07/25 10:53",
-  //     total: 0,
-  //     paid: false,
-  //   },
-  //   {
-  //     id: "#3",
-  //     type: "Onsite",
-  //     status: "Preparing",
-  //     time: "60:00 min",
-  //     pos: "NP-7718",
-  //     client: "Suman Adhikari",
-  //     date: "13/07/25 10:51",
-  //     total: 4,
-  //     paid: false,
-  //   },
-  // ];
+  const { openSheet } = useOrderSheet(); // ✅ define it here
 
   const { data: orders = [], isLoading, error } = useOrders();
   const updateStatus = useUpdateOrderStatus();
@@ -111,7 +89,7 @@ export default function CounterTable() {
                         : "text-green-600"
                     }
                   >
-                    {i + 1}
+                    {order.order_number}
                   </span>
                   <span
                     className={
@@ -151,8 +129,8 @@ export default function CounterTable() {
 
               {/* TOTAL */}
               <div className="col-span-2 text-sm font-semibold space-y-2">
-                <div className="inline-block px-2 py-1 bg-orange-400 text-white rounded-full text-xs font-bold">
-                  Unpaid
+                <div className="inline-block px-2 py-1 bg-orange-400 capitalize text-white rounded-full text-xs font-bold">
+                  {order.payment_status}
                 </div>
                 <div>Rs {order.total_amount}</div>
               </div>
@@ -200,16 +178,21 @@ export default function CounterTable() {
                   }`}
                   onClick={() => {
                     if (order.status === "Pending") {
-                      // Change pending -> preparing
                       handleStatusChange(order.id, "Preparing");
                     } else {
-                      // Finish action (you can define)
+                      // Only open sidebar if payment_status is unpaid
+                      if (order.payment_status === "Unpaid") {
+                        openSheet(order.id);
+                      }
                     }
                   }}
                 >
                   <Check size={14} />{" "}
                   {order.status === "Pending" ? "Accept" : "Finish"}
                 </Button>
+                <button onClick={() => openSheet("123")}>
+                  Open Sheet Test
+                </button>
 
                 {order.status === "Pending" && (
                   <MoreVertical

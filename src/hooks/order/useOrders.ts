@@ -40,6 +40,7 @@ export const useOrder = (id: string) =>
   useQuery<Order>({
     queryKey: ["order", id],
     queryFn: async () => {
+      console.log("id in useQuery", id);
       const res = await fetch(`/api/orders/${id}`);
       if (!res.ok) throw new Error("Order not found");
       return res.json();

@@ -1,13 +1,16 @@
 // app/api/orders/[id]/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+console.log("HIT [id] ROUTE");
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id: orderId } = await context.params;
   const supabase = await createClient();
-  const orderId = params.id;
+
+  console.log("orderId", orderId);
 
   if (!orderId) {
     return NextResponse.json(
@@ -68,3 +71,16 @@ export async function GET(
     status_logs: status_logs || [],
   });
 }
+
+console.log("HIT [id] ROUTE");
+
+// export async function GET(
+//   req: Request,
+//   context: { params: Promise<{ id: string }> }
+// ) {
+//   const { id } = await context.params;
+
+//   console.log("orderId:", id);
+
+//   return Response.json({ id });
+// }

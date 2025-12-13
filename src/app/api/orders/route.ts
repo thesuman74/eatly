@@ -73,6 +73,7 @@ export async function GET(req: Request) {
       payment_status: order.payment_status,
       created_at: order.created_at,
       total_amount: itemsTotal + tipsTotal,
+      order_number: order.order_number,
     };
   });
 

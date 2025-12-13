@@ -13,6 +13,7 @@ export interface Order {
   payments: OrderPayment[];
   status_logs?: OrderStatusLog[];
   total_amount: number;
+  order_number: string;
 }
 
 export interface OrderItem {
