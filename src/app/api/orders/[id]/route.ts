@@ -62,7 +62,7 @@ export async function GET(
     product: products.find((p) => p.id === item.product_id) || null, // fallback to null
   }));
 
-  console.log(" itemsWithDetails", itemsWithDetails);
+  // console.log(" itemsWithDetails", itemsWithDetails);
 
   // 3️⃣ Fetch addons for each item
   const itemIds = items?.map((i) => i.id) || [];

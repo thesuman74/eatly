@@ -8,10 +8,13 @@ import {
 } from "@/lib/types/order-types";
 import {
   addOrderAPI,
+  deleteOrderItemAPI,
   getOrderDetailsAPI,
   getOrderListAPI,
+  updateOrderItemAPI,
   updateOrderStatusAPI,
 } from "@/services/orderServices";
+import { toast } from "react-toastify";
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
@@ -48,6 +51,80 @@ export const useUpdateOrderStatus = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["order", id] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+};
+
+export const useUpdateOrderItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      updateOrderItemAPI(itemId, quantity),
+    onMutate: async ({ itemId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: ["order-details"] });
+
+      const previousOrder = queryClient.getQueryData<any>(["order-details"]);
+
+      queryClient.setQueryData(["order-details"], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((item: any) =>
+            item.id === itemId ? { ...item, quantity } : item
+          ),
+        };
+      });
+
+      return { previousOrder };
+    },
+    onError: (err, variables, context) => {
+      toast.error(err?.message || "Failed to update quantity");
+
+      if (context?.previousOrder) {
+        queryClient.setQueryData(["order-details"], context.previousOrder);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Quantity updated successfully");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["order-details"] });
+    },
+  });
+};
+
+export const useDeleteOrderItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ itemId }: { itemId: string }) => deleteOrderItemAPI(itemId),
+    onMutate: async ({ itemId }) => {
+      await queryClient.cancelQueries({ queryKey: ["order-details"] });
+
+      const previousOrder = queryClient.getQueryData<any>(["order-details"]);
+
+      queryClient.setQueryData(["order-details"], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.filter((item: any) => item.id !== itemId),
+        };
+      });
+
+      return { previousOrder };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousOrder) {
+        toast.error(err?.message || "Failed to remove item");
+
+        queryClient.setQueryData(["order-details"], context.previousOrder);
+      }
+    },
+    onSuccess: () => toast.success("Item removed successfully"),
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["order-details"] });
     },
   });
 };

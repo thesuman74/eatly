@@ -38,27 +38,18 @@ export default function EditableOrderItemsList({
   onRemoveItem,
   paymentStatus = "Pending",
 }: EditableOrderItemsListProps) {
-  const [items, setItems] = useState(itemsWithDetails || []);
-
-
   // Handle quantity update locally and call callback
   const updateQuantity = (itemId: string, quantity: number) => {
-    const updated = items.map((item) =>
-      item.id === itemId ? { ...item, quantity } : item
-    );
-    setItems(updated);
     onUpdateQuantity?.(itemId, quantity);
   };
 
   const removeItem = (itemId: string) => {
-    const updated = items.filter((item) => item.id !== itemId);
-    setItems(updated);
     onRemoveItem?.(itemId);
   };
 
   const cartTotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.total_price, 0),
-    [items]
+    () => itemsWithDetails.reduce((sum, item) => sum + item.total_price, 0),
+    [itemsWithDetails]
   );
 
   return (
@@ -71,7 +62,7 @@ export default function EditableOrderItemsList({
 
         {/* Scrollable Items List */}
         <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[250px] max-h-[400px]">
-          {items.map((item) => (
+          {itemsWithDetails?.map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"

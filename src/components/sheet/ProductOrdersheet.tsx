@@ -5,7 +5,11 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import { useOrderSheet } from "@/app/stores/useOrderSheet";
-import { useOrder } from "@/hooks/order/useOrders";
+import {
+  useDeleteOrderItem,
+  useOrder,
+  useUpdateOrderItem,
+} from "@/hooks/order/useOrders";
 import { timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview";
@@ -20,6 +24,12 @@ const ProductOrdersheet = () => {
   const [clientName, setClientName] = useState("suman");
   const [items, setItems] = useState<any[]>([]);
 
+  // React Query mutations
+  const updateOrderItemMutation = useUpdateOrderItem();
+
+  const deleteOrderItemMutation = useDeleteOrderItem();
+
+  console.log("data.items", items);
   // ✅ Populate state when order changes
   useEffect(() => {
     if (!data) return;
@@ -28,7 +38,24 @@ const ProductOrdersheet = () => {
     setClientName(data.customer_name || "");
     setItems(data.items || []);
   }, [data]);
+  const handleUpdateQuantity = (itemId: string, quantity: number) => {
+    // 1️⃣ Optimistic UI update
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === itemId
+          ? { ...i, quantity, total_price: i.unit_price * quantity }
+          : i
+      )
+    );
 
+    // 2️⃣ Call mutation
+    updateOrderItemMutation.mutate({ itemId, quantity });
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    deleteOrderItemMutation.mutate({ itemId: itemId });
+  };
   if (!isOpen) return null;
 
   if (isLoading || !data) {
@@ -107,13 +134,8 @@ const ProductOrdersheet = () => {
         <div className="flex-1  px-2">
           <EditableOrderItemsList
             itemsWithDetails={items}
-            onUpdateQuantity={(id, qty) => {
-              const updated = items.map((i) =>
-                i.id === id ? { ...i, quantity: qty } : i
-              );
-              setItems(updated);
-            }}
-            onRemoveItem={(id) => setItems(items.filter((i) => i.id !== id))}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
           />
         </div>
 

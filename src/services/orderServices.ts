@@ -54,3 +54,24 @@ export async function updateOrderStatusAPI({
     throw new Error(data?.message || "Failed to update orders status");
   return data;
 }
+
+// lib/api/order-items.ts
+export const updateOrderItemAPI = async (itemId: string, quantity: number) => {
+  const res = await fetch(`/api/orders/${itemId}/update`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quantity }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update item");
+  return data;
+};
+
+export const deleteOrderItemAPI = async (itemId: string) => {
+  const res = await fetch(`/api/orders/${itemId}/delete`, {
+    method: "DELETE",
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to delete item");
+  return data;
+};
