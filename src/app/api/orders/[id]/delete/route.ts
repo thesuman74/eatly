@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
-  const itemId = params.id;
+  const { id: itemId } = await context.params;
 
   if (!itemId) {
     return NextResponse.json(
