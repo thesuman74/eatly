@@ -57,18 +57,32 @@ export interface OrderStatusLog {
 
 // ENUMS
 export type OrderType = "OnSite" | "Takeaway" | "Delivery";
+
+// payment-status.ts
+
+export const PAYMENT_STATUS = {
+  UNPAID: "unpaid",
+  PAID: "paid",
+  REFUNDED: "refunded",
+  CANCELLED: "cancelled",
+} as const;
+
 export type PaymentStatus =
-  | "Pending"
-  | "Paid"
-  | "Refunded"
-  | "Cancelled"
-  | "Unpaid";
-export type OrderStatus =
-  | "Ready"
-  | "Delivered"
-  | "Cancelled"
-  | "Pending"
-  | "Preparing";
+  (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS];
+
+// order-status.ts
+
+export const ORDER_STATUS = {
+  DRAFT: "draft",
+  CONFIRMED: "confirmed",
+  PREPARING: "preparing",
+  READY: "ready",
+  DELIVERED: "delivered",
+  CANCELLED: "cancelled",
+} as const;
+
+export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
+
 export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
 
 export interface CreateOrderPayload {

@@ -23,10 +23,6 @@ export default function EditableOrderItemsList({
     removeFromCart,
   } = useCartStore();
 
-  const cartTotal = useCartStore((state) => state.cartTotal());
-
-  console.log("cartItems", cartItems);
-
   const updateQuantity = (itemId: string, quantity: number) => {
     updateCartQuantity(itemId, quantity);
   };
@@ -96,36 +92,6 @@ export default function EditableOrderItemsList({
             </div>
           ))}
         </div>
-      </div>
-      <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
-        <div></div>
-        <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
-          + Discount
-        </button>
-        <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
-          + Servicing
-        </button>
-        <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
-          + Packaging
-        </button>
-        <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
-
-        <div className="flex justify-between w-full items-center px-1">
-          <span
-            className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
-            }`}
-          >
-            {paymentStatus?.toUpperCase() || "PENDING"}
-          </span>
-          <div className="space-x-2">
-            <span>Total:</span>
-            <span>RS</span>
-            <span className="text-2xl">{cartTotal.toFixed(2)}</span>
-          </div>
-        </div>
-
-        <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
       </div>
     </>
   );

@@ -19,7 +19,7 @@ import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/app/stores/useCartStore";
 
 const ProductOrdersheet = () => {
-  const { openProductOrderSheet, orderId } = useOrderWorkspace();
+  const { orderId } = useOrderWorkspace();
   const { isProductOrderSheetOpen, closeProductOrderSheet } =
     useOrderWorkspace();
 
@@ -28,21 +28,15 @@ const ProductOrdersheet = () => {
   console.log("data", data);
 
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
+  const cartTotal = useCartStore((state) => state.cartTotal());
 
   const {
-    currentlyActiveOrderId,
     setCurrentlyActiveOrderId,
     cartItems,
     setCartItems,
-    addToCart,
-    updateQuantity,
-    removeFromCart,
     setCustomerName,
     setOrderTitle,
   } = useCartStore();
-
-  const updateOrderItemMutation = useUpdateOrderItem();
-  const deleteOrderItemMutation = useDeleteOrderItem();
 
   // ✅ Initialize cart store when order data changes
   useEffect(() => {
@@ -53,19 +47,6 @@ const ProductOrdersheet = () => {
     setCustomerName(data.customer_name || "");
     setOrderTitle(data.order_title || "");
   }, [data, orderId]);
-
-  const handleUpdateQuantity = (itemId: string, quantity: number) => {
-    // Update cart store (local editable state)
-    updateQuantity(itemId, quantity);
-
-    // Optimistic server update
-    updateOrderItemMutation.mutate({ itemId, quantity });
-  };
-
-  const handleRemoveItem = (itemId: string) => {
-    removeFromCart(itemId);
-    deleteOrderItemMutation.mutate({ itemId });
-  };
 
   if (!isProductOrderSheetOpen) return null;
 
@@ -94,37 +75,34 @@ const ProductOrdersheet = () => {
                 {/* Top Section */}
                 <div className="shrink-0 ">
                   <div
-                    className={`flex px-4 py-2  text-white ${
+                    className={`flex items-center px-4 py-2 text-white ${
                       data.paymentStatus === "Paid"
                         ? "bg-green-600"
                         : "bg-yellow-400"
                     }`}
                   >
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 items-center">
                       <Hash />
                       <span className="text-lg font-semibold">1</span>
                     </div>
+
                     <div className="flex space-x-4 items-center px-1">
-                      <span>
-                        <Utensils size={20} />
-                      </span>
+                      <Utensils size={20} />
                       <span className="px-1">
                         {data.orderType?.toUpperCase() || "On site"}
-                      </span>{" "}
-                      <span> | </span>{" "}
+                      </span>
+                      <span>|</span>
                       <span>
-                        {" "}
                         {data.paymentStatus?.toUpperCase() || "PENDING"}
                       </span>
                     </div>
-                    {/* <div className=" flex justify-end p-1 border-b"> */}
+
                     <button
-                      className="p-2 rounded hover:bg-gray-100 transition"
+                      className="ml-auto p-2 rounded hover:bg-gray-100 transition"
                       onClick={closeProductOrderSheet}
                     >
                       <X className="w-5 h-5 text-gray-600" />
                     </button>
-                    {/* </div> */}
                   </div>
 
                   <div className="flex justify-between items-center bg-yellow-50/80 px-2">
@@ -170,11 +148,41 @@ const ProductOrdersheet = () => {
 
                 {/* Middle (scrollable) */}
                 <div className="flex-1 overflow-y-auto ">
-                  <EditableOrderItemsList
-                    itemsWithDetails={cartItems}
-                    onUpdateQuantity={handleUpdateQuantity}
-                    onRemoveItem={handleRemoveItem}
-                  />
+                  <EditableOrderItemsList itemsWithDetails={cartItems} />
+
+                  {/* total and discount section  */}
+                  <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
+                    <div></div>
+                    <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
+                      + Discount
+                    </button>
+                    <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
+                      + Servicing
+                    </button>
+                    <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
+                      + Packaging
+                    </button>
+                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+
+                    <div className="flex justify-between w-full items-center px-1">
+                      <span
+                        className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
+                          data.paymentStatus === "Paid"
+                            ? "bg-green-600"
+                            : "bg-yellow-400"
+                        }`}
+                      >
+                        {data.paymentStatus?.toUpperCase() || "PENDING"}
+                      </span>
+                      <div className="space-x-2">
+                        <span>Total:</span>
+                        <span>RS</span>
+                        <span className="text-2xl">{cartTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+                  </div>
 
                   {/* Bottom Section */}
                   <div className="shrink-0  mt-auto  ">
@@ -190,25 +198,29 @@ const ProductOrdersheet = () => {
                           <span>Cancel</span>
                         </Button>
 
-                        <Button
-                          variant={"outline"}
-                          // onClick={() => handlePayment()}
-                          className="text-blue-500 border-blue-500 w-full"
-                        >
-                          <span className="cursor-pointer">$</span>
-                          <span>Pay</span>
-                        </Button>
+                        {data.paymentStatus !== "Paid" && (
+                          <Button
+                            variant={"outline"}
+                            onClick={() => setShowPaymentPanel(true)}
+                            className="text-blue-500 border-blue-500 w-full"
+                          >
+                            <span className="cursor-pointer">$</span>
+                            <span>Pay</span>
+                          </Button>
+                        )}
 
-                        <Button
-                          variant={"default"}
-                          className="text-white bg-green-500 w-full"
-                          // onClick={() => handleConfirm()}
-                        >
-                          <span className="cursor-pointer">
-                            <Check />
-                          </span>
-                          <span>Confirm</span>
-                        </Button>
+                        {data.paymentStatus !== "Paid" && (
+                          <Button
+                            variant={"default"}
+                            className="text-white bg-green-500 w-full"
+                            onClick={() => setShowPaymentPanel(true)}
+                          >
+                            <span className="cursor-pointer">
+                              <Check />
+                            </span>
+                            <span>Confirm</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -10,14 +10,11 @@ const page = () => {
     <>
       <div>
         <OrderTabsSection />
-        {/* <CounterTable /> */}
         <ProductOrdersheet />
       </div>
       <div>
         <OrderWorkspace />
       </div>
-
-     
     </>
   );
 };

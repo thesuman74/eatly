@@ -1,5 +1,6 @@
 "use client";
 import { useCartStore } from "@/app/stores/useCartStore";
+import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import { X } from "lucide-react";
 import Link from "next/link";
 
@@ -29,11 +30,11 @@ export default function CartPreview() {
               key={item.product?.id}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
-              <img
+              {/* <img
                 src={item.product?.images[0]?.url || "/Images/coffee.png"}
                 alt={item.product?.name}
                 className="h-16 w-16 object-cover rounded-lg"
-              />
+              /> */}
               <div className="flex flex-1 flex-col ">
                 <div className="flex justify-between w-full items-center">
                   <h4 className="w-full line-clamp-1 font-semibold">
@@ -85,7 +86,9 @@ export default function CartPreview() {
         <div className="flex justify-between w-full items-center px-1">
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
+              paymentStatus === PAYMENT_STATUS.PAID
+                ? "bg-green-600"
+                : "bg-yellow-400"
             }`}
           >
             {paymentStatus?.toUpperCase() || "PENDING"}
