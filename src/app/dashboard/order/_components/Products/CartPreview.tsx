@@ -7,6 +7,7 @@ export default function CartPreview() {
   const { cartItems, updateQuantity, removeFromCart } = useCartStore();
   const cartTotal = useCartStore((state) => state.cartTotal());
 
+  console.log("cartItems", cartItems);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   return (
@@ -23,38 +24,42 @@ export default function CartPreview() {
         </div>
 
         <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">
-          {cartItems.map(({ product, quantity }) => (
+          {cartItems.map((item) => (
             <div
-              key={product.id}
+              key={item.product?.id}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
               <img
-                src={product?.images[0]?.url || "/Images/coffee.png"}
-                alt={product.name}
+                src={item.product?.images[0]?.url || "/Images/coffee.png"}
+                alt={item.product?.name}
                 className="h-16 w-16 object-cover rounded-lg"
               />
               <div className="flex flex-1 flex-col ">
                 <div className="flex justify-between w-full items-center">
                   <h4 className="w-full line-clamp-1 font-semibold">
-                    {product.name}
+                    {item.product?.name}
                   </h4>
-                  <span>${product.price}</span>
+                  <span>${item.product?.price}</span>
                   <button
                     className="text-gray-500 px-2"
-                    onClick={() => removeFromCart(product.id)}
+                    onClick={() => removeFromCart(item?.product!.id)}
                   >
                     <X />
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => updateQuantity(product.id, quantity - 1)}
+                    onClick={() =>
+                      updateQuantity(item.product!.id, item.quantity - 1)
+                    }
                   >
                     -
                   </button>
-                  <span>{quantity}</span>
+                  <span>{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(product.id, quantity + 1)}
+                    onClick={() =>
+                      updateQuantity(item.product!.id, item.quantity + 1)
+                    }
                   >
                     +
                   </button>

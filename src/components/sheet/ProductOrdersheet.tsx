@@ -16,74 +16,57 @@ import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview"
 import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/EditableOrderItemsList";
 import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
+import { useCartStore } from "@/app/stores/useCartStore";
 
 const ProductOrdersheet = () => {
   const { openProductOrderSheet, orderId } = useOrderWorkspace();
-
-  const { data, isLoading, error } = useOrder(orderId);
-  console.log("orderId", orderId);
-  console.log("data", data);
-
-  // ✅ Local state for editable fields
-  const [title, setTitle] = useState("suman");
-  const [clientName, setClientName] = useState("suman");
-  const [items, setItems] = useState<any[]>([]);
-  const [showPaymentPanel, setShowPaymentPanel] = useState(false);
-
-  // React Query mutations
-  const updateOrderItemMutation = useUpdateOrderItem();
-
-  const deleteOrderItemMutation = useDeleteOrderItem();
-
   const { isProductOrderSheetOpen, closeProductOrderSheet } =
     useOrderWorkspace();
 
-  console.log("isProductOrderSheetOpen", isProductOrderSheetOpen);
+  const { data, isLoading, error } = useOrder(orderId);
 
-  console.log("data.items", items);
-  // ✅ Populate state when order changes
+  console.log("data", data);
+
+  const [showPaymentPanel, setShowPaymentPanel] = useState(false);
+
+  const {
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
+    cartItems,
+    setCartItems,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    setCustomerName,
+    setOrderTitle,
+  } = useCartStore();
+
+  const updateOrderItemMutation = useUpdateOrderItem();
+  const deleteOrderItemMutation = useDeleteOrderItem();
+
+  // ✅ Initialize cart store when order data changes
   useEffect(() => {
-    if (!data) return;
+    if (!data || !orderId) return;
 
-    setTitle(data.customer_name || "");
-    setClientName(data.customer_name || "");
-    setItems(data.items || []);
-  }, [data]);
+    setCurrentlyActiveOrderId(orderId);
+    setCartItems(data.items || []);
+    setCustomerName(data.customer_name || "");
+    setOrderTitle(data.order_title || "");
+  }, [data, orderId]);
+
   const handleUpdateQuantity = (itemId: string, quantity: number) => {
-    // 1️⃣ Optimistic UI update
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === itemId
-          ? { ...i, quantity, total_price: i.unit_price * quantity }
-          : i
-      )
-    );
+    // Update cart store (local editable state)
+    updateQuantity(itemId, quantity);
 
-    // 2️⃣ Call mutation
+    // Optimistic server update
     updateOrderItemMutation.mutate({ itemId, quantity });
   };
 
-  // Function to add product from ProductsList
-  const handleAddProduct = (product: any) => {
-    // Check if product already exists
-    const existingIndex = items.findIndex((i) => i.id === product.id);
-    if (existingIndex !== -1) {
-      const updated = [...items];
-      updated[existingIndex].quantity += 1;
-      updated[existingIndex].total_price =
-        updated[existingIndex].quantity * updated[existingIndex].price;
-      setItems(updated);
-    } else {
-      setItems((prev) => [
-        ...prev,
-        { ...product, quantity: 1, total_price: product.price },
-      ]);
-    }
-  };
   const handleRemoveItem = (itemId: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== itemId));
-    deleteOrderItemMutation.mutate({ itemId: itemId });
+    removeFromCart(itemId);
+    deleteOrderItemMutation.mutate({ itemId });
   };
+
   if (!isProductOrderSheetOpen) return null;
 
   if (isLoading) {
@@ -188,7 +171,7 @@ const ProductOrdersheet = () => {
                 {/* Middle (scrollable) */}
                 <div className="flex-1 overflow-y-auto ">
                   <EditableOrderItemsList
-                    itemsWithDetails={items}
+                    itemsWithDetails={cartItems}
                     onUpdateQuantity={handleUpdateQuantity}
                     onRemoveItem={handleRemoveItem}
                   />

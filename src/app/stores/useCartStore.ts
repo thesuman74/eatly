@@ -7,17 +7,21 @@ import {
   OrderStatus,
   PaymentMethod,
   OrderItemAddon,
+  OrderItem,
+  Order,
 } from "@/lib/types/order-types";
 
-export interface CartItem {
-  product: ProductTypes;
-  quantity: number;
-  addons?: OrderItemAddon[];
-}
+// export interface CartItem {
+//   product: ProductTypes;
+//   quantity: number;
+//   addons?: OrderItemAddon[];
+// }
 
 interface CartState {
   // Cart
-  cartItems: CartItem[];
+  cartItems: OrderItem[];
+  setCartItems: (items: OrderItem[]) => void;
+
   cartTotal: () => number;
 
   // Order metadata
@@ -34,6 +38,9 @@ interface CartState {
 
   // Order lifecycle
   orderStatus: OrderStatus;
+
+  currentlyActiveOrderId: string; // initialized as empty
+  setCurrentlyActiveOrderId: (orderId: string) => void;
 
   // Actions
   setCustomerName: (name: string) => void;
@@ -61,11 +68,18 @@ interface CartState {
 
 export const useCartStore = create<CartState>((set, get) => ({
   cartItems: [],
+  setCartItems: (items: OrderItem[]) => set({ cartItems: items }),
+
+  currentlyActiveOrderId: "",
+
+  setCurrentlyActiveOrderId: (orderId: string) =>
+    set({ currentlyActiveOrderId: orderId }),
+
   cartTotal: () =>
     get().cartItems.reduce(
       (total, item) =>
         total +
-        item.product.price * item.quantity +
+        item.unit_price * item.quantity +
         (item.addons?.reduce(
           (a, addon) => a + addon.price * addon.quantity,
           0
@@ -99,23 +113,44 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   addToCart: (product, addons) => {
     const existing = get().cartItems.find(
-      (item) => item.product.id === product.id
+      (item) => item.product_id === product.id
     );
+
     if (existing) {
+      // update quantity and addons
+
+      console.log("existing item found:", existing);
       set({
         cartItems: get().cartItems.map((item) =>
-          item.product.id === product.id
+          item.product_id === product.id
             ? {
                 ...item,
                 quantity: item.quantity + 1,
+                total_price:
+                  (item.unit_price ?? product.price) * (item.quantity + 1),
                 addons: addons || item.addons,
               }
             : item
         ),
       });
     } else {
+      // add new item with required fields
+      console.log("new item:", existing);
+
       set({
-        cartItems: [...get().cartItems, { product, quantity: 1, addons }],
+        cartItems: [
+          ...get().cartItems,
+          {
+            id: crypto.randomUUID(),
+            product_id: product.id,
+            product,
+            name: product.name,
+            quantity: 1,
+            unit_price: product.price ?? 0, // use product.price
+            total_price: product.price ?? 0, // initial total
+            addons: addons || [],
+          } as OrderItem,
+        ],
       });
     }
   },
@@ -123,7 +158,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeFromCart: (productId) => {
     set({
       cartItems: get().cartItems.filter(
-        (item) => item.product.id !== productId
+        (item) => item?.product?.id !== productId
       ),
     });
   },
@@ -134,7 +169,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     } else {
       set({
         cartItems: get().cartItems.map((item) =>
-          item.product.id === productId ? { ...item, quantity } : item
+          item.product?.id === productId ? { ...item, quantity } : item
         ),
       });
     }
@@ -143,7 +178,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   updateItemAddons: (productId, addons) => {
     set({
       cartItems: get().cartItems.map((item) =>
-        item.product.id === productId ? { ...item, addons } : item
+        item.product?.id === productId ? { ...item, addons } : item
       ),
     });
   },
@@ -176,12 +211,12 @@ export const useCartStore = create<CartState>((set, get) => ({
       tip: get().tips,
     },
     items: get().cartItems.map((item) => ({
-      product_id: item.product.id,
-      name: item.product.name,
+      product_id: item?.product?.id,
+      name: item?.product?.name,
       quantity: item.quantity,
-      unit_price: item.product.price,
+      unit_price: item.product?.price,
       total_price:
-        item.product.price * item.quantity +
+        (item?.product?.price || 0) * item.quantity +
         (item.addons?.reduce(
           (a, addon) => a + addon.price * addon.quantity,
           0

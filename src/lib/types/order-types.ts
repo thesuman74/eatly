@@ -1,5 +1,7 @@
 // types/order.ts
 
+import { ProductTypes } from "./menu-types";
+
 export interface Order {
   id: string;
   customer_name: string;
@@ -7,6 +9,7 @@ export interface Order {
   title?: string;
   status: OrderStatus;
   payment_status: PaymentStatus;
+
   created_at: string;
   updated_at: string;
   items: OrderItem[];
@@ -19,7 +22,10 @@ export interface Order {
 export interface OrderItem {
   id: string;
   product_id: string;
+  product?: ProductTypes; // optional, for UI/cart purposes
+
   name: string;
+
   quantity: number;
   unit_price: number;
   total_price: number;

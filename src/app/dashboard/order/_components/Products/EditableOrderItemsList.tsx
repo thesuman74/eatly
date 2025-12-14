@@ -4,28 +4,8 @@ import { useState, useMemo } from "react";
 import { X } from "lucide-react";
 import { useProductListSheet } from "@/app/stores/useProductListSheet";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
-
-interface ProductImage {
-  url: string;
-  alt?: string | null;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images?: ProductImage[];
-}
-
-interface OrderItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  notes?: string | null;
-  product: Product | null;
-}
+import { OrderItem } from "@/lib/types/order-types";
+import { useCartStore } from "@/app/stores/useCartStore";
 
 interface EditableOrderItemsListProps {
   itemsWithDetails: OrderItem[];
@@ -35,24 +15,26 @@ interface EditableOrderItemsListProps {
 }
 
 export default function EditableOrderItemsList({
-  itemsWithDetails,
-  onUpdateQuantity,
-  onRemoveItem,
   paymentStatus = "Pending",
 }: EditableOrderItemsListProps) {
-  // Handle quantity update locally and call callback
+  const {
+    cartItems,
+    updateQuantity: updateCartQuantity,
+    removeFromCart,
+  } = useCartStore();
+
+  const cartTotal = useCartStore((state) => state.cartTotal());
+
+  console.log("cartItems", cartItems);
+
   const updateQuantity = (itemId: string, quantity: number) => {
-    onUpdateQuantity?.(itemId, quantity);
+    updateCartQuantity(itemId, quantity);
   };
 
   const removeItem = (itemId: string) => {
-    onRemoveItem?.(itemId);
+    removeFromCart(itemId);
   };
 
-  const cartTotal = useMemo(
-    () => itemsWithDetails.reduce((sum, item) => sum + item.total_price, 0),
-    [itemsWithDetails]
-  );
   const { openProductList } = useOrderWorkspace();
 
   return (
@@ -69,10 +51,10 @@ export default function EditableOrderItemsList({
         </div>
 
         {/* Scrollable Items List */}
-        <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[250px] max-h-[400px]">
-          {itemsWithDetails?.map((item) => (
+        <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[250px] max-h-[250px]">
+          {cartItems?.map((item, index) => (
             <div
-              key={item.id}
+              key={item.id + index}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
               <img
@@ -88,20 +70,24 @@ export default function EditableOrderItemsList({
                   <span>${item.unit_price}</span>
                   <button
                     className="text-gray-500 px-2"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.product_id)}
                   >
                     <X />
                   </button>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    onClick={() =>
+                      updateQuantity(item.product_id, item.quantity - 1)
+                    }
                   >
                     -
                   </button>
                   <span>{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() =>
+                      updateQuantity(item.product_id, item.quantity + 1)
+                    }
                   >
                     +
                   </button>
@@ -110,6 +96,36 @@ export default function EditableOrderItemsList({
             </div>
           ))}
         </div>
+      </div>
+      <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
+        <div></div>
+        <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
+          + Discount
+        </button>
+        <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
+          + Servicing
+        </button>
+        <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
+          + Packaging
+        </button>
+        <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+
+        <div className="flex justify-between w-full items-center px-1">
+          <span
+            className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
+              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
+            }`}
+          >
+            {paymentStatus?.toUpperCase() || "PENDING"}
+          </span>
+          <div className="space-x-2">
+            <span>Total:</span>
+            <span>RS</span>
+            <span className="text-2xl">{cartTotal.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
       </div>
     </>
   );

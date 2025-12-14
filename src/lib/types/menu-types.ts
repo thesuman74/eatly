@@ -7,24 +7,26 @@ export interface MenuItemsTypes {
 }
 
 export interface ProductImageTypes {
-  id: string;
-  url: string;
   alt: string;
+  id: string;
   is_primary: boolean;
   product_id: string;
   sort_order: number;
+  url: string;
 }
 
 export interface ProductTypes {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: number; // in cents
-  currency: string;
-  images: ProductImageTypes[];
   available: boolean;
+  category_id: string;
+  currency: string;
+  description: string;
+  id: string;
   isVisible: boolean;
+  name: string;
+  position: number;
+  price: number; // in cents
+  slug: string;
+  images: ProductImageTypes[];
 }
 
 export interface ProductCategoryTypes {
