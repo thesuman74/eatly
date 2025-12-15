@@ -95,6 +95,36 @@ export const useUpdateOrderItem = () => {
   });
 };
 
+export const useUpdateOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    any, // return type of API
+    Error, // error type
+    { id: string; payload: CreateOrderPayload } // mutation input type
+  >({
+    mutationFn: async ({ id, payload }) => {
+      const res = await fetch(`/api/orders/${id}/update`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Failed to update order");
+      return data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-details", id] });
+      toast.success("Order updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update order");
+    },
+  });
+};
+
 export const useDeleteOrderItem = () => {
   const queryClient = useQueryClient();
 

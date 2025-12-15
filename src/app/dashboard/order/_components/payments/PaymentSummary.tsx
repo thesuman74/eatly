@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { MoveLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useCreateOrder } from "@/hooks/order/useOrders";
+import { useCreateOrder, useUpdateOrder } from "@/hooks/order/useOrders";
 import {
   CreateOrderPayload,
   ORDER_STATUS,
@@ -39,9 +39,12 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const received = parseFloat(amountReceived) || 0;
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
+  const currentlyActiveOrderId = useCartStore(
+    (state) => state.currentlyActiveOrderId
+  );
 
   const createOrderMutation = useCreateOrder();
-
+  const updateOrderMutation = useUpdateOrder();
   console.log("cartItems from payment summary", cartItems);
 
   const handleRegisterPayment = () => {
@@ -57,17 +60,20 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   };
 
   const handleRegisterAndAcceptOrder = async () => {
-    if (!paymentMethod) {
-      toast.error("Please select a payment method");
-      return;
-    }
-
-    // Use the helper to build the payload from the cart state
-    const payload: CreateOrderPayload = buildOrderPayload();
+    const payload = buildOrderPayload();
 
     try {
-      await createOrderMutation.mutateAsync(payload);
-      toast.success("Order registered successfully!");
+      if (currentlyActiveOrderId) {
+        // Update existing order
+        await updateOrderMutation.mutateAsync({
+          id: currentlyActiveOrderId,
+          payload,
+        });
+      } else {
+        // Create new order
+        await createOrderMutation.mutateAsync(payload);
+      }
+
       setPaymentStatus(PAYMENT_STATUS.PAID);
       setOpen(false);
     } catch (error: any) {

@@ -1,72 +1,82 @@
-import { createClient } from "@/lib/supabase/server";
+// src/app/api/orders/[id]/route.ts
 import { NextResponse } from "next/server";
-import { z } from "zod";
-
-const updateQuantitySchema = z.object({
-  quantity: z.number().min(1, "Quantity must be at least 1"),
-});
+import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
+import { createClient } from "@/lib/supabase/server";
 
 export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
-  const { id: itemId } = await context.params;
+  const { id: orderId } = await context.params;
 
-  console.log("order item id ", itemId);
-
-  if (!itemId) {
+  if (!orderId) {
     return NextResponse.json(
-      { error: "Order item ID is required" },
+      { error: "Order ID is required" },
       { status: 400 }
     );
   }
 
-  const body = await req.json();
-  const parseResult = updateQuantitySchema.safeParse(body);
+  const body: CreateOrderPayload = await req.json();
+  const { order, items, payment } = body;
 
-  if (!parseResult.success) {
-    return NextResponse.json(
-      { error: parseResult.error.message },
-      { status: 400 }
-    );
+  try {
+    // 1️⃣ Update order metadata
+    const subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
+    const total = subtotal + (payment?.tip || 0);
+
+    const { data: updatedOrder, error: orderError } = await supabase
+      .from("orders")
+      .update({
+        customer_name: order.customer_name ?? null,
+        notes: order.notes ?? null,
+        order_type: order.order_type ?? null,
+        payment_status: order.payment_status ?? PAYMENT_STATUS.UNPAID,
+        subtotal,
+        total,
+      })
+      .eq("id", orderId)
+      .select()
+      .single();
+
+    if (orderError || !updatedOrder) {
+      throw new Error(orderError?.message || "Order update failed");
+    }
+
+    // 2️⃣ Update order items
+    // For simplicity, remove all previous items and insert new ones
+    await supabase.from("order_items").delete().eq("order_id", orderId);
+
+    const itemsPayload = items.map((i) => ({
+      order_id: orderId,
+      product_id: i.product_id,
+      quantity: i.quantity,
+      unit_price: i.unit_price,
+      total_price: i.total_price,
+      notes: i.notes ?? null,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(itemsPayload);
+    if (itemsError) throw new Error(itemsError.message);
+
+    // 3️⃣ Upsert payment if provided
+    if (payment) {
+      const { error: paymentError } = await supabase
+        .from("order_payments")
+        .upsert({
+          order_id: orderId,
+          method: payment.method,
+          amount_paid: payment.amount_paid,
+          tip: payment.tip,
+          change_returned: payment.change_returned,
+        });
+      if (paymentError) throw new Error(paymentError.message);
+    }
+
+    return NextResponse.json({ success: true, order: updatedOrder });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
-
-  const { quantity } = parseResult.data;
-
-  // ✅ First, fetch unit_price from DB
-  const { data: existingItem, error: fetchError } = await supabase
-    .from("order_items")
-    .select("unit_price")
-    .eq("id", itemId)
-    .single();
-
-  if (fetchError || !existingItem) {
-    return NextResponse.json(
-      { error: fetchError?.message || "Item not found" },
-      { status: 400 }
-    );
-  }
-
-  const total_price = existingItem.unit_price * quantity;
-
-  // ✅ Update with calculated total_price
-  const { data: updatedItem, error: updateError } = await supabase
-    .from("order_items")
-    .update({
-      quantity,
-      total_price,
-    })
-    .eq("id", itemId)
-    .select()
-    .single();
-
-  if (updateError || !updatedItem) {
-    return NextResponse.json(
-      { error: updateError?.message || "Failed to update item" },
-      { status: 400 }
-    );
-  }
-
-  return NextResponse.json(updatedItem);
 }

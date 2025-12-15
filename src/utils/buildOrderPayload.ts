@@ -3,6 +3,7 @@ import { CreateOrderPayload } from "@/lib/types/order-types";
 
 export const buildOrderPayload = (): CreateOrderPayload => {
   const {
+    currentlyActiveOrderId,
     cartItems,
     customerName,
     orderType,
@@ -18,6 +19,8 @@ export const buildOrderPayload = (): CreateOrderPayload => {
 
   return {
     order: {
+      id: currentlyActiveOrderId || undefined, // <-- include id
+
       customer_name: customerName,
       order_type: orderType,
       notes: notes || "",

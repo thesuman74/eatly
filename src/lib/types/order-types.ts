@@ -93,6 +93,8 @@ export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
 
 export interface CreateOrderPayload {
   order: {
+    id?: string; // <-- add this
+
     order_type?: OrderType; // nullable in DB
     customer_name?: string;
     customer_phone?: string;

@@ -17,6 +17,7 @@ import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/E
 import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/app/stores/useCartStore";
+import { PAYMENT_STATUS } from "@/lib/types/order-types";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
@@ -48,6 +49,8 @@ const ProductOrdersheet = () => {
     setOrderTitle(data.order_title || "");
   }, [data, orderId]);
 
+  const paymentStatus = useCartStore((state) => state.paymentStatus);
+
   if (!isProductOrderSheetOpen) return null;
 
   if (isLoading) {
@@ -76,7 +79,7 @@ const ProductOrdersheet = () => {
                 <div className="shrink-0 ">
                   <div
                     className={`flex items-center px-4 py-2 text-white ${
-                      data.paymentStatus === "Paid"
+                      paymentStatus === PAYMENT_STATUS.PAID
                         ? "bg-green-600"
                         : "bg-yellow-400"
                     }`}
@@ -92,9 +95,7 @@ const ProductOrdersheet = () => {
                         {data.orderType?.toUpperCase() || "On site"}
                       </span>
                       <span>|</span>
-                      <span>
-                        {data.paymentStatus?.toUpperCase() || "PENDING"}
-                      </span>
+                      <span>{data.status.toUpperCase()}</span>
                     </div>
 
                     <button
@@ -167,12 +168,12 @@ const ProductOrdersheet = () => {
                     <div className="flex justify-between w-full items-center px-1">
                       <span
                         className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-                          data.paymentStatus === "Paid"
+                          paymentStatus === PAYMENT_STATUS.PAID
                             ? "bg-green-600"
                             : "bg-yellow-400"
                         }`}
                       >
-                        {data.paymentStatus?.toUpperCase() || "PENDING"}
+                        {paymentStatus.toUpperCase()}
                       </span>
                       <div className="space-x-2">
                         <span>Total:</span>
