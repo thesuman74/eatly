@@ -56,14 +56,7 @@ export default function CounterTable() {
   };
 
   const acceptOrder = async (orderId: string) => {
-    updateOrderStatus.mutate(
-      { id: orderId, status: ORDER_STATUS.ACCEPTED },
-      {
-        onSuccess: () => {
-          toast.success("Order accepted");
-        },
-      }
-    );
+    updateOrderStatus.mutate({ id: orderId, status: ORDER_STATUS.ACCEPTED });
   };
 
   const finishOrder = async (order: any, setLoading: (v: boolean) => void) => {
