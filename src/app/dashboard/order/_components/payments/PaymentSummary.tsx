@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoveLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useCreateOrder, useUpdateOrder } from "@/hooks/order/useOrders";
 import {
@@ -30,13 +30,18 @@ interface PaymentSummaryProps {
 const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
-  const [tips, setTips] = useState("");
-  const [amountReceived, setAmountReceived] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">(""); // allow empty initially
-  const { paymentStatus, setPaymentStatus } = useCartStore();
+  const {
+    paymentStatus,
+    amountReceived,
+    tips,
+    setPaymentStatus,
+    setPaymentMethod,
+    setAmountReceived,
+    setTips,
+  } = useCartStore();
 
-  const tipsAmount = parseFloat(tips) || 0;
-  const received = parseFloat(amountReceived) || 0;
+  const tipsAmount = tips || 0;
+  const received = amountReceived || 0;
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
   const currentlyActiveOrderId = useCartStore(
@@ -62,6 +67,8 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
   const handleRegisterAndAcceptOrder = async () => {
     const payload = buildOrderPayload();
 
+    console.log("payload", payload);
+
     try {
       if (currentlyActiveOrderId) {
         // Update existing order
@@ -69,9 +76,11 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           id: currentlyActiveOrderId,
           payload,
         });
+        setOpen(false);
       } else {
         // Create new order
         await createOrderMutation.mutateAsync(payload);
+        setOpen(false);
       }
 
       setPaymentStatus(PAYMENT_STATUS.PAID);
@@ -142,7 +151,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
               type="number"
               placeholder="Enter tip amount"
               value={tips}
-              onChange={(e) => setTips(e.target.value)}
+              onChange={(e) => setTips(Number(e.target.value))}
               className="flex-1 !text-lg"
             />
           </div>
@@ -170,7 +179,7 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
               type="number"
               // placeholder="Enter amount received"
               value={amountReceived}
-              onChange={(e) => setAmountReceived(e.target.value)}
+              onChange={(e) => setAmountReceived(Number(e.target.value))}
               className="flex-1 !text-2xl"
             />
           </div>

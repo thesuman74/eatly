@@ -25,13 +25,18 @@ export async function PATCH(
     const subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
     const total = subtotal + (payment?.tip || 0);
 
+    const paymentStatus =
+      payment?.amount_paid && payment.amount_paid > 0
+        ? PAYMENT_STATUS.PAID
+        : PAYMENT_STATUS.UNPAID;
+
     const { data: updatedOrder, error: orderError } = await supabase
       .from("orders")
       .update({
         customer_name: order.customer_name ?? null,
         notes: order.notes ?? null,
         order_type: order.order_type ?? null,
-        payment_status: order.payment_status ?? PAYMENT_STATUS.UNPAID,
+        payment_status: paymentStatus ?? null,
         subtotal,
         total,
       })

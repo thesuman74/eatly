@@ -222,7 +222,13 @@ export default function CounterTable() {
 
               {/* TOTAL */}
               <div className="col-span-2 text-sm font-semibold space-y-2">
-                <div className="inline-block px-2 py-1 bg-orange-400 capitalize text-white rounded-full text-xs font-bold">
+                <div
+                  className={`inline-block px-2 py-1 ${
+                    order.payment_status === PAYMENT_STATUS.PAID
+                      ? "bg-green-500"
+                      : "bg-orange-400"
+                  }  capitalize text-white rounded-full text-xs font-bold`}
+                >
                   {order.payment_status}
                 </div>
                 <div>Rs {order.total_amount}</div>
