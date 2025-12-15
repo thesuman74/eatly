@@ -22,16 +22,19 @@ export async function POST(req: NextRequest) {
       throw new Error("Paid order must include payment details");
     }
 
-    if (payment && order.payment_status !== PAYMENT_STATUS.PAID) {
-      throw new Error("Payment provided for unpaid order");
-    }
-
+    // if (payment && order.payment_status !== PAYMENT_STATUS.PAID) {
+    //   throw new Error("Payment provided for unpaid order");
+    // }
+    const paymentStatus =
+      payment?.amount_paid && payment.amount_paid > 0
+        ? PAYMENT_STATUS.PAID
+        : PAYMENT_STATUS.UNPAID;
     // 3. Insert order
     const { data: newOrder, error: orderError } = await supabase
       .from("orders")
       .insert({
         customer_name: order.customer_name ?? null,
-        payment_status: order.payment_status ?? PAYMENT_STATUS.UNPAID,
+        payment_status: paymentStatus,
         order_type: order.order_type ?? null,
         subtotal,
         total,

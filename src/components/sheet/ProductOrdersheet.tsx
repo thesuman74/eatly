@@ -72,6 +72,7 @@ const ProductOrdersheet = () => {
               <PaymentSummary
                 open={showPaymentPanel}
                 setOpen={setShowPaymentPanel}
+                payments={data.payments}
               />
             ) : (
               <div className="">

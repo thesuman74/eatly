@@ -84,6 +84,7 @@ export const ORDER_STATUS = {
   PREPARING: "preparing",
   READY: "ready",
   DELIVERED: "delivered",
+  COMPLETED: "completed",
   CANCELLED: "cancelled",
 } as const;
 

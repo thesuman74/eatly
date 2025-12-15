@@ -50,6 +50,7 @@ export const useUpdateOrderStatus = () => {
   return useMutation({
     mutationFn: updateOrderStatusAPI,
     onSuccess: (_, { id }) => {
+      toast.success("Order status updated!");
       queryClient.invalidateQueries({ queryKey: ["order", id] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },

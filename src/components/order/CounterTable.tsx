@@ -32,6 +32,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
 import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
+import { useCartStore } from "@/app/stores/useCartStore";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
@@ -86,11 +87,11 @@ export default function CounterTable() {
       });
 
       if (requiresPayment(order)) {
-        openProductOrderSheet(order.id); // unpaid → payment flow
+        openProductOrderSheet(order.id);
       } else {
         updateOrderStatus.mutate({
           id: order.id,
-          status: ORDER_STATUS.ACCEPTED,
+          status: ORDER_STATUS.COMPLETED,
         });
       }
     } catch (err) {
@@ -112,6 +113,7 @@ export default function CounterTable() {
       await finishOrder(order, setLoading);
     }
   };
+  const { setCurrentlyActiveOrderId } = useCartStore();
 
   const [open, setOpen] = useState(false);
   return (
@@ -157,148 +159,158 @@ export default function CounterTable() {
         )}
         {orders.map((order, i) => {
           return (
-            <div
-              key={i}
-              className={`relative grid grid-cols-12 gap-4 p-4 hover:bg-green-100 border items-center ${
-                order.status !== ORDER_STATUS.DRAFT && "bg-gray-50"
-              }`}
-            >
-              <div
-                className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
-                  order.status === ORDER_STATUS.DRAFT
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
-                } bg-green-500 rounded" `}
-              />
-
-              {/* DATE + TIME */}
-              <div className="col-span-2 text-sm space-y-2">
-                <div className="flex items-center gap-1">
-                  <span
-                    className={
+            <div key={i}>
+              {order.status !== ORDER_STATUS.COMPLETED && (
+                <div
+                  key={i}
+                  className={`relative grid grid-cols-12 gap-4 p-4  hover:bg-green-100 border items-center ${
+                    order.status !== ORDER_STATUS.DRAFT && "bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
                       order.status === ORDER_STATUS.DRAFT
-                        ? "text-orange-500"
-                        : "text-green-600"
-                    }
-                  >
-                    {order.order_number}
-                  </span>
-                  <span
-                    className={`font-semibold text-md
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    } bg-green-500 rounded" `}
+                  />
+
+                  {/* DATE + TIME */}
+                  <div className="col-span-2 text-sm space-y-2">
+                    <div className="flex items-center gap-1">
+                      <span
+                        className={
+                          order.status === ORDER_STATUS.DRAFT
+                            ? "text-orange-500"
+                            : "text-green-600"
+                        }
+                      >
+                        {order.order_number}
+                      </span>
+                      <span
+                        className={`font-semibold text-md
                      ${
                        order.status === ORDER_STATUS.DRAFT
                          ? "text-orange-500"
                          : "text-green-600"
                      }`}
-                  >
-                    {"#" + order?.order_type}
-                  </span>
+                      >
+                        {"#" + order?.order_type}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-red-500 text-xs gap-1">
+                      <Clock size={14} />
+                      {/* {order.updated_at} */}
+                      {timeAgo(order.created_at)}
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500 gap-1">
+                      <CalendarDays size={14} />
+                      {/* {order.created_at} */}
+                      {formatCreatedDate(order.created_at)}
+                    </div>
+                  </div>
+
+                  {/* STATUS */}
+                  <div className="col-span-2 text-sm space-y-2">
+                    <div
+                      className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                        [ORDER_STATUS.DRAFT, "Preparing"].includes(order.status)
+                          ? "bg-green-300 text-black/60"
+                          : "bg-blue-300 text-black/60"
+                      }`}
+                    >
+                      {order.status.toLocaleUpperCase()}
+                    </div>
+                    {/* <div className="text-xs text-gray-500">POS </div> */}
+                  </div>
+
+                  {/* TOTAL */}
+                  <div className="col-span-2 text-sm font-semibold space-y-2">
+                    <div
+                      className={`inline-block px-2 py-1 ${
+                        order.payment_status === PAYMENT_STATUS.PAID
+                          ? "bg-green-500"
+                          : "bg-orange-400"
+                      }  capitalize text-white rounded-full text-xs font-bold`}
+                    >
+                      {order.payment_status}
+                    </div>
+                    <div>Rs {order.total_amount}</div>
+                  </div>
+
+                  {/* CLIENT */}
+                  <div className="col-span-3 text-sm ">
+                    <div className="flex items-center text-xs text-gray-500 gap-1">
+                      <User2 size={14} />
+                      {order.customer_name}
+                    </div>
+                  </div>
+
+                  {/* ACTIONS */}
+                  {/* ACTIONS */}
+                  <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
+                    {/* Cancel button */}
+                    <Button
+                      variant="outline"
+                      className="border text-red-600 border-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        openProductOrderSheet(order.id),
+                          setCurrentlyActiveOrderId(order.id);
+                      }}
+                    >
+                      <X size={14} /> View
+                    </Button>
+
+                    {/* Only show Status dropdown if not pending */}
+                    {order.status !== ORDER_STATUS.DRAFT && (
+                      <OrderStatusActions
+                        onStatusChange={(status) =>
+                          handleStatusChange(order.id, status)
+                        }
+                      />
+                    )}
+
+                    {/* Pay button */}
+                    <Button
+                      variant="outline"
+                      className="border text-blue-600 border-blue-600 hover:bg-blue-50"
+                    >
+                      <DollarSign size={14} /> Pay
+                    </Button>
+
+                    {/* Accept / Finish button */}
+                    <Button
+                      className={`text-white ${
+                        order.status === ORDER_STATUS.DRAFT
+                          ? "bg-green-500"
+                          : "bg-blue-600"
+                      }`}
+                      disabled={loadingOrderId === order.id}
+                      onClick={() =>
+                        handleOrderAction(order, (v) =>
+                          setLoadingOrderId(v ? order.id : null)
+                        )
+                      }
+                    >
+                      {loadingOrderId === order.id ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Check size={14} />
+                      )}
+                      {order.status === ORDER_STATUS.DRAFT
+                        ? "Accept"
+                        : "Finish"}
+                    </Button>
+
+                    {order.status === ORDER_STATUS.DRAFT && (
+                      <MoreVertical
+                        size={18}
+                        className="cursor-pointer text-gray-500"
+                      />
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center text-red-500 text-xs gap-1">
-                  <Clock size={14} />
-                  {/* {order.updated_at} */}
-                  {timeAgo(order.created_at)}
-                </div>
-                <div className="flex items-center text-xs text-gray-500 gap-1">
-                  <CalendarDays size={14} />
-                  {/* {order.created_at} */}
-                  {formatCreatedDate(order.created_at)}
-                </div>
-              </div>
-
-              {/* STATUS */}
-              <div className="col-span-2 text-sm space-y-2">
-                <div
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                    [ORDER_STATUS.DRAFT, "Preparing"].includes(order.status)
-                      ? "bg-green-300 text-black/60"
-                      : "bg-blue-300 text-black/60"
-                  }`}
-                >
-                  {order.status.toLocaleUpperCase()}
-                </div>
-                {/* <div className="text-xs text-gray-500">POS </div> */}
-              </div>
-
-              {/* TOTAL */}
-              <div className="col-span-2 text-sm font-semibold space-y-2">
-                <div
-                  className={`inline-block px-2 py-1 ${
-                    order.payment_status === PAYMENT_STATUS.PAID
-                      ? "bg-green-500"
-                      : "bg-orange-400"
-                  }  capitalize text-white rounded-full text-xs font-bold`}
-                >
-                  {order.payment_status}
-                </div>
-                <div>Rs {order.total_amount}</div>
-              </div>
-
-              {/* CLIENT */}
-              <div className="col-span-3 text-sm ">
-                <div className="flex items-center text-xs text-gray-500 gap-1">
-                  <User2 size={14} />
-                  {order.customer_name}
-                </div>
-              </div>
-
-              {/* ACTIONS */}
-              {/* ACTIONS */}
-              <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
-                {/* Cancel button */}
-                <Button
-                  variant="outline"
-                  className="border text-red-600 border-red-600 hover:bg-red-50"
-                >
-                  <X size={14} /> Cancel
-                </Button>
-
-                {/* Only show Status dropdown if not pending */}
-                {order.status !== ORDER_STATUS.DRAFT && (
-                  <OrderStatusActions
-                    onStatusChange={(status) =>
-                      handleStatusChange(order.id, status)
-                    }
-                  />
-                )}
-
-                {/* Pay button */}
-                <Button
-                  variant="outline"
-                  className="border text-blue-600 border-blue-600 hover:bg-blue-50"
-                >
-                  <DollarSign size={14} /> Pay
-                </Button>
-
-                {/* Accept / Finish button */}
-                <Button
-                  className={`text-white ${
-                    order.status === ORDER_STATUS.DRAFT
-                      ? "bg-green-500"
-                      : "bg-blue-600"
-                  }`}
-                  disabled={loadingOrderId === order.id}
-                  onClick={() =>
-                    handleOrderAction(order, (v) =>
-                      setLoadingOrderId(v ? order.id : null)
-                    )
-                  }
-                >
-                  {loadingOrderId === order.id ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Check size={14} />
-                  )}
-                  {order.status === ORDER_STATUS.DRAFT ? "Accept" : "Finish"}
-                </Button>
-
-                {order.status === ORDER_STATUS.DRAFT && (
-                  <MoreVertical
-                    size={18}
-                    className="cursor-pointer text-gray-500"
-                  />
-                )}
-              </div>
+              )}
             </div>
           );
         })}
