@@ -52,17 +52,7 @@ export default function CounterTable() {
   const updateOrderStatus = useUpdateOrderStatus();
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
-    updateOrderStatus.mutate(
-      { id, status },
-      {
-        onSuccess: () => {
-          toast.success("Order status updated successfully!");
-        },
-        onError: (error: any) => {
-          toast.error(error.message || "Failed to update order status");
-        },
-      }
-    );
+    updateOrderStatus.mutate({ id, status });
   };
 
   const acceptOrder = async (orderId: string) => {

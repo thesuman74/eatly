@@ -34,12 +34,16 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
+  const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
   const {
     paymentStatus,
     amountReceived,
     tips,
+    paymentMethod,
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
     setPaymentStatus,
     setPaymentMethod,
     setAmountReceived,
@@ -51,15 +55,11 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
   const received = amountReceived || 0;
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
-  const currentlyActiveOrderId = useCartStore(
-    (state) => state.currentlyActiveOrderId
-  );
 
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
-  console.log("cartItems from payment summary", cartItems);
 
-  const isPaid = payments?.some((p) => p.amount_paid > 0) || false;
+  const isPaid = Boolean(payments?.length);
 
   const handleRegisterPayment = () => {
     setPaymentStatus(PAYMENT_STATUS.PAID);
@@ -67,25 +67,40 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     toast.success("Simulating Payment Success ");
   };
 
-  const handleSaveasPending = () => {
+  const handleSaveAsPending = async () => {
+    // clear payment-related local state
+    setPaymentMethod(null);
+    setAmountReceived(0);
+    setTips(0);
+
     setPaymentStatus(PAYMENT_STATUS.UNPAID);
-    setOpen(false);
-    toast.success("Simulating Payment Pending ");
+    // setOpen(false);
+
+    // toast.success("Order saved as pending");
   };
 
   const handleRegisterAndAcceptOrder = async () => {
+    if (!paymentMethod && isPending !== true) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    if (amountReceived && amountReceived < totalToPay) {
+      toast.error("Amount received is less than total to pay");
+      return;
+    }
     const payload = buildOrderPayload();
 
-    console.log("payload", payload);
+    console.log("handleregisterandaccept order", payload);
 
     try {
+      console.log("inside");
       if (currentlyActiveOrderId) {
         // Update existing order
         await updateOrderMutation.mutateAsync({
           id: currentlyActiveOrderId,
           payload,
         });
-        setOpen(false);
+        console.log("clearing cart..."), setOpen(false);
         clearCart();
       } else {
         // Create new order
@@ -99,6 +114,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
       clearCart();
     } catch (error: any) {
       toast.error(error.message || "Failed to register order");
+    } finally {
+      setOpen(false);
+      clearCart();
+      setCurrentlyActiveOrderId("");
     }
   };
 
@@ -117,7 +136,8 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
       });
 
       setOpen(false);
-      clearCart();
+      clearCart(); // ✅ correct place
+      setCurrentlyActiveOrderId("");
     } catch (error: any) {
       toast.error(error.message || "Failed to finalize order");
     }
@@ -140,56 +160,68 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             {paymentStatus?.toUpperCase() || "PENDING"}
           </span>
         </div>
-        <div className="flex flex-col p-4 space-y-4">
-          {/* Total Paid Header */}
-          <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Total</span>
-              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                Paid
+        {isPaid && (
+          <div className="flex flex-col p-4 space-y-4">
+            {/* Payment Cards */}
+            {/* Total Paid Header */}
+            <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center space-x-2">
+                <span className="font-semibold text-gray-700">Total</span>
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  Paid
+                </span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">
+                Rs {payments?.reduce((acc, p) => acc + p.amount_paid, 0)}
               </span>
             </div>
-            <span className="text-xl font-bold text-gray-900">
-              Rs {payments?.reduce((acc, p) => acc + p.amount_paid, 0)}
-            </span>
-          </div>
-
-          {/* Payment Cards */}
-          {payments?.map((p) => (
-            <>
-              <div
-                key={p.id}
-                className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
-              >
-                <div>
-                  <div className="text-lg text-gray-500">{p.method}</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    Rs {p.amount_paid}
+            {isPaid &&
+              payments?.map((p) => (
+                <>
+                  <div
+                    key={p.id}
+                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
+                  >
+                    <div>
+                      <div className="text-lg text-gray-500">{p.method}</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        Rs {p.amount_paid}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      {new Date(p.created_at).toLocaleString()}
+                      <div className="text-gray-500 text-xs pt-2">
+                        <span className="block">
+                          Items: Rs {p.amount_paid - p.tip}
+                        </span>
+                        <span>Tips: Rs {p.tip}</span>
+                        <span
+                          className={`font-bold ${
+                            !isPending && change >= 0
+                              ? "text-green-600"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          Rs{" "}
+                          {!isPending && change >= 0
+                            ? change.toFixed(2)
+                            : "0.00"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="text-sm text-gray-400">
-                  {new Date(p.created_at).toLocaleString()}
-                  <div className="text-gray-500 text-xs pt-2">
-                    <span className="block">
-                      Items: Rs {p.amount_paid - p.tip}
-                    </span>
-                    <span>Tips: Rs {p.tip}</span>
-                  </div>
-                </div>
-              </div>
-            </>
-          ))}
+                </>
+              ))}
 
-          {/* Finalize Order Button */}
-          {isPaid && (
+            {/* Finalize Order Button */}
             <button
               onClick={handleFinalizeOrder}
               className="w-full mt-auto bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
             >
               Finalize Order
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {!isPaid && (
           <>
@@ -201,6 +233,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   Payment Method
                 </label>
                 <Select
+                  disabled={isPending}
                   onValueChange={(value) =>
                     setPaymentMethod(value as PaymentMethod)
                   }
@@ -221,10 +254,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   Subtotal
                 </label>
                 <Input
+                  disabled={isPending}
                   value={cartTotal.toFixed(2)}
                   readOnly
                   className="flex-1 !text-lg"
-                  disabled
                 />
               </div>
 
@@ -234,6 +267,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   Tips
                 </label>
                 <Input
+                  disabled={isPending}
                   type="number"
                   placeholder="Enter tip amount"
                   value={tips}
@@ -249,6 +283,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 </label>
                 <Input
                   type="number"
+                  disabled={isPending}
                   placeholder="Total amount"
                   value={totalToPay.toFixed(2)}
                   readOnly
@@ -263,6 +298,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 </label>
                 <Input
                   type="number"
+                  disabled={isPending}
                   // placeholder="Enter amount received"
                   value={amountReceived}
                   onChange={(e) => setAmountReceived(Number(e.target.value))}
@@ -295,12 +331,29 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             {/* Actions */}
             <div className="bg-white mt-auto mb-20 border-t p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <Input type="checkbox" className="w-4 h-4" />
+                <Input
+                  type="checkbox"
+                  className="w-4 h-4"
+                  checked={isPending}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIsPending(checked);
+
+                    if (checked) {
+                      handleSaveAsPending();
+                    }
+                  }}
+                />
+
                 <Badge
                   variant="outline"
-                  className="text-sm text-gray-600 border-dashed"
+                  className="text-sm text-gray-600 border-dashed cursor-pointer"
+                  onClick={() => {
+                    setIsPending(true);
+                    handleSaveAsPending();
+                  }}
                 >
-                  Save as Pending
+                  Save as Unpaid
                 </Badge>
               </div>
 

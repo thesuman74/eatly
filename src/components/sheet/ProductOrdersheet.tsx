@@ -43,7 +43,7 @@ const ProductOrdersheet = () => {
   useEffect(() => {
     if (!data || !orderId) return;
 
-    setCurrentlyActiveOrderId(orderId);
+    // setCurrentlyActiveOrderId(orderId);
     setCartItems(data.items || []);
     setCustomerName(data.customer_name || "");
     setOrderTitle(data.order_title || "");
@@ -52,6 +52,8 @@ const ProductOrdersheet = () => {
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   if (!isProductOrderSheetOpen) return null;
+  console.log("cartItems from payment summary", cartItems);
+  console.log("payment status", paymentStatus);
 
   if (isLoading) {
     return (
@@ -80,7 +82,7 @@ const ProductOrdersheet = () => {
                 <div className="shrink-0 ">
                   <div
                     className={`flex items-center px-4 py-2 text-white ${
-                      paymentStatus === PAYMENT_STATUS.PAID
+                      data?.payment_status === PAYMENT_STATUS.PAID
                         ? "bg-green-600"
                         : "bg-yellow-400"
                     }`}
@@ -169,12 +171,12 @@ const ProductOrdersheet = () => {
                     <div className="flex justify-between w-full items-center px-1">
                       <span
                         className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-                          paymentStatus === PAYMENT_STATUS.PAID
+                          data.payment_status === PAYMENT_STATUS.PAID
                             ? "bg-green-600"
                             : "bg-yellow-400"
                         }`}
                       >
-                        {paymentStatus.toUpperCase()}
+                        {data.payment_status.toUpperCase()}
                       </span>
                       <div className="space-x-2">
                         <span>Total:</span>
@@ -193,6 +195,7 @@ const ProductOrdersheet = () => {
                         <Button
                           variant={"outline"}
                           className="text-red-500 border-red-500 w-full"
+                          onClick={closeProductOrderSheet}
                         >
                           <span className="cursor-pointer">
                             <X />
@@ -200,29 +203,25 @@ const ProductOrdersheet = () => {
                           <span>Cancel</span>
                         </Button>
 
-                        {data.paymentStatus !== "Paid" && (
-                          <Button
-                            variant={"outline"}
-                            onClick={() => setShowPaymentPanel(true)}
-                            className="text-blue-500 border-blue-500 w-full"
-                          >
-                            <span className="cursor-pointer">$</span>
-                            <span>Pay</span>
-                          </Button>
-                        )}
+                        <Button
+                          variant={"outline"}
+                          onClick={() => setShowPaymentPanel(true)}
+                          className="text-blue-500 border-blue-500 w-full"
+                        >
+                          <span className="cursor-pointer">$</span>
+                          <span>Pay</span>
+                        </Button>
 
-                        {data.paymentStatus !== "Paid" && (
-                          <Button
-                            variant={"default"}
-                            className="text-white bg-green-500 w-full"
-                            onClick={() => setShowPaymentPanel(true)}
-                          >
-                            <span className="cursor-pointer">
-                              <Check />
-                            </span>
-                            <span>Confirm</span>
-                          </Button>
-                        )}
+                        <Button
+                          variant={"default"}
+                          className="text-white bg-green-500 w-full"
+                          onClick={() => setShowPaymentPanel(true)}
+                        >
+                          <span className="cursor-pointer">
+                            <Check />
+                          </span>
+                          <span>Confirm</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
