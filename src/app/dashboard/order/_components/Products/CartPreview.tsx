@@ -30,11 +30,11 @@ export default function CartPreview() {
               key={item.product?.id}
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
-              {/* <img
+              <img
                 src={item.product?.images[0]?.url || "/Images/coffee.png"}
                 alt={item.product?.name}
                 className="h-16 w-16 object-cover rounded-lg"
-              /> */}
+              />
               <div className="flex flex-1 flex-col ">
                 <div className="flex justify-between w-full items-center">
                   <h4 className="w-full line-clamp-1 font-semibold">

@@ -14,7 +14,13 @@ import { MoveLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useCreateOrder } from "@/hooks/order/useOrders";
-import { CreateOrderPayload, PaymentMethod } from "@/lib/types/order-types";
+import {
+  CreateOrderPayload,
+  ORDER_STATUS,
+  PAYMENT_STATUS,
+  PaymentMethod,
+} from "@/lib/types/order-types";
+import { buildOrderPayload } from "@/utils/buildOrderPayload";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -36,10 +42,18 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
 
   const createOrderMutation = useCreateOrder();
 
+  console.log("cartItems from payment summary", cartItems);
+
   const handleRegisterPayment = () => {
-    setPaymentStatus("Paid");
+    setPaymentStatus(PAYMENT_STATUS.PAID);
     setOpen(false);
     toast.success("Simulating Payment Success ");
+  };
+
+  const handleSaveasPending = () => {
+    setPaymentStatus(PAYMENT_STATUS.UNPAID);
+    setOpen(false);
+    toast.success("Simulating Payment Pending ");
   };
 
   const handleRegisterAndAcceptOrder = async () => {
@@ -48,35 +62,16 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
       return;
     }
 
-    const payload: CreateOrderPayload = {
-      order: {
-        customer_name: "", // add input if needed
-        order_type: "OnSite",
-        title: "",
-        payment_status: "Paid",
-      },
-      items: cartItems.map((item) => ({
-        product_id: item.product.id,
-        name: item.product.name,
-        quantity: item.quantity,
-        unit_price: item.product.price,
-        total_price: item.product.price * item.quantity,
-      })),
-      payment: {
-        method: paymentMethod as PaymentMethod, // ensure type matches
-        amount_paid: parseFloat(amountReceived) || 0,
-        tip: parseFloat(tips) || 0,
-        change_returned: change >= 0 ? change : 0,
-      },
-    };
+    // Use the helper to build the payload from the cart state
+    const payload: CreateOrderPayload = buildOrderPayload();
 
     try {
-      await createOrderMutation.mutateAsync(payload); // payload is sent to API
+      await createOrderMutation.mutateAsync(payload);
       toast.success("Order registered successfully!");
-      setPaymentStatus("Paid");
+      setPaymentStatus(PAYMENT_STATUS.PAID);
       setOpen(false);
     } catch (error: any) {
-      toast.error(error.message || "Failed to register order"); // API error will show
+      toast.error(error.message || "Failed to register order");
     }
   };
 
@@ -89,7 +84,9 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           <span className="text-xl font-bold">Register Payment</span>
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "Paid" ? "bg-green-600" : "bg-yellow-400"
+              paymentStatus === PAYMENT_STATUS.PAID
+                ? "bg-green-600"
+                : "bg-yellow-400"
             }`}
           >
             {paymentStatus?.toUpperCase() || "PENDING"}

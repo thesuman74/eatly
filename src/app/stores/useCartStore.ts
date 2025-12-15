@@ -9,6 +9,9 @@ import {
   OrderItemAddon,
   OrderItem,
   Order,
+  ORDER_STATUS,
+  PAYMENT_STATUS,
+  ORDER_TYPES,
 } from "@/lib/types/order-types";
 
 // export interface CartItem {
@@ -17,7 +20,7 @@ import {
 //   addons?: OrderItemAddon[];
 // }
 
-interface CartState {
+export interface CartState {
   // Cart
   cartItems: OrderItem[];
   setCartItems: (items: OrderItem[]) => void;
@@ -89,15 +92,15 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   customerName: "",
   orderTitle: "",
-  orderType: "OnSite",
+  orderType: ORDER_TYPES.ON_SITE,
   notes: "",
 
-  paymentStatus: "Pending",
+  paymentStatus: PAYMENT_STATUS.UNPAID,
   paymentMethod: undefined,
   tips: 0,
   amountReceived: 0,
 
-  orderStatus: "Pending",
+  orderStatus: ORDER_STATUS.DRAFT,
 
   setCustomerName: (name) => set({ customerName: name }),
   setOrderTitle: (title) => set({ orderTitle: title }),
@@ -192,9 +195,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       tips: 0,
       amountReceived: 0,
       paymentMethod: undefined,
-      paymentStatus: "Pending",
-      orderStatus: "Pending",
-      orderType: "OnSite",
+      paymentStatus: PAYMENT_STATUS.UNPAID,
+      orderStatus: ORDER_STATUS.DRAFT,
+      orderType: ORDER_TYPES.ON_SITE,
     }),
 
   totalToPay: () => get().cartTotal() + (get().tips || 0),

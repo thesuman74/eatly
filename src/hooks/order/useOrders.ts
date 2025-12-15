@@ -4,6 +4,7 @@ import { useCartStore } from "@/app/stores/useCartStore";
 import {
   CreateOrderPayload,
   Order,
+  ORDER_STATUS,
   OrderStatus,
 } from "@/lib/types/order-types";
 import {

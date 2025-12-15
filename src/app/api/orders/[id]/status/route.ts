@@ -1,11 +1,12 @@
 // app/api/orders/[id]/status/route.ts
 import { createClient } from "@/lib/supabase/server";
+import { ORDER_STATUS } from "@/lib/types/order-types";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 // 1️⃣ Validation schema
 const statusSchema = z.object({
-  status: z.enum(["Ready", "Delivered", "Cancelled", "Pending", "Preparing"]),
+  status: z.enum(Object.values(ORDER_STATUS) as [string, ...string[]]),
 });
 
 export async function PATCH(

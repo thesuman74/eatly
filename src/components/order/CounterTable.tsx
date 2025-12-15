@@ -10,6 +10,8 @@ import {
   CalendarDays,
   User2,
   Loader2,
+  CookingPot,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -28,6 +30,8 @@ import { useOrderSheet } from "@/app/stores/useOrderSheet";
 import { getOrderDetailsAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
+import Link from "next/link";
+import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
@@ -60,6 +64,55 @@ export default function CounterTable() {
     );
   };
 
+  const acceptOrder = async (orderId: string) => {
+    updateOrderStatus.mutate(
+      { id: orderId, status: ORDER_STATUS.ACCEPTED },
+      {
+        onSuccess: () => {
+          toast.success("Order accepted");
+        },
+      }
+    );
+  };
+
+  const finishOrder = async (order: any, setLoading: (v: boolean) => void) => {
+    try {
+      setLoading(true);
+
+      await queryClient.fetchQuery({
+        queryKey: ["order-details", order.id],
+        queryFn: () => getOrderDetailsAPI(order.id),
+        staleTime: 60 * 1000,
+      });
+
+      if (requiresPayment(order)) {
+        openProductOrderSheet(order.id); // unpaid → payment flow
+      } else {
+        updateOrderStatus.mutate({
+          id: order.id,
+          status: ORDER_STATUS.ACCEPTED,
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to finish order");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOrderAction = async (
+    order: any,
+    setLoading: (v: boolean) => void
+  ) => {
+    const action = getOrderAction(order);
+
+    if (action === "ACCEPT") {
+      await acceptOrder(order.id);
+    } else {
+      await finishOrder(order, setLoading);
+    }
+  };
+
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -80,6 +133,28 @@ export default function CounterTable() {
         </div>
 
         {/* Orders */}
+
+        {orders.length === 0 && (
+          <div className="p-4 text-center h-64 md:h-96 flex flex-col space-y-4 items-center justify-center">
+            <div className="">
+              <CookingPot size={84} className="animate-bounce text-blue-600" />
+            </div>
+            <div className="flex flex-col w-auto space-y-4">
+              <span className="text-sm text-gray-500 ">
+                Create orders New Orders
+              </span>
+              <Button className="flex items-center justify-center space-x-4 py-8">
+                <Link
+                  href="order/new?type=onSite"
+                  className="flex items-center justify-center space-x-4"
+                >
+                  <Plus size={60} />
+                  <span className="text-xl">New Order</span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
         {orders.map((order, i) => {
           return (
             <div
@@ -197,42 +272,16 @@ export default function CounterTable() {
                       : "bg-blue-600"
                   }`}
                   disabled={loadingOrderId === order.id}
-                  onClick={async () => {
-                    if (order.status === ORDER_STATUS.DRAFT) {
-                      handleStatusChange(order.id, ORDER_STATUS.CONFIRMED);
-                    } else if (order.payment_status === PAYMENT_STATUS.PAID) {
-                      try {
-                        setLoadingOrderId(order.id); // start loader
-
-                        // fetch data and wait
-                        await queryClient.fetchQuery({
-                          queryKey: ["order-details", order.id],
-                          queryFn: () => getOrderDetailsAPI(order.id),
-                          staleTime: 1000 * 60, // 1 min
-                        });
-
-                        // open sheet only after data is fetched
-                        openProductOrderSheet(order.id);
-                        console.log(
-                          "Store orderId after openProductOrderSheet:",
-                          useOrderWorkspace.getState().orderId
-                        );
-                      } catch (err) {
-                        console.error(err);
-                      } finally {
-                        setLoadingOrderId(null); // stop loader
-                      }
-                    }
-                  }}
+                  onClick={() =>
+                    handleOrderAction(order, (v) =>
+                      setLoadingOrderId(v ? order.id : null)
+                    )
+                  }
                 >
                   {loadingOrderId === order.id ? (
-                    <span className="animate-spin">
-                      <Loader2 />
-                    </span> // loader icon or spinner
+                    <Loader2 className="animate-spin" />
                   ) : (
-                    <>
-                      <Check size={14} />{" "}
-                    </>
+                    <Check size={14} />
                   )}
                   {order.status === ORDER_STATUS.DRAFT ? "Accept" : "Finish"}
                 </Button>

@@ -58,6 +58,12 @@ export interface OrderStatusLog {
 // ENUMS
 export type OrderType = "OnSite" | "Takeaway" | "Delivery";
 
+export const ORDER_TYPES = {
+  ON_SITE: "OnSite",
+  TAKEAWAY: "Takeaway",
+  DELIVERY: "Delivery",
+} as const;
+
 // payment-status.ts
 
 export const PAYMENT_STATUS = {
@@ -74,7 +80,7 @@ export type PaymentStatus =
 
 export const ORDER_STATUS = {
   DRAFT: "draft",
-  CONFIRMED: "confirmed",
+  ACCEPTED: "accepted",
   PREPARING: "preparing",
   READY: "ready",
   DELIVERED: "delivered",
@@ -87,23 +93,33 @@ export type PaymentMethod = "cash" | "card" | "paypal" | "esewa" | "khalti";
 
 export interface CreateOrderPayload {
   order: {
-    customer_name: string;
-    order_type: OrderType;
-    title?: string;
-    payment_status: PaymentStatus;
-  };
-  items: {
-    product_id: string;
-    name: string;
-    quantity: number;
-    unit_price: number;
-    total_price: number;
+    order_type?: OrderType; // nullable in DB
+    customer_name?: string;
+    customer_phone?: string;
+    customer_address?: string;
     notes?: string;
-  }[];
-  payment: {
-    method: PaymentMethod;
-    amount_paid: number;
-    tip: number;
-    change_returned: number;
+
+    // Optional override — backend defaults to "unpaid"
+    payment_status?: PaymentStatus;
   };
+
+  items: OrderItemPayload[];
+
+  // Optional: only present for paid / finalized orders
+  payment?: OrderPaymentPayload;
+}
+
+export interface OrderPaymentPayload {
+  method: PaymentMethod;
+  amount_paid: number;
+  tip?: number;
+  change_returned?: number;
+}
+
+export interface OrderItemPayload {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  notes?: string;
 }
