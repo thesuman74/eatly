@@ -51,8 +51,13 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     clearCart,
   } = useCartStore();
 
-  const tipsAmount = tips || 0;
-  const received = amountReceived || 0;
+  const [localTips, setLocalTips] = useState(tips?.toString() || "");
+  const [localAmountReceived, setLocalAmountReceived] = useState(
+    amountReceived?.toString() || ""
+  );
+
+  const tipsAmount = parseFloat(localTips);
+  const received = parseFloat(localAmountReceived);
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
 
@@ -88,6 +93,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
       toast.error("Amount received is less than total to pay");
       return;
     }
+    const saveTips = () => setTips(parseFloat(localTips) || 0);
+    const saveAmountReceived = () =>
+      setAmountReceived(parseFloat(localAmountReceived) || 0);
+
     const payload = buildOrderPayload();
 
     try {
@@ -258,8 +267,9 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   disabled={isPending}
                   type="number"
                   placeholder="Enter tip amount"
-                  value={tips}
-                  onChange={(e) => setTips(Number(e.target.value))}
+                  value={localTips}
+                  onChange={(e) => setLocalTips(e.target.value)}
+                  onBlur={(e) => setTips(parseFloat(localTips))}
                   className="flex-1 !text-lg"
                 />
               </div>
@@ -271,7 +281,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 </label>
                 <Input
                   type="number"
-                  disabled={isPending}
+                  disabled
                   placeholder="Total amount"
                   value={totalToPay.toFixed(2)}
                   readOnly
@@ -288,8 +298,11 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   type="number"
                   disabled={isPending}
                   // placeholder="Enter amount received"
-                  value={amountReceived}
-                  onChange={(e) => setAmountReceived(Number(e.target.value))}
+                  value={localAmountReceived}
+                  onChange={(e) => setLocalAmountReceived(e.target.value)}
+                  onBlur={(e) =>
+                    setAmountReceived(parseFloat(localAmountReceived))
+                  }
                   className="flex-1 !text-2xl"
                 />
               </div>
