@@ -18,17 +18,28 @@ import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSu
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/app/stores/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
+import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
   const { isProductOrderSheetOpen, closeProductOrderSheet } =
     useOrderWorkspace();
+  const {
+    orderId: currentOrderId,
+    isPaymentSheetOpen,
+    openPaymentPanelSheet,
+    closePaymentPanelSheet,
+  } = usePaymentPanelSheet();
 
   const { data, isLoading, error } = useOrder(orderId);
 
+  // Check if the panel should be shown for this order
+  const showPaymentPanelForThisOrder =
+    isPaymentSheetOpen && currentOrderId === data?.id;
+
   console.log("data", data);
 
-  const [showPaymentPanel, setShowPaymentPanel] = useState(false);
+  // const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
 
   const {
@@ -68,10 +79,10 @@ const ProductOrdersheet = () => {
       <section>
         {isProductOrderSheetOpen && (
           <aside className="h-screen fixed top-16 right-0  max-w-sm w-full flex flex-col bg-gray-100 overflow-y-auto">
-            {showPaymentPanel ? (
+            {showPaymentPanelForThisOrder ? (
               <PaymentSummary
-                open={showPaymentPanel}
-                setOpen={setShowPaymentPanel}
+                open={showPaymentPanelForThisOrder}
+                setOpen={closePaymentPanelSheet}
                 payments={data.payments}
               />
             ) : (
@@ -80,7 +91,7 @@ const ProductOrdersheet = () => {
                 <div className="shrink-0 ">
                   <div
                     className={`flex items-center px-4 py-2 text-white ${
-                      paymentStatus === PAYMENT_STATUS.PAID
+                      data.payment_status === PAYMENT_STATUS.PAID
                         ? "bg-green-600"
                         : "bg-yellow-400"
                     }`}
@@ -169,12 +180,12 @@ const ProductOrdersheet = () => {
                     <div className="flex justify-between w-full items-center px-1">
                       <span
                         className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-                          paymentStatus === PAYMENT_STATUS.PAID
+                          data.payment_status === PAYMENT_STATUS.PAID
                             ? "bg-green-600"
                             : "bg-yellow-400"
                         }`}
                       >
-                        {paymentStatus.toUpperCase()}
+                        {data.payment_status.toUpperCase()}
                       </span>
                       <div className="space-x-2">
                         <span>Total:</span>
@@ -203,7 +214,7 @@ const ProductOrdersheet = () => {
                         {data.paymentStatus !== "Paid" && (
                           <Button
                             variant={"outline"}
-                            onClick={() => setShowPaymentPanel(true)}
+                            onClick={() => openPaymentPanelSheet(data.id)}
                             className="text-blue-500 border-blue-500 w-full"
                           >
                             <span className="cursor-pointer">$</span>
@@ -215,7 +226,7 @@ const ProductOrdersheet = () => {
                           <Button
                             variant={"default"}
                             className="text-white bg-green-500 w-full"
-                            onClick={() => setShowPaymentPanel(true)}
+                            onClick={() => openPaymentPanelSheet(data.id)}
                           >
                             <span className="cursor-pointer">
                               <Check />

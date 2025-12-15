@@ -33,9 +33,12 @@ import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
 import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
 import { useCartStore } from "@/app/stores/useCartStore";
+import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
+  const { openPaymentPanelSheet } = usePaymentPanelSheet();
+
   const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading, error } = useOrders();
@@ -117,7 +120,7 @@ export default function CounterTable() {
           <div className="col-span-3 text-center">ACTIONS</div>
         </div>
 
-        {/* Orders */}
+        {/*no  Orders */}
 
         {orders.length === 0 && (
           <div className="p-4 text-center h-64 md:h-96 flex flex-col space-y-4 items-center justify-center">
@@ -146,9 +149,13 @@ export default function CounterTable() {
               {order.status !== ORDER_STATUS.COMPLETED && (
                 <div
                   key={i}
-                  className={`relative grid grid-cols-12 gap-4 p-4  hover:bg-green-100 border items-center ${
+                  className={`relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer  hover:bg-green-100 border items-center ${
                     order.status !== ORDER_STATUS.DRAFT && "bg-gray-50"
                   }`}
+                  onClick={() => {
+                    setCurrentlyActiveOrderId(order.id);
+                    openProductOrderSheet(order.id);
+                  }}
                 >
                   <div
                     className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
@@ -230,18 +237,17 @@ export default function CounterTable() {
                   </div>
 
                   {/* ACTIONS */}
-                  {/* ACTIONS */}
                   <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
                     {/* Cancel button */}
                     <Button
                       variant="outline"
                       className="border text-red-600 border-red-600 hover:bg-red-50"
-                      onClick={() => {
-                        openProductOrderSheet(order.id),
-                          setCurrentlyActiveOrderId(order.id);
+                      onClick={(e) => {
+                        e.stopPropagation(); // <--- prevents row click
                       }}
                     >
-                      <X size={14} /> View
+                      {" "}
+                      <X size={14} /> Cancel
                     </Button>
 
                     {/* Only show Status dropdown if not pending */}
@@ -257,6 +263,11 @@ export default function CounterTable() {
                     <Button
                       variant="outline"
                       className="border text-blue-600 border-blue-600 hover:bg-blue-50"
+                      onClick={(e) => {
+                        e.stopPropagation(); // <--- prevents row click
+                        openProductOrderSheet(order.id); // Step 1: open the ProductOrdersheet
+                        openPaymentPanelSheet(order.id);
+                      }}
                     >
                       <DollarSign size={14} /> Pay
                     </Button>
@@ -269,11 +280,12 @@ export default function CounterTable() {
                           : "bg-blue-600"
                       }`}
                       disabled={loadingOrderId === order.id}
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation(); // ✅ Prevent row click from firing
                         handleOrderAction(order, (v) =>
                           setLoadingOrderId(v ? order.id : null)
-                        )
-                      }
+                        );
+                      }}
                     >
                       {loadingOrderId === order.id ? (
                         <Loader2 className="animate-spin" />

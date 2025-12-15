@@ -90,8 +90,6 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     }
     const payload = buildOrderPayload();
 
-    console.log("handleregisterandaccept order", payload);
-
     try {
       console.log("inside");
       if (currentlyActiveOrderId) {
@@ -176,10 +174,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
               </span>
             </div>
             {isPaid &&
-              payments?.map((p) => (
+              payments?.map((p, i) => (
                 <>
                   <div
-                    key={p.id}
+                    key={p.id + i}
                     className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
                   >
                     <div>
@@ -194,19 +192,9 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                         <span className="block">
                           Items: Rs {p.amount_paid - p.tip}
                         </span>
-                        <span>Tips: Rs {p.tip}</span>
-                        <span
-                          className={`font-bold ${
-                            !isPending && change >= 0
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          Rs{" "}
-                          {!isPending && change >= 0
-                            ? change.toFixed(2)
-                            : "0.00"}
-                        </span>
+                        {/* {p.tip > 0 && ( */}
+                        <span className="block">Tip: Rs {p.tip}</span>
+                        {/* // )} */}
                       </div>
                     </div>
                   </div>
