@@ -8,6 +8,7 @@ import PaymentSummary from "../payments/PaymentSummary";
 import { useCartStore } from "@/app/stores/useCartStore";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
+import { PAYMENT_STATUS } from "@/lib/types/order-types";
 
 const ProductOrderSideBar = () => {
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
@@ -15,8 +16,6 @@ const ProductOrderSideBar = () => {
 
   const searchParams = useSearchParams();
   const orderType = searchParams.get("type");
-
-  console.log("orderType", orderType);
 
   const cartItems = useCartStore((state) => state.cartItems);
 
@@ -35,7 +34,7 @@ const ProductOrderSideBar = () => {
     }
     {
       {
-        paymentStatus === "pending" || paymentStatus === null
+        paymentStatus === PAYMENT_STATUS.UNPAID || paymentStatus === null
           ? setShowPaymentPanel(true)
           : null;
       }
@@ -56,7 +55,9 @@ const ProductOrderSideBar = () => {
             <div className="shrink-0 ">
               <div
                 className={`flex px-4 py-2  text-white ${
-                  paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+                  paymentStatus === PAYMENT_STATUS.PAID
+                    ? "bg-green-600"
+                    : "bg-yellow-400"
                 }`}
               >
                 <div className="flex space-x-2">

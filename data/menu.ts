@@ -16,6 +16,8 @@ export const ProductCategoriesData: ProductCategoryTypes[] = [
           "Spicy and flavorful masala tea made with aromatic spices.",
         price: 500, // price in cents (e.g. Rs 5.00)
         currency: "NPR",
+        category_id: "cat-tea-specials",
+        position: 0,
         images: [
           {
             url: "/images/coffee.png",

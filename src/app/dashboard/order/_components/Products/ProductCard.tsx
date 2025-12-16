@@ -12,12 +12,12 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
     <div className="relative">
       <div className="w-full bg-white rounded shadow p-2 flex flex-col items-center">
-        <div className="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden relative group">
+        <div className="w-full h-28 bg-gray-100 rounded mb-2 overflow-hidden relative group">
           {product ? (
             <img
-              src={product?.images[0].url}
-              alt={product.images[0].alt}
-              className="w-full h-full object-cover"
+              src={product?.images[0]?.url || "/Images/coffee.png"}
+              alt={product.images[0]?.alt || product.name}
+              className="h-28 w-full object-cover object-top"
             />
           ) : (
             <div className="flex justify-center items-center h-full text-gray-400">

@@ -57,8 +57,6 @@ export function ProductAddSheet() {
 
   useEffect(() => {
     if (product && mode === "edit") {
-      console.log("product", product);
-
       setName(product.name);
       setDescription(product.description);
       setPrice((product.price / 100).toString()); // Convert cents to dollars

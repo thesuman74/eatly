@@ -10,7 +10,7 @@ interface ProductSheetState {
   openEditSheet: (productId: string, categoryId: string) => void; // ✅ New
   closeSheet: () => void;
 }
-
+  
 export const useProductSheet = create<ProductSheetState>((set) => ({
   isOpen: false,
   productId: null,

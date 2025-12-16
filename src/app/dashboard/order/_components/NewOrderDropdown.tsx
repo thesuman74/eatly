@@ -53,9 +53,7 @@ const NewOrderDropdown = () => {
         </span>{" "}
       </button>
 
-      {showSheet && (
-        <ProductOrdersheet open={showSheet} setOpen={setShowSheet} />
-      )}
+      {showSheet && <ProductOrdersheet />}
 
       {/* Dropdown */}
       {isOpen && (

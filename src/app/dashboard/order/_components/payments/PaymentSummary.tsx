@@ -11,31 +11,143 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoveLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import {
+  useCreateOrder,
+  useUpdateOrder,
+  useUpdateOrderStatus,
+} from "@/hooks/order/useOrders";
+import {
+  CreateOrderPayload,
+  ORDER_STATUS,
+  OrderPayment,
+  PAYMENT_STATUS,
+  PaymentMethod,
+} from "@/lib/types/order-types";
+import { buildOrderPayload } from "@/utils/buildOrderPayload";
 
 interface PaymentSummaryProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  payments?: OrderPayment[];
 }
 
-const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
+const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
+  const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
-  const [tips, setTips] = useState("");
-  const [amountReceived, setAmountReceived] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const { paymentStatus, setPaymentStatus } = useCartStore();
+  const cartItems = useCartStore((state) => state.cartItems);
+  const {
+    paymentStatus,
+    amountReceived,
+    tips,
+    paymentMethod,
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
+    setPaymentStatus,
+    setPaymentMethod,
+    setAmountReceived,
+    setTips,
+    clearCart,
+  } = useCartStore();
 
-  const tipsAmount = parseFloat(tips) || 0;
-  const received = parseFloat(amountReceived) || 0;
+  const [localTips, setLocalTips] = useState(tips?.toString() || "");
+  const [localAmountReceived, setLocalAmountReceived] = useState(
+    amountReceived?.toString() || ""
+  );
+
+  const tipsAmount = parseFloat(localTips);
+  const received = parseFloat(localAmountReceived);
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
 
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
+
+  const isPaid = Boolean(payments?.length);
+
   const handleRegisterPayment = () => {
-    console.log("Register Payment");
-    setPaymentStatus("paid");
+    setPaymentStatus(PAYMENT_STATUS.PAID);
     setOpen(false);
     toast.success("Simulating Payment Success ");
+  };
+
+  const handleSaveAsPending = async () => {
+    // clear payment-related local state
+    setPaymentMethod(null);
+    setAmountReceived(0);
+    setTips(0);
+
+    setPaymentStatus(PAYMENT_STATUS.UNPAID);
+    // setOpen(false);
+
+    // toast.success("Order saved as pending");
+  };
+
+  const handleRegisterAndAcceptOrder = async () => {
+    if (!paymentMethod && isPending !== true) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    if (amountReceived && amountReceived < totalToPay) {
+      toast.error("Amount received is less than total to pay");
+      return;
+    }
+    const saveTips = () => setTips(parseFloat(localTips) || 0);
+    const saveAmountReceived = () =>
+      setAmountReceived(parseFloat(localAmountReceived) || 0);
+
+    const payload = buildOrderPayload();
+
+    try {
+      console.log("inside");
+      if (currentlyActiveOrderId) {
+        // Update existing order
+        await updateOrderMutation.mutateAsync({
+          id: currentlyActiveOrderId,
+          payload,
+        });
+        console.log("clearing cart..."), setOpen(false);
+        clearCart();
+      } else {
+        // Create new order
+        await createOrderMutation.mutateAsync(payload);
+        setOpen(false);
+        clearCart();
+      }
+
+      setPaymentStatus(PAYMENT_STATUS.PAID);
+      setOpen(false);
+      clearCart();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to register order");
+    } finally {
+      setOpen(false);
+      clearCart();
+      setCurrentlyActiveOrderId("");
+    }
+  };
+
+  const updateOrderStatusMutation = useUpdateOrderStatus();
+
+  const handleFinalizeOrder = async () => {
+    if (!currentlyActiveOrderId) {
+      toast.error("No active order to finalize");
+      return;
+    }
+
+    try {
+      await updateOrderStatusMutation.mutateAsync({
+        id: currentlyActiveOrderId,
+        status: ORDER_STATUS.COMPLETED, // or your enum value
+      });
+
+      setOpen(false);
+      clearCart(); // ✅ correct place
+      setCurrentlyActiveOrderId("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to finalize order");
+    }
   };
 
   return (
@@ -47,132 +159,222 @@ const PaymentSummary = ({ open, setOpen }: PaymentSummaryProps) => {
           <span className="text-xl font-bold">Register Payment</span>
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === "paid" ? "bg-green-600" : "bg-yellow-400"
+              paymentStatus === PAYMENT_STATUS.PAID
+                ? "bg-green-600"
+                : "bg-yellow-400"
             }`}
           >
             {paymentStatus?.toUpperCase() || "PENDING"}
           </span>
         </div>
-        {/* Payment Inputs */}
-        <div className="px-4 bg-white space-y-4 py-4">
-          {/* Payment Method */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Payment Method
-            </label>
-            <Select onValueChange={setPaymentMethod}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="card">Card</SelectItem>
-                <SelectItem value="paypal">Paypal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Subtotal */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
-              Subtotal
-            </label>
-            <Input
-              value={cartTotal.toFixed(2)}
-              readOnly
-              className="flex-1 !text-lg"
-              disabled
-            />
-          </div>
+        {isPaid && (
+          <div className="flex flex-col p-4 space-y-4">
+            {/* Payment Cards */}
+            {/* Total Paid Header */}
+            <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center space-x-2">
+                <span className="font-semibold text-gray-700">Total</span>
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  Paid
+                </span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">
+                Rs {payments?.reduce((acc, p) => acc + p.amount_paid, 0)}
+              </span>
+            </div>
+            {isPaid &&
+              payments?.map((p, i) => (
+                <>
+                  <div
+                    key={p.id + i}
+                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
+                  >
+                    <div>
+                      <div className="text-lg text-gray-500">{p.method}</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        Rs {p.amount_paid}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      {new Date(p.created_at).toLocaleString()}
+                      <div className="text-gray-500 text-xs pt-2">
+                        <span className="block">
+                          Items: Rs {p.amount_paid - p.tip}
+                        </span>
+                        {/* {p.tip > 0 && ( */}
+                        <span className="block">Tip: Rs {p.tip}</span>
+                        {/* // )} */}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ))}
 
-          {/* Tips */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
-              Tips
-            </label>
-            <Input
-              type="number"
-              placeholder="Enter tip amount"
-              value={tips}
-              onChange={(e) => setTips(e.target.value)}
-              className="flex-1 !text-lg"
-            />
-          </div>
-
-          {/* Amount To Pay */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
-              To-Pay
-            </label>
-            <Input
-              type="number"
-              placeholder="Total amount"
-              value={totalToPay.toFixed(2)}
-              readOnly
-              className="!text-2xl font-bold flex-1"
-            />
-          </div>
-
-          {/* Amount Received */}
-          <div className="flex items-center space-x-2 ">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0 pr-2">
-              Amount Received
-            </label>
-            <Input
-              type="number"
-              // placeholder="Enter amount received"
-              value={amountReceived}
-              onChange={(e) => setAmountReceived(e.target.value)}
-              className="flex-1 !text-2xl"
-            />
-          </div>
-
-          <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
-
-          {/* Change */}
-          <div className="flex justify-between items-center font-semibold text-lg">
-            <span className="text-gray-600">Change</span>
-            <span
-              className={`font-bold ${
-                change >= 0 ? "text-green-600" : "text-red-500"
-              }`}
+            {/* Finalize Order Button */}
+            <button
+              onClick={handleFinalizeOrder}
+              className="w-full mt-auto bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
             >
-              Rs {change >= 0 ? change.toFixed(2) : "0.00"}
-            </span>
+              Finalize Order
+            </button>
           </div>
+        )}
 
-          {amountReceived && change < 0 && (
-            <p className="text-sm text-red-500 text-center">
-              Amount received is less than total (Rs {totalToPay.toFixed(2)})
-            </p>
-          )}
-        </div>
+        {!isPaid && (
+          <>
+            {/* Payment Inputs */}
+            <div className="px-4 bg-white space-y-4 py-4">
+              {/* Payment Method */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Payment Method
+                </label>
+                <Select
+                  disabled={isPending}
+                  onValueChange={(value) =>
+                    setPaymentMethod(value as PaymentMethod)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
+                    <SelectItem value="paypal">Paypal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Subtotal */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
+                  Subtotal
+                </label>
+                <Input
+                  disabled={isPending}
+                  value={cartTotal.toFixed(2)}
+                  readOnly
+                  className="flex-1 !text-lg"
+                />
+              </div>
 
-        {/* Actions */}
-        <div className="bg-white mt-auto mb-20 border-t p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <Input type="checkbox" className="w-4 h-4" />
-            <Badge
-              variant="outline"
-              className="text-sm text-gray-600 border-dashed"
-            >
-              Save as Pending
-            </Badge>
-          </div>
+              {/* Tips */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
+                  Tips
+                </label>
+                <Input
+                  disabled={isPending}
+                  type="number"
+                  placeholder="Enter tip amount"
+                  value={localTips}
+                  onChange={(e) => setLocalTips(e.target.value)}
+                  onBlur={(e) => setTips(parseFloat(localTips))}
+                  className="flex-1 !text-lg"
+                />
+              </div>
 
-          <Button
-            variant="outline"
-            className="w-full border-blue-600 text-blue-600 hover:bg-blue-100"
-            onClick={() => handleRegisterPayment()}
-          >
-            Register Payment
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
-          >
-            Register and Accept Order
-          </Button>
-        </div>
+              {/* Amount To Pay */}
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0">
+                  To-Pay
+                </label>
+                <Input
+                  type="number"
+                  disabled
+                  placeholder="Total amount"
+                  value={totalToPay.toFixed(2)}
+                  readOnly
+                  className="!text-2xl font-bold flex-1"
+                />
+              </div>
+
+              {/* Amount Received */}
+              <div className="flex items-center space-x-2 ">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap flex-shrink-0 pr-2">
+                  Amount Received
+                </label>
+                <Input
+                  type="number"
+                  disabled={isPending}
+                  // placeholder="Enter amount received"
+                  value={localAmountReceived}
+                  onChange={(e) => setLocalAmountReceived(e.target.value)}
+                  onBlur={(e) =>
+                    setAmountReceived(parseFloat(localAmountReceived))
+                  }
+                  className="flex-1 !text-2xl"
+                />
+              </div>
+
+              <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+
+              {/* Change */}
+              <div className="flex justify-between items-center font-semibold text-lg">
+                <span className="text-gray-600">Change</span>
+                <span
+                  className={`font-bold ${
+                    change >= 0 ? "text-green-600" : "text-red-500"
+                  }`}
+                >
+                  Rs {change >= 0 ? change.toFixed(2) : "0.00"}
+                </span>
+              </div>
+
+              {amountReceived && change < 0 && (
+                <p className="text-sm text-red-500 text-center">
+                  Amount received is less than total (Rs {totalToPay.toFixed(2)}
+                  )
+                </p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="bg-white mt-auto mb-20 border-t p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="checkbox"
+                  className="w-4 h-4"
+                  checked={isPending}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIsPending(checked);
+
+                    if (checked) {
+                      handleSaveAsPending();
+                    }
+                  }}
+                />
+
+                <Badge
+                  variant="outline"
+                  className="text-sm text-gray-600 border-dashed cursor-pointer"
+                  onClick={() => {
+                    setIsPending(true);
+                    handleSaveAsPending();
+                  }}
+                >
+                  Save as Unpaid
+                </Badge>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full border-blue-600 text-blue-600 hover:bg-blue-100"
+                onClick={() => handleRegisterPayment()}
+              >
+                Register Payment
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
+                onClick={handleRegisterAndAcceptOrder}
+              >
+                Register and Accept Order
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
