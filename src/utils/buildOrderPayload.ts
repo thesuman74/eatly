@@ -1,4 +1,4 @@
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { CreateOrderPayload } from "@/lib/types/order-types";
 
 export const buildOrderPayload = (): CreateOrderPayload => {

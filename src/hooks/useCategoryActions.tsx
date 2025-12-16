@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
+import { adminCategoryStore } from "@/stores/admin/adminCategoryStore";
 import {
   addCategoryAPI,
   CategoryPositionUpdate,
@@ -12,15 +12,15 @@ import {
 } from "@/services/categoryServices";
 
 export function useCategoryActions() {
-  const addCategory = useAdminCategoryStore((s) => s.addCategory);
+  const addCategory = adminCategoryStore((s) => s.addCategory);
   const [isLoading, setIsLoading] = useState(false);
 
-  const categories = useAdminCategoryStore((s) => s.categories);
-  const setCategories = useAdminCategoryStore((s) => s.setCategories);
-  const toggleVisibility = useAdminCategoryStore(
+  const categories = adminCategoryStore((s) => s.categories);
+  const setCategories = adminCategoryStore((s) => s.setCategories);
+  const toggleVisibility = adminCategoryStore(
     (s) => s.toggleCategoryVisibility
   );
-  const deleteCategory = useAdminCategoryStore((s) => s.deleteCategory);
+  const deleteCategory = adminCategoryStore((s) => s.deleteCategory);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 

@@ -13,7 +13,7 @@ import { useUpdateCategoryName } from "@/hooks/category/useUpdateCategoryName";
 import { useDuplicateCategory } from "@/hooks/category/useDuplicateCategory";
 import { useToggleCategoryVisibility } from "@/hooks/category/useToggleCategoryVisibility";
 import { useDeleteCategory } from "@/hooks/category/useDeleteCategory";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { Button } from "@/components/ui/button";
 
 interface CategoryProps {

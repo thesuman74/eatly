@@ -5,7 +5,7 @@ import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import React, { useState } from "react";
 import CartPreview from "./CartPreview";
 import PaymentSummary from "../payments/PaymentSummary";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";

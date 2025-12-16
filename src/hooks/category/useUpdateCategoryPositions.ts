@@ -5,7 +5,7 @@ import {
   CategoryPositionUpdate,
 } from "@/services/categoryServices";
 import { toast } from "react-toastify";
-import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
+import { adminCategoryStore } from "@/stores/admin/adminCategoryStore";
 
 export function useUpdateCategoryPositions(baseUrl: string) {
   const queryClient = useQueryClient();

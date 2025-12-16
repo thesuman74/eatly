@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-interface OrderSheetState {
+interface OrderSheetStoreState {
   isOpen: boolean;
   orderId: string | null;
   openSheet: (orderId: string) => void;
   closeSheet: () => void;
 }
 
-export const useOrderSheet = create<OrderSheetState>((set) => ({
+export const OrderSheetStore = create<OrderSheetStoreState>((set) => ({
   isOpen: false,
   orderId: null,
   openSheet: (orderId: string) => set({ isOpen: true, orderId }),

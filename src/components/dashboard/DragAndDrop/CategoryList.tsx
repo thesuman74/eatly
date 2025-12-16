@@ -28,7 +28,7 @@ import {
   CategoryPositionUpdate,
   getCategoriesAPI,
 } from "@/services/categoryServices";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 
 interface CategoryListProps {

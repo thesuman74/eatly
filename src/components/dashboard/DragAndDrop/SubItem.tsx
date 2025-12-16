@@ -7,7 +7,7 @@ import { Grip } from "lucide-react";
 import ProductOptions from "./ProductOptions";
 
 import { Badge } from "@/components/ui/badge";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 
 interface SubItemProps {
   item: ProductTypes;

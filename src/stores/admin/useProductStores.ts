@@ -2,6 +2,8 @@
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import { create } from "zustand";
 
+//check where this is used and delete if not
+
 interface ProductStore {
   categories: ProductCategoryTypes[];
   setCategories: (categories: ProductCategoryTypes[]) => void;

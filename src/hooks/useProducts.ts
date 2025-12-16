@@ -1,4 +1,4 @@
-// import { useAdminProductStore } from "@/stores/admin-product-store";
+// import { useAdminProductStore } from "@/stores/adminProductStore";
 // import { useQuery } from "@tanstack/react-query";
 
 // export const useFetchProducts = (categoryId: string) => {

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
-import { useOrderSheet } from "@/app/stores/useOrderSheet";
+import { OrderSheetStore } from "@/stores/ui/OrderSheetStore";
 import {
   useDeleteOrderItem,
   useOrder,
@@ -16,9 +16,9 @@ import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview"
 import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/EditableOrderItemsList";
 import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
-import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
+import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
@@ -27,9 +27,9 @@ const ProductOrdersheet = () => {
   const {
     orderId: currentOrderId,
     isPaymentSheetOpen,
-    openPaymentPanelSheet,
-    closePaymentPanelSheet,
-  } = usePaymentPanelSheet();
+    openpaymentPanelStore,
+    closepaymentPanelStore,
+  } = paymentPanelStore();
 
   const { data, isLoading, error } = useOrder(orderId);
 
@@ -82,7 +82,7 @@ const ProductOrdersheet = () => {
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary
                 open={showPaymentPanelForThisOrder}
-                setOpen={closePaymentPanelSheet}
+                setOpen={closepaymentPanelStore}
                 payments={data.payments}
               />
             ) : (
@@ -214,7 +214,7 @@ const ProductOrdersheet = () => {
                         {data.paymentStatus !== "Paid" && (
                           <Button
                             variant={"outline"}
-                            onClick={() => openPaymentPanelSheet(data.id)}
+                            onClick={() => openpaymentPanelStore(data.id)}
                             className="text-blue-500 border-blue-500 w-full"
                           >
                             <span className="cursor-pointer">$</span>
@@ -226,7 +226,7 @@ const ProductOrdersheet = () => {
                           <Button
                             variant={"default"}
                             className="text-white bg-green-500 w-full"
-                            onClick={() => openPaymentPanelSheet(data.id)}
+                            onClick={() => openpaymentPanelStore(data.id)}
                           >
                             <span className="cursor-pointer">
                               <Check />

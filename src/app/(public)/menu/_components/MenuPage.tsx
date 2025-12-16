@@ -12,7 +12,6 @@ import Link from "next/link";
 import BouncingText from "@/components/animation/BouncingText";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
-import { MenuItemTypes } from "../../../../types/menu";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import useCartStore from "@/stores/user/userCartStore";
 
@@ -115,23 +114,32 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
         </div>
 
         <div className="py-8 ">
-          {filteredCategories.map((category: ProductCategoryTypes) => (
-            <div key={category.id} className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
-              <div
-                //  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 "
-                className="grid grid-cols-1 md:grid-cols-2  gap-8"
-              >
-                {category.products.map((item) => (
-                  <ListCard
-                    key={item.id}
-                    data={item}
-                    onAddToCart={() => handleAddToCart(item)}
-                  />
-                ))}
-              </div>
+          {filteredCategories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-60  ">
+              <h1 className="text-2xl font-bold mb-4">No products found</h1>
             </div>
-          ))}
+          ) : (
+            <>
+              {" "}
+              {filteredCategories.map((category: ProductCategoryTypes) => (
+                <div key={category.id} className="mb-8">
+                  <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
+                  <div
+                    //  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 "
+                    className="grid grid-cols-1 md:grid-cols-2  gap-8"
+                  >
+                    {category.products.map((item) => (
+                      <ListCard
+                        key={item.id}
+                        data={item}
+                        onAddToCart={() => handleAddToCart(item)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {/* cart section */}

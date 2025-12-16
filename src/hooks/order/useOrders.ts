@@ -1,6 +1,6 @@
 // src/hooks/order/useOrders.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import {
   CreateOrderPayload,
   Order,

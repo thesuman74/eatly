@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
 import {
   ProductCategoryTypes,

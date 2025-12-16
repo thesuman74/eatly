@@ -2,11 +2,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteCategoryAPI } from "@/services/categoryServices";
 import { toast } from "react-toastify";
-import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
+import { adminCategoryStore } from "@/stores/admin/adminCategoryStore";
 
 export function useDeleteCategory() {
   const queryClient = useQueryClient();
-  const deleteCategoryLocal = useAdminCategoryStore((s) => s.deleteCategory);
+  const deleteCategoryLocal = adminCategoryStore((s) => s.deleteCategory);
 
   return useMutation({
     mutationFn: async (categoryId: string) => {

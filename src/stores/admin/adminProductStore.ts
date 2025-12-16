@@ -1,4 +1,4 @@
-// src/stores/admin-product-store.ts
+// src/stores/adminProductStore.ts
 import { ProductTypes } from "@/lib/types/menu-types";
 import { create } from "zustand";
 

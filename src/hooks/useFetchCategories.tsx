@@ -1,4 +1,4 @@
-import { useAdminCategoryStore } from "@/app/stores/useAdminCategoryStore";
+import { adminCategoryStore } from "@/stores/admin/adminCategoryStore";
 import { useQuery } from "@tanstack/react-query";
 
 const getCategories = async () => {
@@ -9,7 +9,7 @@ const getCategories = async () => {
 };
 
 export const useFetchCategories = () => {
-  const setCategories = useAdminCategoryStore((state) => state.setCategories);
+  const setCategories = adminCategoryStore((state) => state.setCategories);
 
   return useQuery({
     queryKey: ["categories"],

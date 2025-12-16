@@ -1,0 +1,32 @@
+Project Notes: Kajichiya DigitalMenus
+Date: 2025-12-16
+
+Multi-Tenant Structure
+----------------------
+- Use [restaurantSlug] in path to identify tenant
+- Example: /kajichiya1, /kajichiya2
+- restaurant_id stored in DB, used in server/services
+
+Public Folder Structure (src/app/(public)/[restaurantSlug]/)
+------------------------------------------------------------
+
+src/app/(auth)/
+├─ login/         ← Login page
+├─ register/      ← Signup page
+└─ logout/        ← Logout actions
+
+
+[restaurantSlug]/
+├─ menu/          ← Show categories and products
+├─ cart/          ← Guest cart and checkout
+└─ page.tsx       ← Restaurant landing page
+
+
+src/stores/
+├─ admin/                  ← Stores for dashboard/admin
+│  ├─ categoryStore.ts     ← Combines admin category logic
+│  ├
+├─ user/                   ← Stores for public / customer
+│  ├─ cartStore.ts         ← User cart store
+|-ui/                     ← UI-specific or sheet/modal states
+│  ├─ paymentPanelStore.ts

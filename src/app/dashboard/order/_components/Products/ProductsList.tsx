@@ -19,8 +19,8 @@ import { ProductCategoriesData } from "../../../../../../data/menu";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import BouncingText from "@/components/animation/BouncingText";
 import Link from "next/link";
-import { useProductStore } from "@/app/stores/useProductStores";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useProductStore } from "@/stores/admin/useProductStores";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
 

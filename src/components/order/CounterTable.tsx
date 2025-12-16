@@ -26,18 +26,17 @@ import {
   PAYMENT_STATUS,
 } from "@/lib/types/order-types";
 import { toast } from "react-toastify";
-import { useOrderSheet } from "@/app/stores/useOrderSheet";
 import { getOrderDetailsAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
 import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
-import { useCartStore } from "@/app/stores/useCartStore";
-import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
+import { useCartStore } from "@/stores/admin/useCartStore";
+import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
-  const { openPaymentPanelSheet } = usePaymentPanelSheet();
+  const { openpaymentPanelStore } = paymentPanelStore();
 
   const queryClient = useQueryClient();
 
@@ -266,7 +265,7 @@ export default function CounterTable() {
                       onClick={(e) => {
                         e.stopPropagation(); // <--- prevents row click
                         openProductOrderSheet(order.id); // Step 1: open the ProductOrdersheet
-                        openPaymentPanelSheet(order.id);
+                        openpaymentPanelStore(order.id);
                       }}
                     >
                       <DollarSign size={14} /> Pay

@@ -1,5 +1,5 @@
 "use client";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import { X } from "lucide-react";
 import Link from "next/link";
