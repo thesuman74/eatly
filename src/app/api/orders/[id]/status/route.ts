@@ -11,12 +11,11 @@ const statusSchema = z.object({
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
 
-  const resolvedParams = await params;
-  const orderId = resolvedParams.id;
+  const { id: orderId } = await context.params;
 
   if (!orderId) {
     return NextResponse.json(
