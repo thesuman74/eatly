@@ -18,3 +18,16 @@ export enum UserRole {
   STAFF = "staff",
   CUSTOMER = "customer",
 }
+
+export interface Restaurant {
+  id: string; // uuid
+  name: string; // text
+  slug: string; // text
+  owner_id: string; // uuid
+  created_at: string; // timestamp with timezone, ISO string
+  updated_at: string; // timestamp with timezone, ISO string
+  type: restaurantType; // enum type
+  logo_url?: string | null; // optional text
+  banner_url?: string | null;
+  description?: string | null;
+}

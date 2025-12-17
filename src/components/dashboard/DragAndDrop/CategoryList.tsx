@@ -137,9 +137,21 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
             items={categories.map((category) => category.id)}
             strategy={verticalListSortingStrategy}
           >
-            {categories.map((category) => (
-              <CategoryItem key={category.id} category={category} />
-            ))}
+            {categories.length > 0 ? (
+              categories.map((category) => (
+                <CategoryItem key={category.id} category={category} />
+              ))
+            ) : (
+              <>
+                <div className="flex flex-col items-center justify-center h-60  ">
+                  <h1 className="text-2xl font-bold mb-4">
+                    No Categories found
+                  </h1>
+                </div>
+              </>
+            )}
+
+            {}
           </SortableContext>
         </DndContext>
 
