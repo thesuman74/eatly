@@ -1,14 +1,23 @@
-export async function addRestaurantAPI() {
-  const response = await fetch("/api/restaurant/add", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
+import { clientAxiosInstance } from "@/lib/axios/ClientAxiosInstance";
+import { AddRestaurantPayload } from "@/lib/types/resturant-types";
 
-  const data = await response.json();
+export async function addRestaurantAPI(payload: AddRestaurantPayload) {
+  try {
+    const response = await clientAxiosInstance.post(
+      "/api/restaurant",
+      payload,
+      {
+        requiresAuth: true,
+      }
+    );
 
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to add category");
+    return response.data; //
+  } catch (error: any) {
+    // handle axios error
+    const message =
+      error?.response?.data?.error ||
+      error.message ||
+      "Failed to add restaurant";
+    throw new Error(message);
   }
-
-  return data.category;
 }

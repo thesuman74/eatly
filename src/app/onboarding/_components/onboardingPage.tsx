@@ -17,26 +17,41 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { Plus } from "lucide-react";
+import { addRestaurantAPI } from "@/services/restaurantServices";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 const OnboardingPage = () => {
   const router = useRouter();
 
   const businessType = [
-    { id: 1, name: "Restaurant", logo: <GrRestaurant /> },
-    { id: 2, name: "Bar", logo: <IoBeerOutline /> },
-    { id: 3, name: "Cafe", logo: <MdLocalCafe /> },
+    { id: 1, name: "restaurant", logo: <GrRestaurant /> },
+    { id: 2, name: "bar", logo: <IoBeerOutline /> },
+    { id: 3, name: "cafe", logo: <MdLocalCafe /> },
+    { id: 4, name: "other", logo: <Plus /> },
   ];
 
   const [selectedBusiness, setSelectedBusiness] = useState<string>("");
   const [businessName, setBusinessName] = useState<string>("");
 
-  const handleNext = () => {
-    if (!businessName) {
-      toast.info("Please enter a business name");
-      return;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleNext = async () => {
+    if (!businessName.trim() || !selectedBusiness) return;
+
+    try {
+      setIsLoading(true);
+      const restaurant = await addRestaurantAPI({
+        restaurantName: businessName,
+        type: selectedBusiness,
+      });
+      toast.success("Restaurant created successfully!");
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
-    // TODO: Submit to database
-    router.push("/dashboard"); // Redirect to dashboard or create page
   };
 
   return (
@@ -82,12 +97,14 @@ const OnboardingPage = () => {
           </CardContent>
 
           <CardFooter className="flex justify-end">
-            <Button
-              disabled={!selectedBusiness || !businessName}
-              onClick={handleNext}
-            >
-              Next
-            </Button>
+            <div onClick={handleNext} className="">
+              <SubmitButton
+                isLoading={isLoading}
+                disabled={!selectedBusiness || !businessName}
+              >
+                Next
+              </SubmitButton>
+            </div>
           </CardFooter>
         </Card>
       </div>

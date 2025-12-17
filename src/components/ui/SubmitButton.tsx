@@ -25,7 +25,7 @@ const SubmitButton = ({
       disabled={isDisabled}
       className={` ${className ?? "bg-blue-500 hover:bg-blue-600 w-full"} ${
         isDisabled ? "cursor-not-allowed opacity-50" : ""
-      }`} // Apply disabled styling
+      }`}
     >
       {isLoading ? (
         <div className="flex items-center gap-4">

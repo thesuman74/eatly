@@ -12,25 +12,25 @@ export const clientAxiosInstance = axios.create({
   },
 });
 
-// // Request Interceptor for Dynamic Token Inclusion
-// clientAxiosInstance.interceptors.request.use(
-//   async (config) => {
-//     if (config.requiresAuth) {
-//       const accessToken = await getClientAccessToken();
-//       // console.log("accessToken from clientAxiosInstance", accessToken);
+// Request Interceptor for Dynamic Token Inclusion
+clientAxiosInstance.interceptors.request.use(
+  async (config) => {
+    if (config.requiresAuth) {
+      const accessToken = await getClientAccessToken();
+      // console.log("accessToken from clientAxiosInstance", accessToken);
 
-//       if (accessToken) {
-//         config.headers.Authorization = `Bearer ${accessToken}`;
-//       } else {
-//         console.warn("No access token found for client-side request.");
-//       }
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     console.error("Request Interceptor Error:", error);
-//     return Promise.reject(error);
-//   }
-// );
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      } else {
+        console.warn("No access token found ");
+      }
+    }
+    return config;
+  },
+  (error) => {
+    console.error("Request Interceptor Error:", error);
+    return Promise.reject(error);
+  }
+);
 
-// clientAxiosInstance.interceptors.response.use(handleResponse, handleError);
+clientAxiosInstance.interceptors.response.use(handleResponse, handleError);
