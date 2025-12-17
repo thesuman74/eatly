@@ -10,6 +10,7 @@ import {
   GalleryVerticalEnd,
   ListOrdered,
   NotebookPen,
+  Store,
   Users,
   Utensils,
 } from "lucide-react";
@@ -25,6 +26,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { getUserRestaurants } from "@/services/resturantServices";
+
+// console.log("restaurantData", restaurantData);
 
 // This is sample data.
 const data = {
@@ -33,23 +37,11 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Digital Menus",
-      logo: GalleryVerticalEnd,
-      plan: "",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
+  // resturants: restaurantData.map((restaurant) => ({
+  //   name: restaurant.name,
+  //   logo: Store,
+  //   plan: "Free",
+  // })),
   navMain: [
     {
       title: "Order Pos",
@@ -64,7 +56,7 @@ const data = {
       items: [
         {
           title: "Product Page",
-          url: "products",
+          url: "/dashboard/products",
         },
         {
           title: "Welcome Page",
@@ -117,12 +109,23 @@ const data = {
     },
   ],
 };
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  restaurants: Array<{
+    id: string;
+    name: string;
+  }>;
+};
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
+  const team = restaurants.map((restaurant) => ({
+    name: restaurant.name,
+    logo: GalleryVerticalEnd,
+    plan: "",
+  }));
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={team} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

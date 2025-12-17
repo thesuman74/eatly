@@ -1,0 +1,36 @@
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+
+export async function getUserRestaurants() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("restaurant_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!userData?.restaurant_id) {
+    return [];
+  }
+
+  const { data: restaurants, error } = await supabase
+    .from("restaurants")
+    .select("*")
+    .eq("id", userData.restaurant_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return restaurants;
+}

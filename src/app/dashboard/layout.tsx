@@ -6,6 +6,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getUserOnboardingStatus } from "@/lib/supabase/getUserOnboardingStatus";
+import { getUserRestaurants } from "@/services/resturantServices";
 import { Separator } from "@radix-ui/react-select";
 import { redirect } from "next/navigation";
 
@@ -16,13 +17,14 @@ export default async function AdminLayout({
 }>) {
   // Check onboarding
   const onboarding = await getUserOnboardingStatus();
+  const restaurantData = await getUserRestaurants();
 
   if (!onboarding.completed) {
     redirect("/onboarding");
   }
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar restaurants={restaurantData} />
       <SidebarInset>
         <header className="flex h-16   sticky z-10 top-0 shrink-0 items-center gap-2 transition-[width,height] bg-primary text-white ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
