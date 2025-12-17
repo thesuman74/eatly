@@ -12,7 +12,7 @@ export async function getUserOnboardingStatus() {
 
   const userId = user?.id;
 
-  if (!user?.id) {
+  if (!userId) {
     redirect("/login");
   }
 
@@ -20,7 +20,7 @@ export async function getUserOnboardingStatus() {
     .from("users")
     .select("restaurant_id")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching user onboarding status:", error.message);

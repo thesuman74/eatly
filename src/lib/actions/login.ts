@@ -26,7 +26,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard/products");
+  redirect("/onboarding");
 }
 
 export async function signup(formData: FormData) {
