@@ -15,18 +15,96 @@ src/app/(auth)/
 ├─ register/      ← Signup page
 └─ logout/        ← Logout actions
 
-
+////////////////////////////////////////
 [restaurantSlug]/
 ├─ menu/          ← Show categories and products
 ├─ cart/          ← Guest cart and checkout
 └─ page.tsx       ← Restaurant landing page
 
-
+////////////////////////////////////
 src/stores/
 ├─ admin/                  ← Stores for dashboard/admin
-│  ├─ categoryStore.ts     ← Combines admin category logic
+│  ├─ categoryStore.ts     ← 
 │  ├
 ├─ user/                   ← Stores for public / customer
-│  ├─ cartStore.ts         ← User cart store
+│  ├─ cartStore.ts         ← 
 |-ui/                     ← UI-specific or sheet/modal states
 │  ├─ paymentPanelStore.ts
+
+/////////////////////////////////////
+
+src/hooks/
+├─ category/            ← Category-related hooks
+│  ├─ useAddCategory.ts
+│  ├─ useDeleteCategory.ts
+│  └─ useUpdateCategory.ts
+├─ products/            ← Product-related hooks
+│  ├─ useProducts.ts
+│  └─ useProductActions.ts
+├─ orders/              ← Order-related hooks
+│  └─ useOrders.ts
+└─ ui/                  ← UI helpers/hooks (mobile, modal, sheet)
+    └─ useMobile.tsx
+
+
+////////////////////////////////
+src/lib/
+├─ supabase/            ← Supabase clients & server helpers
+│  ├─ client.ts
+│  ├─ server.ts
+│  └─ serverService.ts
+├─ actions/             ← Business logic functions
+│  ├─ authActions.ts
+│  ├─ orderActions.ts
+│  └─ uploadImages.ts
+├─ types/               ← TypeScript types
+│  ├─ menu-types.ts
+│  ├─ order-types.ts
+│  └─ items-types.ts
+└─ utils/               ← Utility functions
+    ├─ date.ts
+    ├─ time.ts
+    └─ buildOrderPayload.ts
+
+/////////////////////////////////////
+UI → Action → Service → Database
+
+
+src/services/           API & DB calls, Business logic
+├─ auth/                
+├─ restaurant/          ← Restaurant logic, creation, setup
+├─ menu/                ← Categories, products services
+├─ orders/              
+└─ payments/            
+
+//////////////////////////
+
+src/app/api/
+├─ auth/
+│  └─ [...nextauth]/route.ts
+├─ gemini/
+│  └─ route.ts
+├─ menu/
+│  ├─ categories.ts           ← all category CRUD handled in one file or split by feature
+│  ├─ products.ts             ← all product CRUD handled in one file
+│  └─ import.ts
+├─ orders/
+│  ├─ index.ts                ← GET all orders, POST create order
+│  ├─ [orderId].ts            ← GET, PATCH, DELETE single order
+│  └─ [orderId]/status.ts     ← PATCH status update
+├─ payments/
+│  └─ paymentService.ts
+
+//////////////////////////
+src/utils/
+├─ date.ts               ← Date/time helpers
+├─ time.ts               ← Time formatting / calculations
+├─ buildOrderPayload.ts  ← Order payload builder
+├─ fetcher.ts            ← Generic fetch/Axios helpers
+└─ index.ts              ← Optional: central exports
+
+
+Only put generic, reusable functions here.
+Domain-specific helpers should live in their respective service folder (services/menu/utils.ts or services/orders/utils.ts).
+
+//////////////////////
