@@ -5,13 +5,21 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { getUserOnboardingStatus } from "@/lib/supabase/getUserOnboardingStatus";
 import { Separator } from "@radix-ui/react-select";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check onboarding
+  const onboarding = await getUserOnboardingStatus();
+
+  if (!onboarding.completed) {
+    redirect("/onboarding");
+  }
   return (
     <SidebarProvider>
       <AppSidebar />
