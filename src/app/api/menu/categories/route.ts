@@ -18,11 +18,11 @@ export async function POST(req: Request) {
     // Parse request body
     const body = await req.json();
 
-    const { restaurant_id } = body;
+    const { restaurantId } = body;
 
-    if (!restaurant_id) {
+    if (!restaurantId) {
       return NextResponse.json(
-        { error: "restaurant_id is required" },
+        { error: "restaurantId is required" },
         { status: 400 }
       );
     }
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const { data: restaurant, error: restaurantError } = await supabase
       .from("restaurants")
       .select("id, owner_id")
-      .eq("id", restaurant_id)
+      .eq("id", restaurantId)
       .eq("owner_id", user.id)
       .single();
 
@@ -106,14 +106,43 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const supabase = await createClient();
-    const { updates } = await req.json();
+    const { updates, restaurantId } = await req.json();
 
-    console.log("updates", updates);
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
 
     if (!updates || !Array.isArray(updates)) {
       return NextResponse.json(
         { error: "Invalid updates array" },
         { status: 400 }
+      );
+    }
+
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify ownership
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id, owner_id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
       );
     }
 
@@ -173,6 +202,40 @@ export async function DELETE(req: Request) {
   }
 
   try {
+    const body = await req.json();
+
+    const { restaurantId } = body;
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify ownership
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id, owner_id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
     const { error } = await supabase
       .from("categories")
       .delete()

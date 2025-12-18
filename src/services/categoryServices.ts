@@ -16,11 +16,11 @@ export async function getCategoriesAPI() {
     );
   }
 }
-export async function addCategoryAPI(restaurant_id: string) {
+export async function addCategoryAPI(restaurantId: string) {
   try {
     const res = await clientAxiosInstance.post(
       "/api/menu/categories",
-      { restaurant_id }
+      { restaurantId }
       // { requiresAuth: true }
     );
     return res.data;
@@ -40,11 +40,14 @@ export interface CategoryUpdate {
   isVisible?: boolean;
 }
 
-export async function updateCategoriesAPI(updates: CategoryUpdate[]) {
+export async function updateCategoriesAPI(
+  updates: CategoryUpdate[],
+  restaurantId: string
+) {
   const response = await fetch(`/api/menu/categories`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ updates }), // no restaurantId needed
+    body: JSON.stringify({ updates, restaurantId }), // no restaurantId needed
   });
 
   const data = await response.json();
@@ -71,9 +74,14 @@ export async function duplicateCategoryAPI(
   return data;
 }
 
-export async function deleteCategoryAPI(categoryId: string) {
+export async function deleteCategoryAPI(
+  categoryId: string,
+  restaurantId: string
+) {
   const res = await fetch(`/api/menu/categories?categoryId=${categoryId}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ restaurantId }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to delete category");

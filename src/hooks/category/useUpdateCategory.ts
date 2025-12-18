@@ -1,12 +1,18 @@
-import { updateCategoriesAPI } from "@/services/categoryServices";
+import {
+  CategoryUpdate,
+  updateCategoriesAPI,
+} from "@/services/categoryServices";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 export function useUpdateCategories() {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation({
-    mutationFn: updateCategoriesAPI,
+    mutationFn: (updates: CategoryUpdate[]) =>
+      updateCategoriesAPI(updates, restaurantId),
     onSuccess: () => {
       toast.success("Categories updated!");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
