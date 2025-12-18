@@ -49,7 +49,6 @@ export function useProductActions() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             productId: product.id,
-            restaurantId,
             imageName: product.name,
             images: urls,
           }),
@@ -64,7 +63,7 @@ export function useProductActions() {
 
     onSuccess: () => {
       toast.success("Product added successfully!");
-      queryClient.invalidateQueries({ queryKey: ["products", restaurantId] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
 
     onError: (error: any) => {

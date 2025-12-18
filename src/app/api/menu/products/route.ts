@@ -63,6 +63,8 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("price", price);
+
     // Authenticate user
     const {
       data: { user },

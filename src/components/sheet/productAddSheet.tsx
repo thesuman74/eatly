@@ -59,7 +59,7 @@ export function ProductAddSheet() {
     if (product && mode === "edit") {
       setName(product.name);
       setDescription(product.description);
-      setPrice((product.price / 100).toString()); // Convert cents to dollars
+      setPrice(product.price.toString()); // Convert cents to dollars
       setExistingImages(product.images || []); // ⬅️ HERE
 
       // Handle existing images if needed
@@ -177,7 +177,7 @@ export function ProductAddSheet() {
                   <FileUploader
                     files={images}
                     onChange={setImages}
-                    multiple={true}
+                    multiple={false}
                   />
                   {mode === "edit" && existingImages.length > 0 && (
                     <>
