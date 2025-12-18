@@ -23,15 +23,12 @@ import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import CategoryItem from "./CategoryItem";
 
 import { useAddCategory } from "@/hooks/category/useAddCategory";
-import { useUpdateCategoryPositions } from "@/hooks/category/useUpdateCategoryPositions";
-import {
-  CategoryPositionUpdate,
-  getCategoriesAPI,
-} from "@/services/categoryServices";
+import { CategoryUpdate, getCategoriesAPI } from "@/services/categoryServices";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import HorizontalCategoryList from "../HorizontalCategoryList";
+import { useUpdateCategories } from "@/hooks/category/useUpdateCategory";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -53,9 +50,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   // React Query mutations
   const addCategory = useAddCategory();
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const updatePositions = useUpdateCategoryPositions(baseUrl);
+  const updateCategory = useUpdateCategories();
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -74,15 +69,11 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       setCategories(newCategories);
 
       // Map to positions for API
-      const updatedPositions: CategoryPositionUpdate[] = newCategories.map(
+      const updatedPositions: CategoryUpdate[] = newCategories.map(
         (cat, index) => ({ id: cat.id, position: index + 1 })
       );
 
-      updatePositions.mutate(updatedPositions, {
-        onSuccess() {
-          queryClient.setQueryData(["categories"], newCategories);
-        },
-      });
+      updateCategory.mutate(updatedPositions);
     }
   };
 

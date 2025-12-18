@@ -15,6 +15,7 @@ import { useToggleCategoryVisibility } from "@/hooks/category/useToggleCategoryV
 import { useDeleteCategory } from "@/hooks/category/useDeleteCategory";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { Button } from "@/components/ui/button";
+import { useUpdateCategories } from "@/hooks/category/useUpdateCategory";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
@@ -25,28 +26,39 @@ const CategoryItem = ({ category }: CategoryProps) => {
     useSortable({ id: category.id });
   const [isOpen, setIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(category);
-  const { openAddSheet, closeSheet } = useProductSheet();
+  const [isEditing, setIsEditing] = useState(false);
+  const { openAddSheet } = useProductSheet();
 
   // React Query hooks
-  const updateCategoryName = useUpdateCategoryName();
+  const updateCategory = useUpdateCategories();
   const duplicateCategory = useDuplicateCategory();
-  const toggleVisibility = useToggleCategoryVisibility();
   const deleteCategory = useDeleteCategory();
 
   const handleBlur = async () => {
+    setIsEditing(true);
     if (editCategory.name !== category.name) {
       try {
-        await updateCategoryName.mutateAsync({
-          categoryId: category.id,
-          name: editCategory.name,
-        });
+        await updateCategory.mutateAsync([
+          {
+            id: category.id,
+            name: editCategory.name,
+          },
+        ]);
       } catch (err) {
         console.error(err);
       }
+      setIsEditing(false);
     }
   };
 
-  // edit -> productId filter -> ProductAddSheet -> if initial data update else add
+  const handleToggleVisibility = async (category: ProductCategoryTypes) => {
+    await updateCategory.mutateAsync([
+      {
+        id: category.id,
+        isVisible: !category.isVisible, // toggle the current value
+      },
+    ]);
+  };
 
   return (
     <motion.div
@@ -86,7 +98,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
                 }
                 onBlur={handleBlur}
               />
-              {updateCategoryName.isPending ? (
+              {isEditing ? (
                 <span className="text-xs text-gray-500">saving....</span>
               ) : null}
             </div>
@@ -112,7 +124,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
           )}
 
           <CategoryOptions
-            onToggleVisibility={() => toggleVisibility.mutateAsync(category.id)}
+            onToggleVisibility={() => handleToggleVisibility(category)}
             onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
             onDelete={() => deleteCategory.mutateAsync(category.id)}
           />

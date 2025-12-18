@@ -7,7 +7,7 @@ export function useAddCategory() {
   const queryClient = useQueryClient();
 
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
-  console.log("restaurantId in useAddCategory", restaurantId);
+  // console.log("restaurantId in useAddCategory", restaurantId);
 
   return useMutation({
     mutationFn: async () => {

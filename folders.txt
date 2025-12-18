@@ -83,22 +83,25 @@ src/services/           API & DB calls, Business logic
 └─ payments/            
 
 //////////////////////////
-
 src/app/api/
 ├─ auth/
 │  └─ [...nextauth]/route.ts
 ├─ gemini/
 │  └─ route.ts
 ├─ menu/
-│  ├─ categories.ts           ← all category CRUD handled in one file or split by feature
-│  ├─ products.ts             ← all product CRUD handled in one file
-│  └─ import.ts
+│  ├─ categories/
+│  │   └─ route.ts          ← handles GET, POST, PATCH, DELETE
+│  ├─ products/
+│  │   └─ route.ts
+│  └─ import/
+│      └─ route.ts
 ├─ orders/
-│  ├─ index.ts                ← GET all orders, POST create order
-│  ├─ [orderId].ts            ← GET, PATCH, DELETE single order
-│  └─ [orderId]/status.ts     ← PATCH status update
-├─ payments/
-│  └─ paymentService.ts
+│  ├─ index/
+│  │   └─ route.ts          ← GET (list) / POST (create)
+│  ├─ [orderId]/
+│  │   └─ route.ts          ← GET, PATCH, DELETE
+│  └─ [orderId]/status/
+│      └─ route.ts    
 
 //////////////////////////
 src/utils/

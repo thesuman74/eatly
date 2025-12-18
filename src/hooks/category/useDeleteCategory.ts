@@ -14,7 +14,6 @@ export function useDeleteCategory() {
       return categoryId;
     },
     onMutate: (categoryId) => {
-      // Optimistic update: remove category locally first
       deleteCategoryLocal(categoryId);
     },
     onSuccess: () => {
