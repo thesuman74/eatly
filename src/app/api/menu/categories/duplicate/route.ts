@@ -2,33 +2,55 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
-
   try {
-    const { categoryId } = await req.json();
+    const body = await req.json();
+    const { categoryId, restaurantId } = body;
 
-    if (!categoryId) {
+    if (!categoryId || !restaurantId) {
       return NextResponse.json(
-        { error: "Missing required categoryId" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Fetch the original category
+    const supabase = await createClient();
+
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Verify restaurant ownership once
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    // Fetch the original category (RLS ensures user can only access their categories)
     const { data: category, error: fetchError } = await supabase
       .from("categories")
       .select("*")
       .eq("id", categoryId)
       .single();
 
-    if (fetchError || !category) {
+    if (fetchError || !category)
       return NextResponse.json(
         { error: "Category not found" },
         { status: 404 }
       );
-    }
 
-    // Create a duplicate category
+    // Duplicate category including restaurant_id
     const { data: newCategory, error: insertError } = await supabase
       .from("categories")
       .insert([
@@ -37,6 +59,7 @@ export async function POST(req: Request) {
           slug: null,
           position: category.position,
           isVisible: category.isVisible,
+          restaurant_id: restaurant.id, // RLS uses this for row-level security
         },
       ])
       .select()
@@ -44,64 +67,54 @@ export async function POST(req: Request) {
 
     if (insertError || !newCategory) throw insertError;
 
-    // Fetch original products
+    // Fetch original products (RLS ensures user can only access their products)
     const { data: originalProducts, error: prodFetchError } = await supabase
       .from("products")
       .select("*")
       .eq("category_id", category.id);
 
-    if (prodFetchError) {
+    if (prodFetchError)
       console.error(
         "Error fetching original products:",
         prodFetchError.message
       );
-    }
 
-    let newProducts: any[] = [];
+    // Duplicate products including restaurant_id
+    const productsToInsert =
+      originalProducts && originalProducts.length > 0
+        ? originalProducts.map((p) => ({
+            name: p.name,
+            price: p.price,
+            description: p.description || "",
+            category_id: newCategory.id,
+            restaurant_id: restaurant.id, // important for RLS
+          }))
+        : [
+            {
+              name: "Item 1",
+              price: 0,
+              category_id: newCategory.id,
+              restaurant_id: restaurant.id,
+            },
+          ];
 
-    // Duplicate products
-    if (originalProducts && originalProducts.length > 0) {
-      const productsToInsert = originalProducts.map((p) => ({
-        name: p.name,
-        price: p.price,
-        description: p.description || "",
-        category_id: newCategory.id,
-      }));
+    const { data: newProducts, error: prodInsertError } = await supabase
+      .from("products")
+      .insert(productsToInsert)
+      .select("*");
 
-      const { data: insertedProducts, error: prodInsertError } = await supabase
-        .from("products")
-        .insert(productsToInsert)
-        .select("*");
+    if (prodInsertError)
+      console.error("Error duplicating products:", prodInsertError.message);
 
-      if (prodInsertError) {
-        console.error("Error duplicating products:", prodInsertError.message);
-      } else {
-        newProducts = insertedProducts || [];
-      }
-    } else {
-      // Create default product if none exist
-      const { data: defaultProduct } = await supabase
-        .from("products")
-        .insert([{ name: "Item 1", price: 0, category_id: newCategory.id }])
-        .select("*");
-
-      newProducts = defaultProduct || [];
-    }
-
-    // Return new category including products
     return NextResponse.json({
       success: true,
       message: "Category duplicated successfully",
-      category: { ...newCategory, products: newProducts },
+      category: { ...newCategory, products: newProducts || [] },
     });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error duplicating category:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    console.error("Unknown error duplicating category:", error);
+    console.error("Error duplicating category:", error);
     return NextResponse.json(
-      { error: "An unknown error occurred" },
+      { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

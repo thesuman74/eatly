@@ -17,9 +17,6 @@ export async function POST(req: Request) {
   try {
     // Parse request body
     const body = await req.json();
-    console.log("body", body);
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    // console.log("token", token);
 
     const { restaurant_id } = body;
 
@@ -47,17 +44,6 @@ export async function POST(req: Request) {
       .eq("id", restaurant_id)
       .eq("owner_id", user.id)
       .single();
-
-    // auth.id vs owner id
-    console.log("auth.id vs owner id ", user.id, "vs", restaurant?.owner_id);
-    console.log(
-      "user sent resturantId vs db",
-      restaurant_id,
-      "vs",
-      restaurant?.id
-    );
-    const id_match = user.id === restaurant?.owner_id;
-    console.log("id_match", id_match);
 
     if (restaurantError || !restaurant) {
       return NextResponse.json(
