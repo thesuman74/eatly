@@ -31,6 +31,7 @@ import {
 import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import HorizontalCategoryList from "../HorizontalCategoryList";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -114,20 +115,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         </div>
 
         {/* Category list preview */}
-        <div className="overflow-x-hidden scrollbar-hide mb-4">
-          <div className="flex space-x-4 px-2">
-            {categories?.map((category, index) => (
-              <div
-                key={category.id + index}
-                className="flex items-center space-x-1 whitespace-nowrap rounded-md bg-gray-100 px-3 py-1 hover:bg-gray-200 transition"
-              >
-                <span className="text-gray-700 font-medium">
-                  {category.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <HorizontalCategoryList categories={categories ?? []} />
 
         {/* Drag & Drop context */}
         <DndContext
@@ -140,8 +128,8 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
             strategy={verticalListSortingStrategy}
           >
             {categories.length > 0 ? (
-              categories.map((category) => (
-                <CategoryItem key={category.id} category={category} />
+              categories.map((category, index) => (
+                <CategoryItem key={category.id + index} category={category} />
               ))
             ) : (
               <>

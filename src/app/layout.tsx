@@ -30,7 +30,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" className="color-scheme: light">
-      <body className={`${quicksand.className} antialiased`}>
+      <body
+        className={`${quicksand.className} antialiased max-w-full overflow-x-hidden`}
+      >
         <Provider>{children}</Provider>
       </body>
     </html>
