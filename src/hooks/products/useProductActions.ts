@@ -15,18 +15,23 @@ export function useProductActions() {
       images?: File[];
     }) => {
       // 1️⃣ Create product
-      const product = await addProductAPI({
-        name: payload.name,
-        description: payload.description,
-        price: payload.price,
-        category_id: payload.category_id,
-      });
+      let product;
+      try {
+        product = await addProductAPI({
+          name: payload.name,
+          description: payload.description,
+          price: payload.price,
+          category_id: payload.category_id,
+        });
+      } catch (err: any) {
+        throw new Error(err.message || "Failed to create product");
+      }
 
-      // 2️⃣ Upload images if any
+      // 2️⃣ Upload images only if product creation succeeded
       if (payload.images && payload.images.length > 0) {
         const urls = await uploadProductImages(product.id, payload.images);
 
-        // 3️⃣ Insert images via API route
+        // 3️⃣ Insert image records via API
         const res = await fetch("/api/menu/products/images", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

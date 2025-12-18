@@ -14,7 +14,7 @@ export async function addProductAPI(product: {
   price: number;
   category_id: string;
 }) {
-  const response = await fetch("/api/menu/products/add", {
+  const response = await fetch("/api/menu/products", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
