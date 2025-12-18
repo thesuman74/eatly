@@ -59,6 +59,7 @@ import {
 import { toast } from "react-toastify";
 import { ProductTypes } from "@/lib/types/menu-types";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
+import { useProductActions } from "@/hooks/products/useProductActions";
 
 interface SubItemListProps {
   products: ProductTypes[];
@@ -68,41 +69,10 @@ interface SubItemListProps {
 const SubItemList = ({ products, categoryID }: SubItemListProps) => {
   const queryClient = useQueryClient();
 
-  // Delete product mutation
-  const deleteMutation = useMutation({
-    mutationFn: (productId: string) => deleteProductAPI(productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Product deleted successfully!");
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to delete product");
-    },
-  });
+  const { deleteMutation, duplicateMutation, toggleVisibilityMutation } =
+    useProductActions();
 
-  // Duplicate product mutation
-  const duplicateMutation = useMutation({
-    mutationFn: (productId: string) => duplicateProductAPI(productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Product duplicated successfully!");
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to duplicate product");
-    },
-  });
-
-  // Toggle visibility mutation
-  const toggleVisibilityMutation = useMutation({
-    mutationFn: (productId: string) => toggleProductVisibilityAPI(productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Product visibility updated!");
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to toggle product visibility");
-    },
-  });
+  // to do :: check for resturant id in duplicate and togglevisibility
 
   // if (isLoading) return <div>Loading products...</div>;
 
