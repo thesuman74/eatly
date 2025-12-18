@@ -18,7 +18,7 @@ import {
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { RestaurantsSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +27,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { getUserRestaurants } from "@/services/resturantServices";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 // console.log("restaurantData", restaurantData);
 
@@ -113,19 +114,15 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   restaurants: Array<{
     id: string;
     name: string;
+    logo: string;
   }>;
 };
 
 export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
-  const team = restaurants.map((restaurant) => ({
-    name: restaurant.name,
-    logo: GalleryVerticalEnd,
-    plan: "",
-  }));
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={team} />
+        <RestaurantsSwitcher restaurants={restaurants} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

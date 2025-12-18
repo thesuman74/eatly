@@ -1,5 +1,6 @@
 // Add a new category
 
+import { clientAxiosInstance } from "@/lib/axios/ClientAxiosInstance";
 import { serverAxiosInstance } from "@/lib/axios/ServerAxiosInstance";
 
 import { serverService } from "@/lib/supabase/serverService";
@@ -42,19 +43,21 @@ export async function getCategoriesAPI() {
     );
   }
 }
-export async function addCategoryAPI() {
-  const response = await fetch("/api/menu/categories/add", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to add category");
+export async function addCategoryAPI(restaurant_id: string) {
+  try {
+    const res = await clientAxiosInstance.post(
+      "/api/menu/categories",
+      { restaurant_id },
+      { requiresAuth: true }
+    );
+    return res.data;
+  } catch (error: any) {
+    console.error(
+      "Error adding categories:",
+      error.response?.data || error.message
+    );
+    throw new Error(error.response?.data?.error || "Failed to add categories");
   }
-
-  return data.category;
 }
 
 export interface CategoryPositionUpdate {

@@ -7,6 +7,11 @@ Multi-Tenant Structure
 - Example: /kajichiya1, /kajichiya2
 - restaurant_id stored in DB, used in server/services
 
+
+# List all files recursively
+tree /F
+
+
 Public Folder Structure (src/app/(public)/[restaurantSlug]/)
 ------------------------------------------------------------
 
@@ -108,3 +113,8 @@ Only put generic, reusable functions here.
 Domain-specific helpers should live in their respective service folder (services/menu/utils.ts or services/orders/utils.ts).
 
 //////////////////////
+
+
+
+
+1. policy , 2. authentication with (auth.uid) , 3. check conditions 

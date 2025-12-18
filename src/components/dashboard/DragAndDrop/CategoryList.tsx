@@ -30,6 +30,7 @@ import {
 } from "@/services/categoryServices";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -38,6 +39,7 @@ interface CategoryListProps {
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [categories, setCategories] = useState<ProductCategoryTypes[]>([]);
+  console.log("categories", categories);
 
   const queryClient = useQueryClient();
 
@@ -114,9 +116,9 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         {/* Category list preview */}
         <div className="overflow-x-hidden scrollbar-hide mb-4">
           <div className="flex space-x-4 px-2">
-            {categories?.map((category) => (
+            {categories?.map((category, index) => (
               <div
-                key={category.id}
+                key={category.id + index}
                 className="flex items-center space-x-1 whitespace-nowrap rounded-md bg-gray-100 px-3 py-1 hover:bg-gray-200 transition"
               >
                 <span className="text-gray-700 font-medium">
