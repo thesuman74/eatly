@@ -32,7 +32,7 @@ export async function addProductAPI(product: {
 export async function deleteProductAPI(productId: string) {
   if (!productId) throw new Error("Product ID is required");
 
-  const res = await fetch(`/api/menu/products/delete?productId=${productId}`, {
+  const res = await fetch(`/api/menu/products?productId=${productId}`, {
     method: "DELETE",
   });
 
