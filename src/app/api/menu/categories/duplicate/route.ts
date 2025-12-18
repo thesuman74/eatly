@@ -57,7 +57,6 @@ export async function POST(req: Request) {
         {
           name: category.name + " Copy",
           slug: null,
-          position: category.position,
           isVisible: category.isVisible,
           restaurant_id: restaurant.id, // RLS uses this for row-level security
         },

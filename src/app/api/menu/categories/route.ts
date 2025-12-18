@@ -102,3 +102,98 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const supabase = await createClient();
+    const { updates } = await req.json();
+
+    console.log("updates", updates);
+
+    if (!updates || !Array.isArray(updates)) {
+      return NextResponse.json(
+        { error: "Invalid updates array" },
+        { status: 400 }
+      );
+    }
+
+    const results = [];
+
+    for (const update of updates) {
+      const { id, name, position, isVisible } = update;
+
+      // Build object only with fields that exist
+      const fieldsToUpdate: Record<string, any> = {};
+      if (name !== undefined) fieldsToUpdate.name = name;
+      if (position !== undefined) fieldsToUpdate.position = position;
+      if (isVisible !== undefined) fieldsToUpdate.isVisible = isVisible;
+
+      if (Object.keys(fieldsToUpdate).length === 0) continue;
+
+      // Update category (RLS ensures ownership)
+      const { data, error } = await supabase
+        .from("categories")
+        .update(fieldsToUpdate)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Failed to update category:", error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      results.push(data);
+    }
+
+    return NextResponse.json(
+      { success: true, updated: results },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Failed to update categories:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+
+  // Get categoryId from query params
+  const url = new URL(req.url);
+  const categoryId = url.searchParams.get("categoryId");
+
+  console.log("categoryId", categoryId);
+
+  if (!categoryId) {
+    return NextResponse.json(
+      { error: "Missing required categoryId" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", categoryId);
+
+    if (error) throw error;
+
+    return NextResponse.json({
+      success: true,
+      message: "Category deleted successfully",
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error deleting category:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    // fallback for non-Error objects
+    console.error("Unknown error deleting category:", error);
+    return NextResponse.json(
+      { error: "An unknown error occurred" },
+      { status: 500 }
+    );
+  }
+}
