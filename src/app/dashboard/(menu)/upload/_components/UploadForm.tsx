@@ -45,7 +45,7 @@ export default function UploadPage() {
     setPreviews(newPreviews);
 
     return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
-  }, [previews, files]);
+  }, [files]);
 
   const removeFile = (index: number) => {
     const newFiles = [...files];

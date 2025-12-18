@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { set } from "react-hook-form";
 import SubmitButton from "@/components/ui/SubmitButton";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 interface PreviewMenuFormProps {
   reviewMenu: boolean;
@@ -35,6 +36,7 @@ export default function PreviewMenuForm({
     useState<ProductCategoryTypes | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   useEffect(() => {
     if (reviewMenuData && reviewMenuData.length > 0) {
@@ -52,7 +54,7 @@ export default function PreviewMenuForm({
       const res = await fetch("/api/menu/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reviewMenuData }), // send array directly
+        body: JSON.stringify({ reviewMenuData, restaurantId }), // send array directly
       });
 
       const data = await res.json();
