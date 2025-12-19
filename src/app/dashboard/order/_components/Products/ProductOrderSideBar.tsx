@@ -17,7 +17,7 @@ const ProductOrderSideBar = () => {
   const searchParams = useSearchParams();
   const orderType = searchParams.get("type");
 
-  const cartItems = useCartStore((state) => state.cartItems);
+  const { cartItems, setCustomerName, setOrderTitle } = useCartStore();
 
   const handlePayment = () => {
     if (cartItems.length === 0) {
@@ -105,6 +105,7 @@ const ProductOrderSideBar = () => {
                   type="text"
                   name="product_title"
                   placeholder="Add title"
+                  onBlur={(e) => setOrderTitle(e.target.value)}
                   className="w-full border"
                 />
 
@@ -112,6 +113,7 @@ const ProductOrderSideBar = () => {
                   type="text"
                   name="client_name"
                   placeholder="Add Client Name"
+                  onBlur={(e) => setCustomerName(e.target.value)}
                   className="w-full border text-lg"
                 />
               </div>

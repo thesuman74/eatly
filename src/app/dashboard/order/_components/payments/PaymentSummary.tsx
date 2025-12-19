@@ -26,6 +26,7 @@ import {
   PaymentMethod,
 } from "@/lib/types/order-types";
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -63,6 +64,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const isPaid = Boolean(payments?.length);
 
@@ -97,7 +99,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     const saveAmountReceived = () =>
       setAmountReceived(parseFloat(localAmountReceived) || 0);
 
-    const payload = buildOrderPayload();
+    const payload = buildOrderPayload(restaurantId);
 
     try {
       console.log("inside");

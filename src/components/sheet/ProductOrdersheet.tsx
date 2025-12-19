@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
-import { OrderSheetStore } from "@/stores/ui/OrderSheetStore";
 import {
   useDeleteOrderItem,
   useOrder,
@@ -37,13 +36,16 @@ const ProductOrdersheet = () => {
   const showPaymentPanelForThisOrder =
     isPaymentSheetOpen && currentOrderId === data?.id;
 
-  console.log("data", data);
+  console.log("data in order sheet", data);
+  console.log("customer name", data?.customer_name);
 
   // const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
 
   const {
     setCurrentlyActiveOrderId,
+    customerName,
+    orderTitle,
     cartItems,
     setCartItems,
     setCustomerName,
@@ -147,6 +149,8 @@ const ProductOrdersheet = () => {
                       type="text"
                       name="product_title"
                       placeholder="Add title"
+                      value={orderTitle}
+                      onChange={(e) => setOrderTitle(e.target.value)}
                       className="w-full border"
                     />
 
@@ -154,6 +158,8 @@ const ProductOrdersheet = () => {
                       type="text"
                       name="client_name"
                       placeholder="Add Client Name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
                       className="w-full border text-lg"
                     />
                   </div>
