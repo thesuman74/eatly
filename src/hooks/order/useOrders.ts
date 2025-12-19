@@ -26,6 +26,8 @@ export const useCreateOrder = () => {
     mutationFn: addOrderAPI,
     onSuccess: () => {
       cart.clearCart();
+      toast.success("Order registered successfully");
+
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });

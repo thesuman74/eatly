@@ -15,12 +15,9 @@ export default function CartPreview() {
     <>
       <div className="w-full max-w-md  bg-white border rounded shadow-md ">
         <div className="flex items-center justify-between border-b  ">
-          <Link
-            href={"/order/new"}
-            className="font-bold text-lg w-full text-white bg-blue-500 p-2"
-          >
+          <span className="font-bold text-lg w-full text-white bg-blue-500 p-2">
             + Products
-          </Link>
+          </span>
           {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 
