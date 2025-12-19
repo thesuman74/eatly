@@ -39,14 +39,16 @@ export async function getOrderListAPI(status?: OrderStatus) {
 export async function updateOrderStatusAPI({
   id,
   status,
+  restaurantId,
 }: {
   id: string;
   status: OrderStatus;
+  restaurantId: string;
 }) {
   const res = await fetch(`/api/orders/${id}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, restaurantId }),
   });
   const data = await res.json();
 

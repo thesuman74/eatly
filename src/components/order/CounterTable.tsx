@@ -26,7 +26,10 @@ import {
   PAYMENT_STATUS,
 } from "@/lib/types/order-types";
 import { toast } from "react-toastify";
-import { getOrderDetailsAPI } from "@/services/orderServices";
+import {
+  deleteOrderItemAPI,
+  getOrderDetailsAPI,
+} from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
@@ -35,6 +38,7 @@ import { useCartStore } from "@/stores/admin/useCartStore";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
+import { OrderRowActions } from "./OrderRowAction/OrderRowActions";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
@@ -42,23 +46,42 @@ export default function CounterTable() {
 
   const queryClient = useQueryClient();
 
-  const { data: orders = [], isLoading, error } = useOrders();
+  const { data: orders = [], error } = useOrders();
   const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(false);
 
   const updateOrderStatus = useUpdateOrderStatus();
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
-    setLoadingOrderId(id);
-    updateOrderStatus.mutate({ id, status });
+    setActionState({ orderId: id, type: "status" });
+
+    updateOrderStatus.mutate(
+      { id, status },
+      {
+        onError: () => {
+          toast.error("Failed to update order status");
+        },
+        onSettled: () => {
+          setActionState({ orderId: null, type: null });
+        },
+      }
+    );
   };
 
   const acceptOrder = async (orderId: string) => {
-    updateOrderStatus.mutate({ id: orderId, status: ORDER_STATUS.ACCEPTED });
+    try {
+      setActionState({ orderId: orderId, type: "accept" });
+      updateOrderStatus.mutate({ id: orderId, status: ORDER_STATUS.ACCEPTED });
+    } finally {
+      setActionState({ orderId: null, type: null });
+    }
   };
 
-  const finishOrder = async (order: any, setLoading: (v: boolean) => void) => {
+  const finishOrder = async (order: any) => {
     try {
       setLoading(true);
+      setActionState({ orderId: order.id, type: "accept" });
 
       await queryClient.fetchQuery({
         queryKey: ["order-details", order.id],
@@ -78,6 +101,24 @@ export default function CounterTable() {
       toast.error("Failed to finish order");
     } finally {
       setLoading(false);
+      setActionState({ orderId: null, type: null });
+    }
+  };
+
+  const cancelOrder = (orderId: string) => {
+    updateOrderStatus.mutate({
+      id: orderId,
+      status: ORDER_STATUS.CANCELLED,
+    });
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    try {
+      await deleteOrderItemAPI(orderId);
+      toast.success("Order deleted");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    } catch {
+      toast.error("Failed to delete order");
     }
   };
 
@@ -88,14 +129,41 @@ export default function CounterTable() {
     const action = getOrderAction(order);
 
     if (action === "ACCEPT") {
+      setActionState({ orderId: order.id, type: "accept" });
+
       await acceptOrder(order.id);
     } else {
-      await finishOrder(order, setLoading);
+      setActionState({ orderId: order.id, type: "finish" });
+
+      await finishOrder(order);
     }
   };
   const { setCurrentlyActiveOrderId } = useCartStore();
 
-  useSecondTicker(); // 👈 this enables live updates
+  // useSecondTicker(); // 👈 this enables live updates
+  type OrderActionType =
+    | "accept"
+    | "finish"
+    | "status"
+    | "pay"
+    | "cancel"
+    | "delete"
+    | null;
+
+  type OrderActionState = {
+    orderId: string | null;
+    type: OrderActionType;
+  };
+
+  const [actionState, setActionState] = useState<OrderActionState>({
+    orderId: null,
+    type: null,
+  });
+
+  const isLoading = (orderId: string, type: OrderActionType) =>
+    actionState.orderId === orderId && actionState.type === type;
+
+  console.log("actionState", actionState);
 
   return (
     <>
@@ -243,71 +311,26 @@ export default function CounterTable() {
 
                   {/* ACTIONS */}
                   <div className="col-span-3 flex justify-end items-center gap-2 text-sm">
-                    {/* Cancel button */}
-                    <Button
-                      variant="outline"
-                      className="border text-red-600 border-red-600 hover:bg-red-50"
-                      onClick={(e) => {
-                        e.stopPropagation(); // <--- prevents row click
+                    <OrderRowActions
+                      order={order}
+                      loading={{
+                        accept: isLoading(order.id, "accept"),
+                        finish: isLoading(order.id, "finish"),
+                        status: isLoading(order.id, "status"),
+                        pay: isLoading(order.id, "pay"),
                       }}
-                    >
-                      {" "}
-                      <X size={14} /> Cancel
-                    </Button>
-
-                    {/* {/* Only show Status dropdown if not pending */}
-                    {order.status !== ORDER_STATUS.DRAFT && (
-                      <OrderStatusActions
-                        onStatusChange={(status) =>
-                          handleStatusChange(order.id, status)
-                        }
-                      />
-                    )}
-
-                    {/* Pay button */}
-                    <Button
-                      variant="outline"
-                      className="border text-blue-600 border-blue-600 hover:bg-blue-50"
-                      onClick={(e) => {
-                        e.stopPropagation(); // <--- prevents row click
-                        openProductOrderSheet(order.id); // Step 1: open the ProductOrdersheet
+                      onAccept={() => acceptOrder(order.id)}
+                      onFinish={() => finishOrder(order)}
+                      onPay={() => {
+                        openProductOrderSheet(order.id);
                         openpaymentPanelStore(order.id);
                       }}
-                    >
-                      <DollarSign size={14} /> Pay
-                    </Button>
-
-                    {/* Accept / Finish button */}
-                    <Button
-                      className={`text-white ${
-                        order.status === ORDER_STATUS.DRAFT
-                          ? "bg-green-500"
-                          : "bg-blue-600"
-                      }`}
-                      disabled={loadingOrderId === order.id}
-                      onClick={(e) => {
-                        e.stopPropagation(); // ✅ Prevent row click from firing
-                        handleOrderAction(order, (v) =>
-                          setLoadingOrderId(v ? order.id : null)
-                        );
-                      }}
-                    >
-                      {loadingOrderId === order.id ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Check size={14} />
-                      )}
-                      {order.status === ORDER_STATUS.DRAFT
-                        ? "Accept"
-                        : "Finish"}
-                    </Button>
-
-                    {order.status === ORDER_STATUS.DRAFT && (
-                      <MoreVertical
-                        size={18}
-                        className="cursor-pointer text-gray-500"
-                      />
-                    )}
+                      onStatusChange={(status) =>
+                        handleStatusChange(order.id, status)
+                      }
+                      onCancel={() => cancelOrder(order.id)}
+                      onDelete={() => deleteOrder(order.id)}
+                    />
                   </div>
                 </div>
               )}

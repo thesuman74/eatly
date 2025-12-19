@@ -35,7 +35,7 @@ const ProductOrdersheet = () => {
 
   const { data, isLoading, error } = useOrder(orderId);
 
-  useSecondTicker(); // 👈 this enables live updates
+  // useSecondTicker(); // 👈 this enables live updates
   const elapsed = getElapsedSeconds(data?.created_at);
 
   const timeColor = clsx(
@@ -75,7 +75,7 @@ const ProductOrdersheet = () => {
     setOrderTitle(data.order_title || "");
   }, [data, orderId]);
 
-  const paymentStatus = useCartStore((state) => state.paymentStatus);
+  // const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   if (!isProductOrderSheetOpen) return null;
 

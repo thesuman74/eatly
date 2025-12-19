@@ -6,12 +6,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
-import { Printer } from "lucide-react";
+import { Loader2, Printer } from "lucide-react";
 
 export function OrderStatusActions({
   onStatusChange,
+  loading,
 }: {
-  onStatusChange: (s: OrderStatus) => void; // <-- use OrderStatus here
+  onStatusChange: (s: OrderStatus) => void;
+  loading?: boolean;
 }) {
   return (
     <>
@@ -27,7 +29,7 @@ export function OrderStatusActions({
             }}
             variant="outline"
           >
-            Status
+            {loading ? <Loader2 className="animate-spin" /> : "Status"}
           </Button>
         </DropdownMenuTrigger>
 

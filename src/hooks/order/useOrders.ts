@@ -16,6 +16,7 @@ import {
   updateOrderStatusAPI,
 } from "@/services/orderServices";
 import { toast } from "react-toastify";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
@@ -49,10 +50,22 @@ export const useOrders = (status?: OrderStatus) =>
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
   return useMutation({
-    mutationFn: updateOrderStatusAPI,
+    mutationFn: ({ id, status }: { id: string; status: OrderStatus }) => {
+      if (!restaurantId) {
+        throw new Error("No active restaurant selected");
+      }
+
+      return updateOrderStatusAPI({
+        id,
+        status,
+        restaurantId,
+      });
+    },
     onSuccess: (_, { id }) => {
-      toast.success("Order status updated!");
+      toast.success("Order status updated");
       queryClient.invalidateQueries({ queryKey: ["order", id] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
