@@ -13,9 +13,9 @@ interface topProps {
 }
 
 const Top = ({ restaurant }: topProps) => {
-  const banner = restaurant.banner_url || "https://picsum.photos/1200/300";
-  const logoUrl = restaurant.logo_url || "/Images/logo.png";
-  const nameText = restaurant.name || "Your Restaurant";
+  const banner = restaurant?.banner_url || "https://picsum.photos/1200/300";
+  const logoUrl = restaurant?.logo_url || "/Images/logo.png";
+  const nameText = restaurant?.name || "Your Restaurant";
 
   return (
     <>

@@ -5,8 +5,6 @@ import { getUserRestaurants } from "@/services/resturantServices";
 import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
-
 export default async function Page() {
   const categoriesData = await getCategoriesFromDB();
   const restaurantData = await getUserRestaurants();
