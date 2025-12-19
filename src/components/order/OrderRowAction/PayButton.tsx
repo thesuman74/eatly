@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Loader2 } from "lucide-react";
 
-export function PayButton({ onPay }: { onPay: () => void }) {
+export function PayButton({
+  onPay,
+  loading,
+}: {
+  onPay: () => void;
+  loading?: boolean;
+}) {
   return (
     <Button
       variant="outline"
@@ -12,7 +18,7 @@ export function PayButton({ onPay }: { onPay: () => void }) {
       className="border-blue-600 text-blue-600 hover:bg-blue-50"
     >
       <DollarSign size={14} />
-      Pay
+      {loading ? <Loader2 className="animate-spin" /> : "Pay"}
     </Button>
   );
 }

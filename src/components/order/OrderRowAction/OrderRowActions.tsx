@@ -41,7 +41,7 @@ export function OrderRowActions({
           loading={loading.status}
         />
       )}
-      <PayButton onPay={onPay} /> {/* Primary CTA */}
+      <PayButton onPay={onPay} loading={loading.pay} /> {/* Primary CTA */}
       <PrimaryOrderButton
         order={order}
         loading={loading}

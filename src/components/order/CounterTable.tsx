@@ -33,7 +33,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
-import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
+import { requiresPayment } from "@/lib/actions/orderActions";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
@@ -47,9 +47,6 @@ export default function CounterTable() {
   const queryClient = useQueryClient();
 
   const { data: orders = [], error } = useOrders();
-  const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
-
-  const [loading, setLoading] = useState(false);
 
   const updateOrderStatus = useUpdateOrderStatus();
 
@@ -70,19 +67,24 @@ export default function CounterTable() {
   };
 
   const acceptOrder = async (orderId: string) => {
+    setActionState({ orderId, type: "accept" });
+
     try {
-      setActionState({ orderId: orderId, type: "accept" });
-      updateOrderStatus.mutate({ id: orderId, status: ORDER_STATUS.ACCEPTED });
+      await updateOrderStatus.mutateAsync({
+        id: orderId,
+        status: ORDER_STATUS.ACCEPTED,
+      });
+    } catch (error) {
+      toast.error("Failed to accept order");
     } finally {
       setActionState({ orderId: null, type: null });
     }
   };
 
   const finishOrder = async (order: any) => {
-    try {
-      setLoading(true);
-      setActionState({ orderId: order.id, type: "accept" });
+    setActionState({ orderId: order.id, type: "finish" });
 
+    try {
       await queryClient.fetchQuery({
         queryKey: ["order-details", order.id],
         queryFn: () => getOrderDetailsAPI(order.id),
@@ -90,9 +92,12 @@ export default function CounterTable() {
       });
 
       if (requiresPayment(order)) {
+        setActionState({ orderId: order.id, type: "pay" });
+
         openProductOrderSheet(order.id);
       } else {
-        updateOrderStatus.mutate({
+        // ✅ Wait for mutation to complete
+        await updateOrderStatus.mutateAsync({
           id: order.id,
           status: ORDER_STATUS.COMPLETED,
         });
@@ -100,7 +105,6 @@ export default function CounterTable() {
     } catch (err) {
       toast.error("Failed to finish order");
     } finally {
-      setLoading(false);
       setActionState({ orderId: null, type: null });
     }
   };
@@ -122,22 +126,6 @@ export default function CounterTable() {
     }
   };
 
-  const handleOrderAction = async (
-    order: any,
-    setLoading: (v: boolean) => void
-  ) => {
-    const action = getOrderAction(order);
-
-    if (action === "ACCEPT") {
-      setActionState({ orderId: order.id, type: "accept" });
-
-      await acceptOrder(order.id);
-    } else {
-      setActionState({ orderId: order.id, type: "finish" });
-
-      await finishOrder(order);
-    }
-  };
   const { setCurrentlyActiveOrderId } = useCartStore();
 
   // useSecondTicker(); // 👈 this enables live updates
@@ -162,8 +150,6 @@ export default function CounterTable() {
 
   const isLoading = (orderId: string, type: OrderActionType) =>
     actionState.orderId === orderId && actionState.type === type;
-
-  console.log("actionState", actionState);
 
   return (
     <>
