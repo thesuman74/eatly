@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 
 interface ProductOptionsProps {
   onDelete: () => void;

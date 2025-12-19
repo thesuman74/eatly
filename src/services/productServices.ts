@@ -8,13 +8,22 @@ export async function getProductsAPI(categoryId: string) {
   return data.products;
 }
 
+export interface Product {
+  name: string;
+  description?: string;
+  price: number;
+  category_id: string;
+  restaurantId: string;
+}
+
 export async function addProductAPI(product: {
   name: string;
   description?: string;
   price: number;
   category_id: string;
+  restaurantId: string;
 }) {
-  const response = await fetch("/api/menu/products/add", {
+  const response = await fetch("/api/menu/products", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
@@ -29,12 +38,18 @@ export async function addProductAPI(product: {
   return data.product; // return the created product
 }
 
-export async function deleteProductAPI(productId: string) {
+export async function deleteProductAPI(
+  productId: string,
+  restaurantId: string
+) {
   if (!productId) throw new Error("Product ID is required");
 
-  const res = await fetch(`/api/menu/products/delete?productId=${productId}`, {
-    method: "DELETE",
-  });
+  const res = await fetch(
+    `/api/menu/products?productId=${productId}&restaurantId=${restaurantId}`,
+    {
+      method: "DELETE",
+    }
+  );
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to delete product");
@@ -53,11 +68,11 @@ export async function duplicateProductAPI(productId: string) {
   return data.product;
 }
 
-export async function updateProductAPI(product: any) {
-  const res = await fetch(`/api/menu/products/update`, {
+export async function updateProductAPI(product: any, restaurantId: string) {
+  const res = await fetch(`/api/menu/products`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(product),
+    body: JSON.stringify({ ...product, restaurantId }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to update product");

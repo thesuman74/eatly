@@ -110,6 +110,7 @@ export interface CreateOrderPayload {
 
     // Optional override — backend defaults to "unpaid"
     payment_status?: PaymentStatus;
+    restaurant_id: string;
   };
 
   items: OrderItemPayload[];

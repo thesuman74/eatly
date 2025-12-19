@@ -1,41 +1,262 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// GET /api/menu/categories
-export async function GET(req: NextRequest) {
-  const supabase = await createClient();
+export async function POST(req: Request) {
+  //   Category Insert Flow with RLS:
 
-  const { data, error } = await supabase.from("categories").select("*");
+  // Client sends request with restaurant_id.
 
-  console.log("data", data);
-  console.log("error", error);
+  // Authenticate user → get user.id.
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  // Verify ownership → ensure restaurant_id belongs to owner_id = user.id.
+
+  // Insert category using verified restaurant_id.
+
+  // RLS validates row-level security conditions. --> category.owner_id = user.id and category.restaurant_id = restaurant_id
+
+  try {
+    // Parse request body
+    const body = await req.json();
+
+    const { restaurantId } = body;
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+    const supabase = await createClient();
+
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify ownership
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id, owner_id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    // Step 1: Insert category using verified restaurant_id
+    const { data: newCategory, error: categoryError } = await supabase
+      .from("categories")
+      .insert([{ name: "New category", restaurant_id: restaurant.id }])
+      .select()
+      .single();
+
+    if (categoryError || !newCategory) {
+      return NextResponse.json(
+        { error: "Failed to create category", details: categoryError?.message },
+        { status: 500 }
+      );
+    }
+
+    // Step 2: Insert default product linked to the new category
+    const { data: newProduct, error: productError } = await supabase
+      .from("products")
+      .insert([
+        {
+          name: "Product 1",
+          price: 0,
+          category_id: newCategory.id,
+          restaurant_id: restaurant.id,
+        },
+      ])
+      .select()
+      .single();
+
+    if (productError || !newProduct) {
+      return NextResponse.json(
+        {
+          error: "Category created but failed to create product",
+          details: productError?.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: "Default category and product created",
+      category: newCategory,
+      product: newProduct,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: "Server error", details: err.message },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ data }, { status: 200 });
 }
 
-export async function POST(req: NextRequest) {
-  const supabase = createClient();
+export async function PATCH(req: Request) {
+  try {
+    const supabase = await createClient();
+    const { updates, restaurantId } = await req.json();
 
-  const body = await req.json();
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
 
-  const { name } = body;
+    if (!updates || !Array.isArray(updates)) {
+      return NextResponse.json(
+        { error: "Invalid updates array" },
+        { status: 400 }
+      );
+    }
 
-  if (!name) {
-    return NextResponse.json({ error: "name is required" }, { status: 400 });
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify ownership
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id, owner_id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    const results = [];
+
+    for (const update of updates) {
+      const { id, name, position, isVisible } = update;
+
+      // Build object only with fields that exist
+      const fieldsToUpdate: Record<string, any> = {};
+      if (name !== undefined) fieldsToUpdate.name = name;
+      if (position !== undefined) fieldsToUpdate.position = position;
+      if (isVisible !== undefined) fieldsToUpdate.isVisible = isVisible;
+
+      if (Object.keys(fieldsToUpdate).length === 0) continue;
+
+      // Update category (RLS ensures ownership)
+      const { data, error } = await supabase
+        .from("categories")
+        .update(fieldsToUpdate)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Failed to update category:", error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      results.push(data);
+    }
+
+    return NextResponse.json(
+      { success: true, updated: results },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Failed to update categories:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+
+  // Get categoryId from query params
+  const url = new URL(req.url);
+  const categoryId = url.searchParams.get("categoryId");
+
+  console.log("categoryId", categoryId);
+
+  if (!categoryId) {
+    return NextResponse.json(
+      { error: "Missing required categoryId" },
+      { status: 400 }
+    );
   }
 
-  const { data, error } = await (await supabase)
-    .from("categories")
-    .insert([{ name }])
-    .select();
+  try {
+    const body = await req.json();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const { restaurantId } = body;
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+    // Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify ownership
+    const { data: restaurant, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("id, owner_id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restaurantError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", categoryId);
+
+    if (error) throw error;
+
+    return NextResponse.json({
+      success: true,
+      message: "Category deleted successfully",
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error deleting category:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    // fallback for non-Error objects
+    console.error("Unknown error deleting category:", error);
+    return NextResponse.json(
+      { error: "An unknown error occurred" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ data }, { status: 200 });
 }

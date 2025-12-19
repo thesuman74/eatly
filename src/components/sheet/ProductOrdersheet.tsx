@@ -4,21 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
-import { useOrderSheet } from "@/app/stores/useOrderSheet";
 import {
   useDeleteOrderItem,
   useOrder,
   useUpdateOrderItem,
 } from "@/hooks/order/useOrders";
-import { timeAgo } from "@/utils/time";
+import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview";
 import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/EditableOrderItemsList";
 import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
-import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
+import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
+import { Spinner } from "../Spinner";
+import { useSecondTicker } from "@/hooks/useSecondTicker";
+import clsx from "clsx";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
@@ -27,23 +29,36 @@ const ProductOrdersheet = () => {
   const {
     orderId: currentOrderId,
     isPaymentSheetOpen,
-    openPaymentPanelSheet,
-    closePaymentPanelSheet,
-  } = usePaymentPanelSheet();
+    openpaymentPanelStore,
+    closepaymentPanelStore,
+  } = paymentPanelStore();
 
   const { data, isLoading, error } = useOrder(orderId);
+
+  useSecondTicker(); // 👈 this enables live updates
+  const elapsed = getElapsedSeconds(data?.created_at);
+
+  const timeColor = clsx(
+    "text-xs font-medium transition-colors",
+    elapsed < 300 && "text-green-600", // < 5 min
+    elapsed >= 300 && elapsed < 900 && "text-yellow-600", // 5–15 min
+    elapsed >= 900 && "text-red-600" // > 15 min
+  );
 
   // Check if the panel should be shown for this order
   const showPaymentPanelForThisOrder =
     isPaymentSheetOpen && currentOrderId === data?.id;
 
-  console.log("data", data);
+  console.log("data in order sheet", data);
+  console.log("customer name", data?.customer_name);
 
   // const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
 
   const {
     setCurrentlyActiveOrderId,
+    customerName,
+    orderTitle,
     cartItems,
     setCartItems,
     setCustomerName,
@@ -66,10 +81,13 @@ const ProductOrdersheet = () => {
 
   if (isLoading) {
     return (
-      <div>
-        <p className="flex items-center justify-center">
-          Loading order details...
-        </p>
+      <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2">
+        <div className="flex items-center gap-2 rounded-md border bg-background px-4 py-2 shadow-sm">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary" />
+          <span className="text-sm text-muted-foreground">
+            Loading order details…
+          </span>
+        </div>
       </div>
     );
   }
@@ -82,7 +100,7 @@ const ProductOrdersheet = () => {
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary
                 open={showPaymentPanelForThisOrder}
-                setOpen={closePaymentPanelSheet}
+                setOpen={closepaymentPanelStore}
                 payments={data.payments}
               />
             ) : (
@@ -127,16 +145,20 @@ const ProductOrdersheet = () => {
                         <span>
                           <Calendar size={16} />
                         </span>
-                        <span>13/07/25 12:28</span>
+                        <span>{formatCreatedDate(data?.created_at)}</span>
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-center space-x-2">
+                      <div
+                        className={`flex  items-center justify-center space-x-2 ${timeColor}`}
+                      >
                         <span>
                           <Clock size={16} />
                         </span>
-                        <span>01:11 minutes</span>
+                        <span className="text-sm">
+                          {timeAgo(data?.created_at)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -147,6 +169,8 @@ const ProductOrdersheet = () => {
                       type="text"
                       name="product_title"
                       placeholder="Add title"
+                      value={orderTitle}
+                      onChange={(e) => setOrderTitle(e.target.value)}
                       className="w-full border"
                     />
 
@@ -154,6 +178,8 @@ const ProductOrdersheet = () => {
                       type="text"
                       name="client_name"
                       placeholder="Add Client Name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
                       className="w-full border text-lg"
                     />
                   </div>
@@ -214,7 +240,7 @@ const ProductOrdersheet = () => {
                         {data.paymentStatus !== "Paid" && (
                           <Button
                             variant={"outline"}
-                            onClick={() => openPaymentPanelSheet(data.id)}
+                            onClick={() => openpaymentPanelStore(data.id)}
                             className="text-blue-500 border-blue-500 w-full"
                           >
                             <span className="cursor-pointer">$</span>
@@ -226,7 +252,7 @@ const ProductOrdersheet = () => {
                           <Button
                             variant={"default"}
                             className="text-white bg-green-500 w-full"
-                            onClick={() => openPaymentPanelSheet(data.id)}
+                            onClick={() => openpaymentPanelStore(data.id)}
                           >
                             <span className="cursor-pointer">
                               <Check />

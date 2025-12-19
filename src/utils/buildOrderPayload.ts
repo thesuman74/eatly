@@ -1,7 +1,8 @@
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import { CreateOrderPayload } from "@/lib/types/order-types";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
-export const buildOrderPayload = (): CreateOrderPayload => {
+export const buildOrderPayload = (reataurantId: string): CreateOrderPayload => {
   const {
     currentlyActiveOrderId,
     cartItems,
@@ -24,6 +25,7 @@ export const buildOrderPayload = (): CreateOrderPayload => {
       customer_name: customerName,
       order_type: orderType,
       notes: notes || "",
+      restaurant_id: reataurantId,
     },
     items: cartItems.map((item) => ({
       product_id: item.product!.id,

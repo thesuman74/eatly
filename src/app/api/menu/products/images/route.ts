@@ -5,9 +5,18 @@ export async function POST(req: Request) {
   // console.log("Inserting into product_images:");
 
   try {
-    const { productId, ImageName, images } = await req.json();
+    const { productId, imageName, images } = await req.json();
 
-    if (!productId || !ImageName || !Array.isArray(images)) {
+    console.log(
+      "productId",
+      productId,
+      "ImageName",
+      imageName,
+      "images",
+      images
+    );
+
+    if (!productId || !imageName || !Array.isArray(images)) {
       return NextResponse.json(
         { error: "Invalid request body" },
         { status: 400 }
@@ -17,7 +26,7 @@ export async function POST(req: Request) {
     const inserts = images.map((url: string) => ({
       product_id: productId,
       url,
-      alt: ImageName, // ← product name as alt
+      alt: imageName, // ← product name as alt
     }));
 
     const { error } = await serverService

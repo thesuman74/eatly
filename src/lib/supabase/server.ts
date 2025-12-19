@@ -4,10 +4,13 @@ import { cookies } from "next/headers";
 export async function createClient() {
   const cookieStore = await cookies();
 
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    throw new Error("Missing Supabase anon key");
+  }
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    // process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // ✅ use anon key here
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 
     {
       cookies: {
@@ -20,9 +23,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // Ignore if called from Server Component
           }
         },
       },

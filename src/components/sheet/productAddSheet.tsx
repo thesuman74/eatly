@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
 import {
   ProductCategoryTypes,
@@ -59,7 +59,7 @@ export function ProductAddSheet() {
     if (product && mode === "edit") {
       setName(product.name);
       setDescription(product.description);
-      setPrice((product.price / 100).toString()); // Convert cents to dollars
+      setPrice(product.price.toString()); // Convert cents to dollars
       setExistingImages(product.images || []); // ⬅️ HERE
 
       // Handle existing images if needed
@@ -77,35 +77,43 @@ export function ProductAddSheet() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!categoryId) return;
+    if (!name || !description || !price || !categoryId) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    const payload = {
+      name,
+      description,
+      price: Number(price) * 100,
+      category_id: categoryId,
+      images,
+    };
 
     if (mode === "edit" && productId) {
-      // Update product
-      updateProduct.mutate({
-        product_id: productId,
-        name,
-        description,
-        price: Number(price) * 100,
-        category_id: categoryId,
-        images, // Pass new images only
-      });
-
-      // ✅ Reset images AFTER calling mutate
-      setImages([]);
-      closeSheet();
+      updateProduct.mutate(
+        { ...payload, product_id: productId },
+        {
+          onSuccess: () => {
+            setImages([]); // Clear images only if update succeeds
+            closeSheet(); // Close sheet
+          },
+          onError: (err: any) => {
+            toast.error(err.message || "Failed to update product");
+          },
+        }
+      );
     } else {
-      // Add new product
-      addProduct.mutate({
-        name,
-        description,
-        price: Number(price) * 100,
-        category_id: categoryId,
-        images, // if your addProduct mutation handles images
+      addProduct.mutate(payload, {
+        onSuccess: () => {
+          setImages([]); // Clear images only if add succeeds
+          closeSheet(); // Close sheet
+        },
+        onError: (err: any) => {
+          toast.error(err.message || "Failed to add product");
+        },
       });
-
-      setImages([]);
-      closeSheet();
     }
   };
 
@@ -169,7 +177,7 @@ export function ProductAddSheet() {
                   <FileUploader
                     files={images}
                     onChange={setImages}
-                    multiple={true}
+                    multiple={false}
                   />
                   {mode === "edit" && existingImages.length > 0 && (
                     <>
@@ -291,8 +299,11 @@ export function ProductAddSheet() {
 
           <SheetFooter className=" py-2 w-full mt-4 flex  ">
             <SubmitButton
-              isLoading={updateProduct.isPending}
-              className="mx-auto"
+              className="w-40 mx-auto"
+              disabled={mode === "edit" ? updateProduct.isPending : false}
+              isLoading={
+                mode === "edit" ? updateProduct.isPending : addProduct.isPending
+              }
             >
               {mode === "edit" ? "Update" : "Add"}
             </SubmitButton>

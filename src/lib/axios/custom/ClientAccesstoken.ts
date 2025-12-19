@@ -1,3 +1,4 @@
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { getSession } from "next-auth/react"; // For client-side session management
 
 /**
@@ -9,20 +10,17 @@ export async function getClientAccessToken(): Promise<string | null> {
     // const fallbackToken = process.env.NEXT_PUBLIC_STATIC_ACCESS_TOKEN; // Fallback token for development
 
     // Fetch client-side session using `getSession`
-    const session = await getSession();
+    const supabase = createBrowserSupabaseClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     console.log("session from getClientAccessToken", session);
 
-    // if (session && session.user && session.user.accessToken) {
-
-    //   return session.user.accessToken as string;
-    // }
-
-    // if (fallbackToken) {
-    //   console.warn("Using static fallback token in client-side context.");
-    //   return fallbackToken;
-    // }
-
-    console.warn("No access token found in client-side session or fallback.");
+    if (session?.access_token) {
+      return session.access_token;
+    }
+    console.warn("No access token found in Supabase session.");
     return null;
   } catch (error) {
     console.error("Failed to get access token:", error);

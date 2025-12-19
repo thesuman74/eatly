@@ -23,13 +23,12 @@ import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
 import CategoryItem from "./CategoryItem";
 
 import { useAddCategory } from "@/hooks/category/useAddCategory";
-import { useUpdateCategoryPositions } from "@/hooks/category/useUpdateCategoryPositions";
-import {
-  CategoryPositionUpdate,
-  getCategoriesAPI,
-} from "@/services/categoryServices";
-import { useProductSheet } from "@/app/stores/useProductSheet";
+import { CategoryUpdate, getCategoriesAPI } from "@/services/categoryServices";
+import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { ProductAddSheet } from "@/components/sheet/productAddSheet";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import HorizontalCategoryList from "../HorizontalCategoryList";
+import { useUpdateCategories } from "@/hooks/category/useUpdateCategory";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -38,6 +37,7 @@ interface CategoryListProps {
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [categories, setCategories] = useState<ProductCategoryTypes[]>([]);
+  console.log("categories", categories);
 
   const queryClient = useQueryClient();
 
@@ -50,9 +50,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   // React Query mutations
   const addCategory = useAddCategory();
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const updatePositions = useUpdateCategoryPositions(baseUrl);
+  const updateCategory = useUpdateCategories();
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -71,15 +69,11 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       setCategories(newCategories);
 
       // Map to positions for API
-      const updatedPositions: CategoryPositionUpdate[] = newCategories.map(
+      const updatedPositions: CategoryUpdate[] = newCategories.map(
         (cat, index) => ({ id: cat.id, position: index + 1 })
       );
 
-      updatePositions.mutate(updatedPositions, {
-        onSuccess() {
-          queryClient.setQueryData(["categories"], newCategories);
-        },
-      });
+      updateCategory.mutate(updatedPositions);
     }
   };
 
@@ -112,20 +106,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         </div>
 
         {/* Category list preview */}
-        <div className="overflow-x-hidden scrollbar-hide mb-4">
-          <div className="flex space-x-4 px-2">
-            {categories?.map((category) => (
-              <div
-                key={category.id}
-                className="flex items-center space-x-1 whitespace-nowrap rounded-md bg-gray-100 px-3 py-1 hover:bg-gray-200 transition"
-              >
-                <span className="text-gray-700 font-medium">
-                  {category.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <HorizontalCategoryList categories={categories ?? []} />
 
         {/* Drag & Drop context */}
         <DndContext
@@ -137,9 +118,21 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
             items={categories.map((category) => category.id)}
             strategy={verticalListSortingStrategy}
           >
-            {categories.map((category) => (
-              <CategoryItem key={category.id} category={category} />
-            ))}
+            {categories.length > 0 ? (
+              categories.map((category, index) => (
+                <CategoryItem key={category.id + index} category={category} />
+              ))
+            ) : (
+              <>
+                <div className="flex flex-col items-center justify-center h-60  ">
+                  <h1 className="text-2xl font-bold mb-4">
+                    No Categories found
+                  </h1>
+                </div>
+              </>
+            )}
+
+            {}
           </SortableContext>
         </DndContext>
 

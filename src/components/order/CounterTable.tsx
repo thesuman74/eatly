@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import CounterTableFilters from "./CounterTableFilters";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/order/useOrders";
-import { timeAgo } from "@/utils/time";
+import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import { OrderStatusActions } from "./OrderStatusActions";
 import {
@@ -26,31 +26,24 @@ import {
   PAYMENT_STATUS,
 } from "@/lib/types/order-types";
 import { toast } from "react-toastify";
-import { useOrderSheet } from "@/app/stores/useOrderSheet";
 import { getOrderDetailsAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import Link from "next/link";
 import { getOrderAction, requiresPayment } from "@/lib/actions/orderActions";
-import { useCartStore } from "@/app/stores/useCartStore";
-import { usePaymentPanelSheet } from "@/app/stores/usePaymentPanelSheet";
+import { useCartStore } from "@/stores/admin/useCartStore";
+import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
+import { useSecondTicker } from "@/hooks/useSecondTicker";
+import clsx from "clsx";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
-  const { openPaymentPanelSheet } = usePaymentPanelSheet();
+  const { openpaymentPanelStore } = paymentPanelStore();
 
   const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading, error } = useOrders();
   const [loadingOrderId, setLoadingOrderId] = useState<string | null>(null);
-
-  const prefetchOrderDetails = (orderId: string) => {
-    queryClient.prefetchQuery({
-      queryKey: ["order-details", orderId],
-      queryFn: () => getOrderDetailsAPI(orderId),
-      staleTime: 1000 * 60, // 1 min
-    });
-  };
 
   const updateOrderStatus = useUpdateOrderStatus();
 
@@ -101,7 +94,8 @@ export default function CounterTable() {
   };
   const { setCurrentlyActiveOrderId } = useCartStore();
 
-  const [open, setOpen] = useState(false);
+  useSecondTicker(); // 👈 this enables live updates
+
   return (
     <>
       <div>
@@ -144,12 +138,20 @@ export default function CounterTable() {
           </div>
         )}
         {orders.map((order, i) => {
+          const elapsed = getElapsedSeconds(order?.created_at);
+
+          const timeColor = clsx(
+            "text-xs font-medium transition-colors",
+            elapsed < 300 && "text-green-600", // < 5 min
+            elapsed >= 300 && elapsed < 900 && "text-yellow-600", // 5–15 min
+            elapsed >= 900 && "text-red-600 animate-pulse " // > 15 min
+          );
           return (
             <div key={i}>
               {order.status !== ORDER_STATUS.COMPLETED && (
                 <div
                   key={i}
-                  className={`relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer  hover:bg-green-100 border items-center ${
+                  className={`relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer   hover:bg-green-100 border items-center ${
                     order.status !== ORDER_STATUS.DRAFT && "bg-gray-50"
                   }`}
                   onClick={() => {
@@ -188,7 +190,9 @@ export default function CounterTable() {
                         {"#" + order?.order_type}
                       </span>
                     </div>
-                    <div className="flex items-center text-red-500 text-xs gap-1">
+                    <div
+                      className={`flex items-center  text-xs gap-1 ${timeColor}`}
+                    >
                       <Clock size={14} />
                       {/* {order.updated_at} */}
                       {timeAgo(order.created_at)}
@@ -266,7 +270,7 @@ export default function CounterTable() {
                       onClick={(e) => {
                         e.stopPropagation(); // <--- prevents row click
                         openProductOrderSheet(order.id); // Step 1: open the ProductOrdersheet
-                        openPaymentPanelSheet(order.id);
+                        openpaymentPanelStore(order.id);
                       }}
                     >
                       <DollarSign size={14} /> Pay

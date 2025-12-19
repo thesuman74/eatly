@@ -1,0 +1,123 @@
+Project Notes: Kajichiya DigitalMenus
+Date: 2025-12-16
+
+Multi-Tenant Structure
+----------------------
+- Use [restaurantSlug] in path to identify tenant
+- Example: /kajichiya1, /kajichiya2
+- restaurant_id stored in DB, used in server/services
+
+
+# List all files recursively
+tree /F
+
+
+Public Folder Structure (src/app/(public)/[restaurantSlug]/)
+------------------------------------------------------------
+
+src/app/(auth)/
+├─ login/         ← Login page
+├─ register/      ← Signup page
+└─ logout/        ← Logout actions
+
+////////////////////////////////////////
+[restaurantSlug]/
+├─ menu/          ← Show categories and products
+├─ cart/          ← Guest cart and checkout
+└─ page.tsx       ← Restaurant landing page
+
+////////////////////////////////////
+src/stores/
+├─ admin/                  ← Stores for dashboard/admin
+│  ├─ categoryStore.ts     ← 
+│  ├
+├─ user/                   ← Stores for public / customer
+│  ├─ cartStore.ts         ← 
+|-ui/                     ← UI-specific or sheet/modal states
+│  ├─ paymentPanelStore.ts
+
+/////////////////////////////////////
+
+src/hooks/
+├─ category/            ← Category-related hooks
+│  ├─ useAddCategory.ts
+│  ├─ useDeleteCategory.ts
+│  └─ useUpdateCategory.ts
+├─ products/            ← Product-related hooks
+│  ├─ useProducts.ts
+│  └─ useProductActions.ts
+├─ orders/              ← Order-related hooks
+│  └─ useOrders.ts
+└─ ui/                  ← UI helpers/hooks (mobile, modal, sheet)
+    └─ useMobile.tsx
+
+
+////////////////////////////////
+src/lib/
+├─ supabase/            ← Supabase clients & server helpers
+│  ├─ client.ts
+│  ├─ server.ts
+│  └─ serverService.ts
+├─ actions/             ← Business logic functions
+│  ├─ authActions.ts
+│  ├─ orderActions.ts
+│  └─ uploadImages.ts
+├─ types/               ← TypeScript types
+│  ├─ menu-types.ts
+│  ├─ order-types.ts
+│  └─ items-types.ts
+└─ utils/               ← Utility functions
+    ├─ date.ts
+    ├─ time.ts
+    └─ buildOrderPayload.ts
+
+/////////////////////////////////////
+UI → Action → Service → Database
+
+
+src/services/           API & DB calls, Business logic
+├─ auth/                
+├─ restaurant/          ← Restaurant logic, creation, setup
+├─ menu/                ← Categories, products services
+├─ orders/              
+└─ payments/            
+
+//////////////////////////
+src/app/api/
+├─ auth/
+│  └─ [...nextauth]/route.ts
+├─ gemini/
+│  └─ route.ts
+├─ menu/
+│  ├─ categories/
+│  │   └─ route.ts          ← handles GET, POST, PATCH, DELETE
+│  ├─ products/
+│  │   └─ route.ts
+│  └─ import/
+│      └─ route.ts
+├─ orders/
+│  ├─ index/
+│  │   └─ route.ts          ← GET (list) / POST (create)
+│  ├─ [orderId]/
+│  │   └─ route.ts          ← GET, PATCH, DELETE
+│  └─ [orderId]/status/
+│      └─ route.ts    
+
+//////////////////////////
+src/utils/
+├─ date.ts               ← Date/time helpers
+├─ time.ts               ← Time formatting / calculations
+├─ buildOrderPayload.ts  ← Order payload builder
+├─ fetcher.ts            ← Generic fetch/Axios helpers
+└─ index.ts              ← Optional: central exports
+
+
+Only put generic, reusable functions here.
+Domain-specific helpers should live in their respective service folder (services/menu/utils.ts or services/orders/utils.ts).
+
+//////////////////////
+
+
+
+
+1. policy , 2. authentication with (auth.uid) , 3. check conditions 

@@ -1,6 +1,6 @@
 // src/hooks/order/useOrders.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 import {
   CreateOrderPayload,
   Order,
@@ -26,6 +26,8 @@ export const useCreateOrder = () => {
     mutationFn: addOrderAPI,
     onSuccess: () => {
       cart.clearCart();
+      toast.success("Order registered successfully");
+
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
@@ -40,7 +42,7 @@ export const useOrder = (orderId: string | null) =>
 
 export const useOrders = (status?: OrderStatus) =>
   useQuery<Order[]>({
-    queryKey: ["orders", status],
+    queryKey: ["orders"],
     queryFn: () => getOrderListAPI(status),
   });
 

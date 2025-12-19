@@ -5,31 +5,53 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-
   const body: CreateOrderPayload = await req.json();
   const { order, items, payment } = body;
 
-  console.log("order body", body);
+  console.log("body", body);
 
   try {
-    // 1. Calculate amounts safely
+    // 1️⃣ Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Verify restaurant ownership
+    if (!order.restaurant_id) {
+      return NextResponse.json(
+        { error: "restaurant_id is required" },
+        { status: 400 }
+      );
+    }
+
+    const { data: restaurant, error: restError } = await supabase
+      .from("restaurants")
+      .select("id")
+      .eq("id", order.restaurant_id)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    // 3️⃣ Calculate amounts safely
     const subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
     const tip = payment?.tip ?? 0;
     const total = subtotal + tip;
 
-    // 2. Validate payment rules
-    if (order.payment_status === PAYMENT_STATUS.PAID && !payment) {
-      throw new Error("Paid order must include payment details");
-    }
-
-    // if (payment && order.payment_status !== PAYMENT_STATUS.PAID) {
-    //   throw new Error("Payment provided for unpaid order");
-    // }
     const paymentStatus =
       payment?.amount_paid && payment.amount_paid > 0
         ? PAYMENT_STATUS.PAID
         : PAYMENT_STATUS.UNPAID;
-    // 3. Insert order
+
+    // 4️⃣ Insert order with verified restaurant_id
     const { data: newOrder, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -39,6 +61,7 @@ export async function POST(req: NextRequest) {
         subtotal,
         total,
         notes: order.notes ?? null,
+        restaurant_id: restaurant.id, // ✅ must include
       })
       .select()
       .single();
@@ -47,7 +70,7 @@ export async function POST(req: NextRequest) {
       throw new Error(orderError?.message || "Order insertion failed");
     }
 
-    // 4. Insert order items
+    // 5️⃣ Insert order items
     const itemsPayload = items.map((item) => ({
       order_id: newOrder.id,
       product_id: item.product_id,
@@ -55,6 +78,7 @@ export async function POST(req: NextRequest) {
       unit_price: item.unit_price,
       total_price: item.total_price,
       notes: item.notes ?? null,
+      restaurant_id: order.restaurant_id,
     }));
 
     const { error: itemsError } = await supabase
@@ -65,7 +89,7 @@ export async function POST(req: NextRequest) {
       throw new Error(itemsError.message);
     }
 
-    // 5. Insert payment ONLY if paid
+    // 6️⃣ Insert payment ONLY if paid
     if (payment) {
       const { error: paymentError } = await supabase
         .from("order_payments")
@@ -75,6 +99,7 @@ export async function POST(req: NextRequest) {
           amount_paid: payment.amount_paid,
           tip: payment.tip ?? 0,
           change_returned: payment.change_returned ?? 0,
+          restaurant_id: order.restaurant_id,
         });
 
       if (paymentError) {

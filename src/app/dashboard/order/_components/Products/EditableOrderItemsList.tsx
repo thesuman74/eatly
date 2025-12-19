@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react";
 import { X } from "lucide-react";
-import { useProductListSheet } from "@/app/stores/useProductListSheet";
+import { productListSheetStore } from "@/stores/ui/productListSheetStore";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { OrderItem } from "@/lib/types/order-types";
-import { useCartStore } from "@/app/stores/useCartStore";
+import { useCartStore } from "@/stores/admin/useCartStore";
 
 interface EditableOrderItemsListProps {
   itemsWithDetails: OrderItem[];
