@@ -68,11 +68,11 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 
   const isPaid = Boolean(payments?.length);
 
-  const handleRegisterPayment = () => {
-    setPaymentStatus(PAYMENT_STATUS.PAID);
-    setOpen(false);
-    toast.success("Simulating Payment Success ");
-  };
+  // const handleRegisterPayment = () => {
+  //   setPaymentStatus(PAYMENT_STATUS.PAID);
+  //   setOpen(false);
+  //   toast.success("Simulating Payment Success ");
+  // };
 
   const handleSaveAsPending = async () => {
     // clear payment-related local state
@@ -131,6 +131,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
   };
 
   const updateOrderStatusMutation = useUpdateOrderStatus();
+
+  const isRegisteringPayment = Boolean(
+    updateOrderMutation.isPending || createOrderMutation.isPending
+  );
 
   const handleFinalizeOrder = async () => {
     if (!currentlyActiveOrderId) {
@@ -381,16 +385,19 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 </Badge>
               </div>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 className="w-full border-blue-600 text-blue-600 hover:bg-blue-100"
                 onClick={() => handleRegisterPayment()}
+                disabled={isRegisteringPayment}
               >
                 Register Payment
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
+                disabled={isRegisteringPayment}
+                // disabled={true}
                 onClick={handleRegisterAndAcceptOrder}
               >
                 Register and Accept Order

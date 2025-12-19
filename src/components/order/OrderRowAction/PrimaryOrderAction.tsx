@@ -7,7 +7,6 @@ export function PrimaryOrderButton({
   loading,
   onAccept,
   onFinish,
-  onPay,
 }: {
   order: any;
   loading: {
@@ -18,7 +17,6 @@ export function PrimaryOrderButton({
   };
   onAccept: () => void;
   onFinish: () => void;
-  onPay: () => void;
 }) {
   if (order.status === ORDER_STATUS.DRAFT) {
     return (
@@ -40,7 +38,6 @@ export function PrimaryOrderButton({
       disabled={loading.finish || loading.pay}
       onClick={(e) => {
         e.stopPropagation();
-        onPay();
         onFinish();
       }}
     >

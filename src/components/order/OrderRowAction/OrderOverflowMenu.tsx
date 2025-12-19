@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 
 export function OrderOverflowMenu({
   onCancel,
@@ -28,23 +28,23 @@ export function OrderOverflowMenu({
 
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          className="text-red-600"
-          onClick={(e) => {
-            e.stopPropagation();
-            onCancel();
-          }}
-        >
-          Cancel Order
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          className="text-red-700"
+          className="hover:cursor-pointer hover:text-red-700 "
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
         >
+          <Trash2 size={16} />
           Delete Order
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="hover:text-red-600 hover:cursor-pointer "
+          onClick={(e) => {
+            e.stopPropagation();
+            onCancel();
+          }}
+        >
+          <span className="mx-auto">Cancel Order</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

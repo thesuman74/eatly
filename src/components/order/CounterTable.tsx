@@ -85,11 +85,11 @@ export default function CounterTable() {
     setActionState({ orderId: order.id, type: "finish" });
 
     try {
-      await queryClient.fetchQuery({
-        queryKey: ["order-details", order.id],
-        queryFn: () => getOrderDetailsAPI(order.id),
-        staleTime: 60 * 1000,
-      });
+      // await queryClient.fetchQuery({
+      //   queryKey: ["order-details", order.id],
+      //   queryFn: () => getOrderDetailsAPI(order.id),
+      //   staleTime: 60 * 1000,
+      // });
 
       if (requiresPayment(order)) {
         setActionState({ orderId: order.id, type: "pay" });
@@ -206,7 +206,7 @@ export default function CounterTable() {
               {order.status !== ORDER_STATUS.COMPLETED && (
                 <div
                   key={i}
-                  className={`relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer   hover:bg-green-100 border items-center ${
+                  className={`relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer   hover:bg-blue-50 border items-center ${
                     order.status !== ORDER_STATUS.DRAFT && "bg-gray-50"
                   }`}
                   onClick={() => {

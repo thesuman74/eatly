@@ -41,13 +41,12 @@ export function OrderRowActions({
           loading={loading.status}
         />
       )}
-      <PayButton onPay={onPay} loading={loading.pay} /> {/* Primary CTA */}
+      {showPay && <PayButton onPay={onPay} loading={loading.pay} />}
       <PrimaryOrderButton
         order={order}
         loading={loading}
         onAccept={onAccept}
         onFinish={onFinish}
-        onPay={onPay}
       />
       {/* Overflow actions */}
       <OrderOverflowMenu onCancel={onCancel} onDelete={onDelete} />
