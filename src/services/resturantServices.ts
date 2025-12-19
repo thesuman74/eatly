@@ -34,3 +34,9 @@ export async function getUserRestaurants() {
 
   return restaurants;
 }
+
+export async function getRestaurants() {
+  const supabase = await createClient();
+  const { data: restaurants } = await supabase.from("restaurants").select("*");
+  return restaurants;
+}

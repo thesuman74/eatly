@@ -14,12 +14,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import useCartStore from "@/stores/user/userCartStore";
+import Top from "@/components/menu/Top";
+import {
+  getRestaurants,
+  getUserRestaurants,
+} from "@/services/resturantServices";
 
 interface MenuPageProps {
   initialCategories: ProductCategoryTypes[];
+  restaurants: any;
 }
 
-export default function MenuPage({ initialCategories }: MenuPageProps) {
+export default function MenuPage({
+  initialCategories,
+  restaurants,
+}: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [fullUrl, setFullUrl] = useState<string>("");
 
@@ -65,7 +74,7 @@ export default function MenuPage({ initialCategories }: MenuPageProps) {
   return (
     <div className="min-h-screen max-w-7xl mx-auto ">
       {/* Top Section */}
-      <TopSection />
+      <Top restaurant={restaurants[0]} />
 
       <div className="container mx-auto px-4">
         <div className=" z-40 py-4 space-y-4">
