@@ -14,9 +14,7 @@ import { useState } from "react";
 import { doCredentialLogin } from "@/lib/actions/authActions";
 import { login } from "@/lib/actions/login";
 import SubmitButton from "./ui/SubmitButton";
-import { createBrowserClient } from "@supabase/ssr";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { set } from "react-hook-form";
 
 export function LoginForm({
   className,
@@ -40,23 +38,17 @@ export function LoginForm({
     setLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
-    setError(null);
-    setLoading(true);
-    const supabase = createBrowserSupabaseClient();
+  const supabase = createBrowserSupabaseClient();
 
-    const { error } = await supabase.auth.signInWithOAuth({
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/v1/callback`,
+        redirectTo: `${window.location.origin}/dashboard`,
+        skipBrowserRedirect: false,
       },
     });
-    // console.log("error", error);
-
-    if (error) console.error("Login error:", error.message);
-    setLoading(false);
-    setError(error?.message || null);
-  };
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

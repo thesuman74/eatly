@@ -18,7 +18,7 @@ export const handleError = (error: AxiosError<ErrorResponse>) => {
     backendMessage: error.response?.data?.message || null, // Safely access non_field_errors
   };
 
-  console.error("Enhanced Axios Error:", customError);
+  // console.error("Enhanced Axios Error:", customError);
 
   // Optionally, propagate the custom error for further handling
   return Promise.reject(customError);
