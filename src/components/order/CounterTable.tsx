@@ -48,6 +48,7 @@ export default function CounterTable() {
   const updateOrderStatus = useUpdateOrderStatus();
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
+    setLoadingOrderId(id);
     updateOrderStatus.mutate({ id, status });
   };
 
@@ -254,7 +255,7 @@ export default function CounterTable() {
                       <X size={14} /> Cancel
                     </Button>
 
-                    {/* Only show Status dropdown if not pending */}
+                    {/* {/* Only show Status dropdown if not pending */}
                     {order.status !== ORDER_STATUS.DRAFT && (
                       <OrderStatusActions
                         onStatusChange={(status) =>

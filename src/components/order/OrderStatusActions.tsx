@@ -21,25 +21,48 @@ export function OrderStatusActions({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Status</Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            variant="outline"
+          >
+            Status
+          </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.PREPARING)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onStatusChange(ORDER_STATUS.PREPARING);
+            }}
           >
             Preparing
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusChange(ORDER_STATUS.READY)}>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+
+              onStatusChange(ORDER_STATUS.READY);
+            }}
+          >
             Ready
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.DELIVERED)}
+            onClick={(e) => {
+              e.stopPropagation();
+
+              onStatusChange(ORDER_STATUS.DELIVERED);
+            }}
           >
             Delivered
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.CANCELLED)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onStatusChange(ORDER_STATUS.CANCELLED);
+            }}
           >
             Cancelled
           </DropdownMenuItem>

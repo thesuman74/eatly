@@ -203,7 +203,6 @@ export async function DELETE(req: Request) {
 
   try {
     const body = await req.json();
-
     const { restaurantId } = body;
 
     if (!restaurantId) {
@@ -212,6 +211,7 @@ export async function DELETE(req: Request) {
         { status: 400 }
       );
     }
+
     // Authenticate user
     const {
       data: { user },
@@ -236,23 +236,56 @@ export async function DELETE(req: Request) {
       );
     }
 
-    const { error } = await supabase
+    // Get all products in the category
+    const { data: products } = await supabase
+      .from("products")
+      .select("id")
+      .eq("category_id", categoryId);
+
+    const productIds = products?.map((p) => p.id) || [];
+
+    // Check if any products are in active orders
+    if (productIds.length > 0) {
+      const { data: orderItems } = await supabase
+        .from("order_items")
+        .select("id")
+        .in("product_id", productIds);
+
+      if (orderItems && orderItems?.length > 0) {
+        return NextResponse.json(
+          {
+            error: "Cannot delete category: some products are in active orders",
+          },
+          { status: 400 }
+        );
+      }
+
+      // Delete products
+      const { error: productDeleteError } = await supabase
+        .from("products")
+        .delete()
+        .in("id", productIds);
+
+      if (productDeleteError) throw productDeleteError;
+    }
+
+    // Delete category
+    const { error: categoryDeleteError } = await supabase
       .from("categories")
       .delete()
       .eq("id", categoryId);
 
-    if (error) throw error;
+    if (categoryDeleteError) throw categoryDeleteError;
 
     return NextResponse.json({
       success: true,
-      message: "Category deleted successfully",
+      message: "Category and its products deleted successfully",
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error deleting category:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    // fallback for non-Error objects
     console.error("Unknown error deleting category:", error);
     return NextResponse.json(
       { error: "An unknown error occurred" },

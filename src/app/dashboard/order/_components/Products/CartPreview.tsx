@@ -11,6 +11,9 @@ export default function CartPreview() {
   console.log("cartItems", cartItems);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
+  const itemImage =
+    cartItems[0]?.product?.images[0]?.url || "/Images/coffee.png";
+
   return (
     <>
       <div className="w-full max-w-md  bg-white border rounded shadow-md ">
@@ -28,7 +31,7 @@ export default function CartPreview() {
               className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
             >
               <img
-                src={item.product?.images[0]?.url || "/Images/coffee.png"}
+                src={itemImage}
                 alt={item.product?.name}
                 className="h-16 w-16 object-cover rounded-lg"
               />
