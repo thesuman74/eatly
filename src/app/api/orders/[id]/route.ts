@@ -1,5 +1,6 @@
 // app/api/orders/[id]/route.ts
 import { createClient } from "@/lib/supabase/server";
+import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextResponse } from "next/server";
 console.log("HIT [id] ROUTE");
 
@@ -102,4 +103,186 @@ export async function GET(
     payments: payments || [],
     status_logs: status_logs || [],
   });
+}
+
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const supabase = await createClient();
+  const { id: orderId } = await context.params;
+
+  if (!orderId) {
+    return NextResponse.json(
+      { error: "Order ID is required" },
+      { status: 400 }
+    );
+  }
+
+  const body: CreateOrderPayload = await req.json();
+  const { order, items, payment } = body;
+
+  try {
+    // 1️⃣ Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Verify restaurant ownership once
+    if (!order.restaurant_id) {
+      return NextResponse.json(
+        { error: "restaurant_id is required" },
+        { status: 400 }
+      );
+    }
+
+    const { data: restaurant, error: restError } = await supabase
+      .from("restaurants")
+      .select("id")
+      .eq("id", order.restaurant_id)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (restError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    // 3️⃣ Fetch existing order with payment_status
+    const { data: existingOrder, error: existingError } = await supabase
+      .from("orders")
+      .select("subtotal, total, payment_status")
+      .eq("id", orderId)
+      .single();
+
+    if (existingError || !existingOrder) {
+      throw new Error("Order not found");
+    }
+
+    // 4️⃣ Calculate updated order totals if items exist
+    const hasItemsUpdate = Array.isArray(items) && items.length > 0;
+    let subtotal = existingOrder.subtotal;
+    let total = existingOrder.total;
+
+    if (hasItemsUpdate) {
+      subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
+      total = subtotal + (payment?.tip ?? 0);
+    }
+
+    // 5️⃣ Update order metadata (excluding payment_status for now)
+    const { data: updatedOrder, error: orderError } = await supabase
+      .from("orders")
+      .update({
+        customer_name: order.customer_name ?? null,
+        notes: order.notes ?? null,
+        order_type: order.order_type ?? null,
+        subtotal,
+        total,
+      })
+      .eq("id", orderId)
+      .select()
+      .single();
+
+    if (orderError || !updatedOrder) {
+      throw new Error(orderError?.message || "Order update failed");
+    }
+
+    // 6️⃣ Update order items if provided
+    if (hasItemsUpdate) {
+      const itemsPayload = items.map((i) => ({
+        order_id: orderId,
+        product_id: i.product_id,
+        quantity: i.quantity,
+        unit_price: i.unit_price,
+        total_price: i.total_price,
+        notes: i.notes ?? null,
+        restaurant_id: order.restaurant_id ?? null,
+      }));
+
+      // Delete previous items
+      const { error: deleteItemsError } = await supabase
+        .from("order_items")
+        .delete()
+        .eq("order_id", orderId)
+        .eq("restaurant_id", order.restaurant_id);
+
+      if (deleteItemsError) throw new Error(deleteItemsError.message);
+
+      // Insert new items
+      const { error: insertItemsError } = await supabase
+        .from("order_items")
+        .insert(itemsPayload);
+
+      if (insertItemsError) throw new Error(insertItemsError.message);
+    }
+
+    // 7️⃣ Handle payment as the single source of truth
+    if (payment) {
+      // Fetch existing payment
+      const { data: existingPayment, error: paymentFetchError } = await supabase
+        .from("order_payments")
+        .select("*")
+        .eq("order_id", orderId)
+        .single();
+
+      if (paymentFetchError && paymentFetchError.code !== "PGRST116") {
+        throw new Error(paymentFetchError.message);
+      }
+
+      // Block duplicate payment
+      if (existingPayment && existingPayment.amount_paid > 0) {
+        return NextResponse.json(
+          { error: "Payment already completed for this order" },
+          { status: 400 }
+        );
+      }
+
+      const paymentPayload = {
+        order_id: orderId,
+        method: payment.method ?? null,
+        amount_paid: payment.amount_paid ?? null,
+        tip: payment.tip ?? null,
+        change_returned: payment.change_returned ?? null,
+        restaurant_id: order.restaurant_id ?? null,
+      };
+
+      // Insert or update payment
+      if (existingPayment) {
+        const { error: paymentError } = await supabase
+          .from("order_payments")
+          .update(paymentPayload)
+          .eq("order_id", orderId);
+
+        if (paymentError) throw new Error(paymentError.message);
+      } else {
+        const { error: paymentError } = await supabase
+          .from("order_payments")
+          .insert(paymentPayload);
+
+        if (paymentError) throw new Error(paymentError.message);
+      }
+
+      // Update order payment_status after payment is saved
+      const newPaymentStatus =
+        payment.amount_paid && payment.amount_paid > 0
+          ? PAYMENT_STATUS.PAID
+          : PAYMENT_STATUS.UNPAID;
+
+      const { error: orderStatusError } = await supabase
+        .from("orders")
+        .update({ payment_status: newPaymentStatus })
+        .eq("id", orderId);
+
+      if (orderStatusError) throw new Error(orderStatusError.message);
+    }
+
+    return NextResponse.json({ success: true, order: updatedOrder });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
 }
