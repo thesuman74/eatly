@@ -129,6 +129,7 @@ export async function PATCH(
           amount_paid: payment.amount_paid,
           tip: payment.tip,
           change_returned: payment.change_returned,
+          restaurant_id: order.restaurant_id,
         });
       if (paymentError) throw new Error(paymentError.message);
     }

@@ -94,7 +94,7 @@ const ProductOrderSideBar = () => {
                     <span>
                       <Clock size={16} />
                     </span>
-                    <span>01:11 minutes</span>
+                    {/* <span>01:11 minutes</span> */}
                   </div>
                 </div>
               </div>

@@ -1,20 +1,28 @@
 // utils/time.ts
 export function timeAgo(updatedAt?: string | null) {
-  if (!updatedAt) return "N/A";
+  if (!updatedAt) return "00:00";
 
   const time = new Date(updatedAt);
-  if (isNaN(time.getTime())) return "N/A";
+  if (isNaN(time.getTime())) return "00:00";
 
-  const now = new Date();
-  const diffMs = now.getTime() - time.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
+  const diffMs = Date.now() - time.getTime();
+  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
 
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  if (diffHr < 24) return `${diffHr} hr ${diffMin % 60} min ago`;
-  if (diffDay === 1) return "Yesterday";
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
 
-  return `${diffDay} days ago`;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+    2,
+    "0"
+  )}`;
+}
+
+// utils/time.ts
+export function getElapsedSeconds(createdAt?: string | null) {
+  if (!createdAt) return 0;
+
+  const created = new Date(createdAt);
+  if (isNaN(created.getTime())) return 0;
+
+  return Math.floor((Date.now() - created.getTime()) / 1000);
 }

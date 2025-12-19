@@ -10,7 +10,7 @@ import { useCartStore } from "@/stores/admin/useCartStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MoveLeft } from "lucide-react";
+import { Banknote, CreditCard, Icon, MoveLeft, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -231,21 +231,42 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 <label className="text-sm font-medium text-gray-700">
                   Payment Method
                 </label>
-                <Select
-                  disabled={isPending}
-                  onValueChange={(value) =>
-                    setPaymentMethod(value as PaymentMethod)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="card">Card</SelectItem>
-                    <SelectItem value="paypal">Paypal</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: "cash", label: "Cash", Icon: Banknote },
+                    { value: "card", label: "Card", Icon: CreditCard },
+                    { value: "paypal", label: "PayPal", Icon: Wallet },
+                  ].map((method) => {
+                    const isActive = paymentMethod === method.value;
+
+                    return (
+                      <button
+                        key={method.value}
+                        type="button"
+                        disabled={isPending}
+                        onClick={() =>
+                          setPaymentMethod(method.value as PaymentMethod)
+                        }
+                        className={`
+          rounded-lg border p-4 text-center font-medium transition
+          ${
+            isActive
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-muted bg-background hover:bg-muted"
+          }
+          ${isPending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        `}
+                      >
+                        <div className="flex space-x-2">
+                          <span>
+                            <method.Icon />
+                          </span>
+                          <span>{method.label}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               {/* Subtotal */}
               <div className="flex items-center space-x-2">

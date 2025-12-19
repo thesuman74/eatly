@@ -42,7 +42,7 @@ export const useOrder = (orderId: string | null) =>
 
 export const useOrders = (status?: OrderStatus) =>
   useQuery<Order[]>({
-    queryKey: ["orders", status],
+    queryKey: ["orders"],
     queryFn: () => getOrderListAPI(status),
   });
 

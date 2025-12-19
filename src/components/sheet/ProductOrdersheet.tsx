@@ -9,7 +9,7 @@ import {
   useOrder,
   useUpdateOrderItem,
 } from "@/hooks/order/useOrders";
-import { timeAgo } from "@/utils/time";
+import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview";
 import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/EditableOrderItemsList";
@@ -18,6 +18,9 @@ import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
+import { Spinner } from "../Spinner";
+import { useSecondTicker } from "@/hooks/useSecondTicker";
+import clsx from "clsx";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
@@ -31,6 +34,16 @@ const ProductOrdersheet = () => {
   } = paymentPanelStore();
 
   const { data, isLoading, error } = useOrder(orderId);
+
+  useSecondTicker(); // 👈 this enables live updates
+  const elapsed = getElapsedSeconds(data?.created_at);
+
+  const timeColor = clsx(
+    "text-xs font-medium transition-colors",
+    elapsed < 300 && "text-green-600", // < 5 min
+    elapsed >= 300 && elapsed < 900 && "text-yellow-600", // 5–15 min
+    elapsed >= 900 && "text-red-600" // > 15 min
+  );
 
   // Check if the panel should be shown for this order
   const showPaymentPanelForThisOrder =
@@ -68,10 +81,13 @@ const ProductOrdersheet = () => {
 
   if (isLoading) {
     return (
-      <div>
-        <p className="flex items-center justify-center">
-          Loading order details...
-        </p>
+      <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2">
+        <div className="flex items-center gap-2 rounded-md border bg-background px-4 py-2 shadow-sm">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary" />
+          <span className="text-sm text-muted-foreground">
+            Loading order details…
+          </span>
+        </div>
       </div>
     );
   }
@@ -129,16 +145,20 @@ const ProductOrdersheet = () => {
                         <span>
                           <Calendar size={16} />
                         </span>
-                        <span>13/07/25 12:28</span>
+                        <span>{formatCreatedDate(data?.created_at)}</span>
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-center space-x-2">
+                      <div
+                        className={`flex  items-center justify-center space-x-2 ${timeColor}`}
+                      >
                         <span>
                           <Clock size={16} />
                         </span>
-                        <span>01:11 minutes</span>
+                        <span className="text-sm">
+                          {timeAgo(data?.created_at)}
+                        </span>
                       </div>
                     </div>
                   </div>
