@@ -1,12 +1,22 @@
-import { serverService } from "@/lib/supabase/serverService";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getCategoriesFromDB() {
-  const { data: categories, error: categoriesError } = await serverService
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("*")
     .order("position", { ascending: true });
 
-  const { data: products, error: productsError } = await serverService
+  const { data: products, error: productsError } = await supabase
     .from("products")
     .select("*, images:product_images(*)")
     .order("position", { ascending: true });
