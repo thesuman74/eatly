@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import CounterTableFilters from "./CounterTableFilters";
+import CounterTableFilters, { StatusFilter } from "./CounterTableFilters";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/order/useOrders";
 import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
@@ -44,11 +44,32 @@ export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
   const { openpaymentPanelStore } = paymentPanelStore();
 
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
   const queryClient = useQueryClient();
 
   const { data: orders = [], error } = useOrders();
 
   const updateOrderStatus = useUpdateOrderStatus();
+
+  const filteredData = orders.filter((order) => {
+    if (statusFilter === "all") {
+      return true;
+    }
+    switch (statusFilter) {
+      case ORDER_STATUS.DRAFT:
+        return order.status === ORDER_STATUS.DRAFT;
+      case ORDER_STATUS.ACCEPTED:
+        return order.status === ORDER_STATUS.ACCEPTED;
+      case ORDER_STATUS.READY:
+        return order.status === ORDER_STATUS.READY;
+      case ORDER_STATUS.DELIVERED:
+        return order.status === ORDER_STATUS.DELIVERED;
+
+      default:
+        return true;
+    }
+  });
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
     setActionState({ orderId: id, type: "status" });
@@ -154,7 +175,11 @@ export default function CounterTable() {
   return (
     <>
       <div>
-        <CounterTableFilters />
+        <CounterTableFilters
+          value={statusFilter}
+          onChange={setStatusFilter}
+          orders={orders}
+        />
       </div>
       <div className="bg-white rounded-md shadow overflow-hidden ">
         {/* Header */}
@@ -192,7 +217,7 @@ export default function CounterTable() {
             </div>
           </div>
         )}
-        {orders.map((order, i) => {
+        {filteredData.map((order, i) => {
           const elapsed = getElapsedSeconds(order?.created_at);
 
           const timeColor = clsx(

@@ -89,7 +89,7 @@ export function ProductAddSheet() {
     const payload = {
       name,
       description,
-      price: Number(price) * 100,
+      price: Number(price),
       category_id: categoryId,
       images,
     };
