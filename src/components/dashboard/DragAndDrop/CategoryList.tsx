@@ -41,12 +41,9 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   const queryClient = useQueryClient();
 
-  // Fetch categories from API (or use SSR initial categories)
-  const { data: fetchedCategories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
-    initialData: initialCategories,
-  });
+  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+
+  console.log("restaurandId", restaurandId);
 
   // React Query mutations
   const addCategory = useAddCategory();
@@ -55,8 +52,8 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const sensors = useSensors(useSensor(PointerSensor));
 
   useEffect(() => {
-    if (fetchedCategories) setCategories(fetchedCategories);
-  }, [fetchedCategories]);
+    if (initialCategories) setCategories(initialCategories);
+  }, [initialCategories]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -115,11 +112,11 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={categories.map((category) => category.id)}
+            items={categories?.map((category) => category.id)}
             strategy={verticalListSortingStrategy}
           >
             {categories.length > 0 ? (
-              categories.map((category, index) => (
+              categories?.map((category, index) => (
                 <CategoryItem key={category.id + index} category={category} />
               ))
             ) : (

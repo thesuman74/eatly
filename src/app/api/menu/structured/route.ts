@@ -1,11 +1,23 @@
-// src/pages/api/menu/structured.ts
-import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 import { NextResponse } from "next/server";
+import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const structured = await getCategoriesFromDB();
-    return NextResponse.json(structured, { status: 200 });
+    // console.log("structured api req", req);
+    const { searchParams } = new URL(req.url);
+    const restaurantId = searchParams.get("restaurantId");
+
+    console.log("restaurantId from routes", restaurantId);
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+
+    const structured = await getCategoriesFromDB(restaurantId);
+    return NextResponse.json(structured);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

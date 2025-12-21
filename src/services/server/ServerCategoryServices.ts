@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 
-export async function getCategoriesFromDB() {
+export async function getCategoriesFromDB(restaurantId: string) {
   const supabase = await createClient();
 
   const {
@@ -15,11 +15,13 @@ export async function getCategoriesFromDB() {
   const { data: categories, error: categoriesError } = await supabase
     .from("categories")
     .select("*")
+    .eq("restaurant_id", restaurantId)
     .order("position", { ascending: true });
 
   const { data: products, error: productsError } = await supabase
     .from("products")
     .select("*, images:product_images(*)")
+    .eq("restaurant_id", restaurantId)
     .order("position", { ascending: true });
 
   if (categoriesError || productsError) {
