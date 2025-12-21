@@ -3,10 +3,7 @@ import CategoryList from "@/components/dashboard/DragAndDrop/CategoryList";
 import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndDropContext";
 import TopSection from "@/components/menu/TopSection";
 import { getCategoriesAPI } from "@/services/categoryServices";
-import {
-  getUserRestaurants,
-  getUserRestaurantsAPI,
-} from "@/services/resturantServices";
+import { getUserRestaurantsAPI } from "@/services/resturantServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -25,14 +22,29 @@ export default function Page() {
 
   console.log("categoriesData", categoriesData);
 
-  // const { data: restaurantData } = useQuery({
-  //   queryKey: ["restaurants"],
-  //   queryFn: () => getUserRestaurantsAPI(restaurandId),
-  // });
+  const {
+    data: restaurantData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["restaurants"],
+    queryFn: () => getUserRestaurantsAPI(restaurandId),
+    enabled: !!restaurandId,
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError || !restaurantData || restaurantData.length === 0) {
+    return <div>No restaurant found</div>;
+  }
+
+  console.log("restaurantData", restaurantData);
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
-      {/* <TopSection restaurant={restaurantData?[0]} /> */}
+      <TopSection restaurant={restaurantData?.[0]} />
 
       <div>
         <Suspense fallback={<div>Loading...</div>}>

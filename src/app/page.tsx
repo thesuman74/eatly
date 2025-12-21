@@ -1,8 +1,8 @@
 // src/app/(public)/page.tsx
 import React from "react";
 import Link from "next/link";
-import { getAllPublicRestaurants } from "@/services/resturantServices";
 import { Restaurant, restaurantType } from "@/lib/types/resturant-types";
+import { getAllPublicRestaurants } from "@/services/server/serverRestaurantServices";
 
 const HomePage = async () => {
   const restaurants = await getAllPublicRestaurants();

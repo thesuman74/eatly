@@ -1,55 +1,3 @@
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-
-export async function getPublicRestaurantDetails(restaurantId: string) {
-  const supabase = await createClient();
-
-  const { data: restaurants, error } = await supabase
-    .from("restaurants")
-    .select("*")
-    .eq("id", restaurantId)
-    .maybeSingle(); // only one restaurant
-
-  if (error) throw new Error(error.message);
-  if (!restaurants) throw new Error("Restaurant not found");
-
-  return restaurants;
-}
-
-export async function getUserRestaurants() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("restaurant_id")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!userData?.restaurant_id) {
-    return [];
-  }
-
-  const { data: restaurants, error } = await supabase
-    .from("restaurants")
-    .select("*")
-    .eq("id", userData.restaurant_id);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return restaurants;
-}
-
 export async function getUserRestaurantsAPI(restaurantId: string) {
   try {
     const res = await fetch(`/api/restaurant?restaurantId=${restaurantId}`, {
@@ -57,7 +5,7 @@ export async function getUserRestaurantsAPI(restaurantId: string) {
       headers: { "Content-Type": "application/json" },
     });
     const data = await res.json();
-    return data; // already parsed JSON
+    return data;
   } catch (error: any) {
     console.error(
       "Error fetching restaurant:",
@@ -67,19 +15,4 @@ export async function getUserRestaurantsAPI(restaurantId: string) {
       error.response?.data?.error || "Failed to fetch categories"
     );
   }
-}
-
-export async function getAllPublicRestaurants() {
-  const supabase = await createClient();
-
-  const { data: restaurants, error } = await supabase
-    .from("restaurants")
-    .select("*"); // fetch only needed fields
-
-  if (error) {
-    console.error("Error fetching restaurants:", error);
-    return [];
-  }
-
-  return restaurants || [];
 }

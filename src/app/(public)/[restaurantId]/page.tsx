@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import React, { Suspense } from "react";
 import { getPublicCategoriesFromDB } from "@/services/server/ServerCategoryServices";
-import { getPublicRestaurantDetails } from "@/services/resturantServices";
 import { notFound } from "next/navigation";
 import MenuPage from "./menu/_components/MenuPage";
 import RestaurantHome from "./RestaurantHome";
+import { getPublicRestaurantDetails } from "@/services/server/serverRestaurantServices";
 
 const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
   const { restaurantId } = await context.params;

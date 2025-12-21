@@ -15,11 +15,6 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import useCartStore from "@/stores/user/userCartStore";
 import Top from "@/components/menu/Top";
-import {
-  getRestaurants,
-  getUserRestaurants,
-} from "@/services/resturantServices";
-import { getPublicCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 
 interface MenuPageProps {
   initialCategories: ProductCategoryTypes[] | [];

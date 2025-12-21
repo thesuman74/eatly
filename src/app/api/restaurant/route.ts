@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     const { data: userData } = await supabase
       .from("users")
       .select("restaurant_id")
-      .eq("id", restaurantId)
+      .eq("id", user.id)
       .maybeSingle();
 
     if (!userData?.restaurant_id) {

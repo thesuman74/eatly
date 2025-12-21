@@ -7,7 +7,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getUserOnboardingStatus } from "@/lib/supabase/getUserOnboardingStatus";
-import { getUserRestaurants } from "@/services/resturantServices";
+import { getUserRestaurants } from "@/services/server/serverRestaurantServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { Separator } from "@radix-ui/react-select";
 import { redirect } from "next/navigation";
