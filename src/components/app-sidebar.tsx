@@ -112,7 +112,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   restaurants: Array<{
     id: string;
     name: string;
-    logo: string;
+    logo_url: string;
   }>;
 };
 
