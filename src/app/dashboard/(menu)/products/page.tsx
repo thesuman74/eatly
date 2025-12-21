@@ -9,15 +9,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
 
 export default function Page() {
-  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   // const restaurandId = "56cce575-a8e0-4b9e-85c6-da6c699284bc";
   // console.log("restaurandId FROM [PAGE-ZUSTAND ", restaurandId);
 
   const { data: categoriesData } = useQuery({
-    queryKey: ["categories", restaurandId],
-    queryFn: () => getCategoriesAPI(restaurandId),
-    enabled: !!restaurandId,
+    queryKey: ["categories", restaurantId],
+    queryFn: () => getCategoriesAPI(restaurantId),
+    enabled: !!restaurantId,
   });
 
   console.log("categoriesData", categoriesData);
@@ -28,8 +28,8 @@ export default function Page() {
     isError,
   } = useQuery({
     queryKey: ["restaurants"],
-    queryFn: () => getUserRestaurantsAPI(restaurandId),
-    enabled: !!restaurandId,
+    queryFn: () => getUserRestaurantsAPI(restaurantId),
+    enabled: !!restaurantId,
   });
 
   if (isLoading) {
