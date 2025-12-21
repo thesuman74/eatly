@@ -2,6 +2,21 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+export async function getPublicRestaurantDetails(restaurantId: string) {
+  const supabase = await createClient();
+
+  const { data: restaurants, error } = await supabase
+    .from("restaurants")
+    .select("*")
+    .eq("id", restaurantId)
+    .maybeSingle(); // only one restaurant
+
+  if (error) throw new Error(error.message);
+  if (!restaurants) throw new Error("Restaurant not found");
+
+  return restaurants;
+}
+
 export async function getUserRestaurants() {
   const supabase = await createClient();
 
@@ -35,8 +50,17 @@ export async function getUserRestaurants() {
   return restaurants;
 }
 
-export async function getRestaurants() {
+export async function getAllPublicRestaurants() {
   const supabase = await createClient();
-  const { data: restaurants } = await supabase.from("restaurants").select("*");
-  return restaurants;
+
+  const { data: restaurants, error } = await supabase
+    .from("restaurants")
+    .select("*"); // fetch only needed fields
+
+  if (error) {
+    console.error("Error fetching restaurants:", error);
+    return [];
+  }
+
+  return restaurants || [];
 }

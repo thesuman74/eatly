@@ -2,7 +2,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextResponse } from "next/server";
-console.log("HIT [id] ROUTE");
 
 export async function GET(
   req: Request,

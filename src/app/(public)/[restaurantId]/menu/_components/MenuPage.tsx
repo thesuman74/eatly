@@ -19,24 +19,20 @@ import {
   getRestaurants,
   getUserRestaurants,
 } from "@/services/resturantServices";
+import { getPublicCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 
 interface MenuPageProps {
-  initialCategories: ProductCategoryTypes[];
-  restaurants: any;
+  initialCategories: ProductCategoryTypes[] | [];
+  restaurantDetails: any;
 }
 
 export default function MenuPage({
   initialCategories,
-  restaurants,
+  restaurantDetails,
 }: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [fullUrl, setFullUrl] = useState<string>("");
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
-    initialData: initialCategories,
-  });
   const { cartItems, addToCart, total } = useCartStore();
 
   const handleAddToCart = (items: ProductTypes) => {
@@ -50,7 +46,7 @@ export default function MenuPage({
     }
   }, []);
 
-  const filteredCategories = categories.reduce(
+  const filteredCategories = initialCategories.reduce(
     (acc: ProductCategoryTypes[], category: ProductCategoryTypes) => {
       // Filter products in this category
       const filteredProducts = category.products.filter(
@@ -74,7 +70,7 @@ export default function MenuPage({
   return (
     <div className="min-h-screen max-w-7xl mx-auto ">
       {/* Top Section */}
-      <Top restaurant={restaurants[0]} />
+      <Top restaurant={restaurantDetails} />
 
       <div className="container mx-auto px-4">
         <div className=" z-40 py-4 space-y-4">
