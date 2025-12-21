@@ -36,24 +36,25 @@ interface CategoryListProps {
 
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
-  const [categories, setCategories] = useState<ProductCategoryTypes[]>([]);
-  console.log("categories", categories);
+  const [categories, setCategories] = useState<ProductCategoryTypes[]>(
+    initialCategories || []
+  );
 
-  const queryClient = useQueryClient();
+  // console.log("initialCategories", categories);
 
-  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+  // console.log("restaurandId", restaurandId);
 
-  console.log("restaurandId", restaurandId);
+  useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    }
+  }, [initialCategories]);
 
   // React Query mutations
   const addCategory = useAddCategory();
   const updateCategory = useUpdateCategories();
 
   const sensors = useSensors(useSensor(PointerSensor));
-
-  useEffect(() => {
-    if (initialCategories) setCategories(initialCategories);
-  }, [initialCategories]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -115,7 +116,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
             items={categories?.map((category) => category.id)}
             strategy={verticalListSortingStrategy}
           >
-            {categories.length > 0 ? (
+            {categories && categories?.length > 0 ? (
               categories?.map((category, index) => (
                 <CategoryItem key={category.id + index} category={category} />
               ))

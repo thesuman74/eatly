@@ -27,14 +27,17 @@ import {
 import { getCategoriesAPI } from "@/services/categoryServices";
 import SubmitButton from "../ui/SubmitButton";
 import { set } from "react-hook-form";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 export function ProductAddSheet() {
   const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
     useProductSheet();
 
+  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+
   const { data: categories } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
+    queryFn: () => getCategoriesAPI(restaurandId),
   });
 
   const queryClient = useQueryClient();

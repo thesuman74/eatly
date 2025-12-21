@@ -17,13 +17,13 @@ export default function Page() {
   // const restaurandId = "56cce575-a8e0-4b9e-85c6-da6c699284bc";
   // console.log("restaurandId FROM [PAGE-ZUSTAND ", restaurandId);
 
-  const { data: categoriesData = [] } = useQuery({
-    queryKey: ["categories"],
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories", restaurandId],
     queryFn: () => getCategoriesAPI(restaurandId),
     enabled: !!restaurandId,
   });
 
-  // console.log("categoriesData", categoriesData);
+  console.log("categoriesData", categoriesData);
 
   // const { data: restaurantData } = useQuery({
   //   queryKey: ["restaurants"],

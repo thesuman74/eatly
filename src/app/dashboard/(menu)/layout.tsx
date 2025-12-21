@@ -10,7 +10,7 @@ export default function MenuPageLayout({
       <div className="flex-grow w-full  md:overflow-y-auto px-1 ">
         {children}
       </div>
-      <SidePreview src="/menu" showSidePreview={true} />
+      {/* <SidePreview src="/menu" showSidePreview={true} /> */}
     </div>
   );
 }

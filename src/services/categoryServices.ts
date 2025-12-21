@@ -3,10 +3,7 @@
 import { clientAxiosInstance } from "@/lib/axios/ClientAxiosInstance";
 
 export async function getCategoriesAPI(restaurantId: string) {
-  if (typeof restaurantId !== "string") {
-    console.error("restaurantId must be a string!", restaurantId);
-    return [];
-  }
+  console.log("getCategoriesAPI", restaurantId);
 
   try {
     const res = await fetch(
@@ -18,12 +15,7 @@ export async function getCategoriesAPI(restaurantId: string) {
     );
     const data = await res.json();
 
-    if (data.error) {
-      console.error("API error:", data.error);
-      return [];
-    }
-
-    return data.categories || [];
+    return data || [];
   } catch (error: any) {
     console.error("Error fetching categories:", error.message);
     return [];
