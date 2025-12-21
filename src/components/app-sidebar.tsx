@@ -26,8 +26,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { getUserRestaurants } from "@/services/resturantServices";
-import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 // console.log("restaurantData", restaurantData);
 
@@ -129,7 +127,7 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
