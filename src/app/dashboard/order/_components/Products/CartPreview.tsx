@@ -17,7 +17,6 @@ export default function CartPreview() {
           <span className="font-bold text-lg w-full text-white bg-blue-500 p-2">
             + Products
           </span>
-          {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 
         <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">

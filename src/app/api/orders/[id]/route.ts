@@ -8,9 +8,6 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id: orderId } = await context.params;
-  const supabase = await createClient();
-
-  // console.log("orderId", orderId);
 
   if (!orderId) {
     return NextResponse.json(
@@ -19,89 +16,147 @@ export async function GET(
     );
   }
 
-  // 1️⃣ Fetch order metadata
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("id", orderId)
-    .single();
+  const url = new URL(req.url);
+  const restaurantId = url.searchParams.get("restaurantId");
 
-  // console.log("order", order);
+  console.log("context.params", await context.params);
+  const supabase = await createClient();
 
-  if (orderError || !order) {
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
-  }
+  console.log("orderId", orderId);
+  console.log("restaurantId", restaurantId);
+  try {
+    //Authenticate use
 
-  // 2️⃣ Fetch order items
-  const { data: items } = await supabase
-    .from("order_items")
-    .select("*")
-    .eq("order_id", orderId);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  // console.log("items", items);
+    //Verify ownership
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
 
-  // 2️⃣ Get product IDs
-  const productIds = items?.map((i) => i.product_id) || [];
+    const { data: restaurant, error: restError } = await supabase
+      .from("restaurants")
+      .select("id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
 
-  // 3️⃣ Fetch product details
-  const { data: productsData, error: productsError } = await supabase
-    .from("products")
-    .select(`*, product_images(*)`)
-    .in("id", productIds);
+    if (restError || !restaurant) {
+      return NextResponse.json(
+        { error: "Not authroized for this restaurant" },
+        { status: 403 }
+      );
+    }
 
-  if (productsError) {
-    console.error("Error fetching products:", productsError);
-  }
+    // 1️⃣ Fetch order metadata
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .eq("restaurant_id", restaurantId)
+      .single();
 
-  // ✅ Ensure products is always an array
-  const products: typeof productsData = productsData || [];
+    // console.log("order", order);
 
-  // 4️⃣ Merge items with product info
-  const itemsWithDetails = items?.map((item) => ({
-    ...item,
-    product: products.find((p) => p.id === item.product_id) || null, // fallback to null
-  }));
+    if (orderError || !order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
-  // console.log(" itemsWithDetails", itemsWithDetails);
+    // 2️⃣ Fetch order items
+    const { data: items } = await supabase
+      .from("order_items")
+      .select("*")
+      .eq("order_id", orderId)
+      .eq("restaurant_id", restaurantId);
 
-  // 3️⃣ Fetch addons for each item
-  const itemIds = items?.map((i) => i.id) || [];
-  const { data: addons } = await supabase
-    .from("order_item_addons")
-    .select("*")
-    .in("order_item_id", itemIds);
+    // console.log("items", items);
 
-  // attach addons to items
-  const itemsWithAddons =
-    items?.map((item) => ({
+    // 2️⃣ Get product IDs
+    const productIds = items?.map((i) => i.product_id) || [];
+
+    // 3️⃣ Fetch product details
+    const { data: productsData, error: productsError } = await supabase
+      .from("products")
+      .select(`*, product_images(*)`)
+      .eq("restaurant_id", restaurantId)
+      .in("id", productIds);
+
+    if (productsError) {
+      console.error("Error fetching products:", productsError);
+    }
+
+    // ✅ Ensure products is always an array
+    const products: typeof productsData = productsData || [];
+
+    // 4️⃣ Merge items with product info
+    const itemsWithDetails = items?.map((item) => ({
       ...item,
-      addons: addons?.filter((a) => a.order_item_id === item.id) || [],
-    })) || [];
+      product: products.find((p) => p.id === item.product_id) || null, // fallback to null
+    }));
 
-  // console.log("itemsWithAddons", itemsWithAddons);
+    // console.log(" itemsWithDetails", itemsWithDetails);
 
-  // 4️⃣ Fetch payments
-  const { data: payments } = await supabase
-    .from("order_payments")
-    .select("*")
-    .eq("order_id", orderId);
+    // 3️⃣ Fetch addons for each item
+    const itemIds = items?.map((i) => i.id) || [];
+    const { data: addons } = await supabase
+      .from("order_item_addons")
+      .select("*")
+      .eq("restaurant_id", restaurantId)
+      .in("order_item_id", itemIds);
 
-  // console.log("payments", payments);
+    // attach addons to items
+    const itemsWithAddons =
+      items?.map((item) => ({
+        ...item,
+        addons: addons?.filter((a) => a.order_item_id === item.id) || [],
+      })) || [];
 
-  // 5️⃣ Fetch status logs (optional)
-  const { data: status_logs } = await supabase
-    .from("order_status_logs")
-    .select("*")
-    .eq("order_id", orderId)
-    .order("created_at", { ascending: true });
+    // console.log("itemsWithAddons", itemsWithAddons);
 
-  // 6️⃣ Return structured response
-  return NextResponse.json({
-    ...order,
-    items: itemsWithDetails || [],
-    payments: payments || [],
-    status_logs: status_logs || [],
-  });
+    // 4️⃣ Fetch payments
+    const { data: payments, error: paymentsError } = await supabase
+      .from("order_payments")
+      .select("*")
+      .eq("restaurant_id", restaurantId)
+      .eq("order_id", orderId);
+
+    if (paymentsError) {
+      console.error("Error fetching payments:", paymentsError);
+    }
+
+    console.log("payments", payments);
+    console.log("payments error", paymentsError);
+
+    // 5️⃣ Fetch status logs (optional)
+    const { data: status_logs } = await supabase
+      .from("order_status_logs")
+      .select("*")
+      .eq("order_id", orderId)
+      .eq("restaurant_id", restaurantId)
+      .order("created_at", { ascending: true });
+
+    // 6️⃣ Return structured response
+    return NextResponse.json({
+      ...order,
+      items: itemsWithDetails || [],
+      payments: payments || [],
+      status_logs: status_logs || [],
+    });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    return NextResponse.json(
+      { error: "Error fetching order" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PATCH(

@@ -34,10 +34,10 @@ export const useCreateOrder = () => {
   });
 };
 
-export const useOrder = (orderId: string | null) =>
+export const useOrder = (orderId: string | null, restauratId: string) =>
   useQuery({
     queryKey: ["order-details", orderId],
-    queryFn: () => getOrderDetailsAPI(orderId),
+    queryFn: () => getOrderDetailsAPI(orderId, restauratId),
     enabled: !!orderId,
   });
 

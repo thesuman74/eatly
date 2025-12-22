@@ -17,8 +17,11 @@ export async function addOrderAPI(payload: CreateOrderPayload) {
   return data;
 }
 
-export async function getOrderDetailsAPI(orderId: string | null) {
-  const res = await fetch(`/api/orders/${orderId}`);
+export async function getOrderDetailsAPI(
+  orderId: string | null,
+  restauratId: string
+) {
+  const res = await fetch(`/api/orders/${orderId}?restaurantId=${restauratId}`);
 
   const data = await res.json(); // ✅ await here
 

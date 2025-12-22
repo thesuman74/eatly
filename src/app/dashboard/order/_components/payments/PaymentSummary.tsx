@@ -10,7 +10,14 @@ import { useCartStore } from "@/stores/admin/useCartStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Banknote, CreditCard, Icon, MoveLeft, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CreditCard,
+  DollarSign,
+  Icon,
+  MoveLeft,
+  Wallet,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -22,11 +29,13 @@ import {
   CreateOrderPayload,
   ORDER_STATUS,
   OrderPayment,
+  PAYMENT_METHOD,
   PAYMENT_STATUS,
   PaymentMethod,
 } from "@/lib/types/order-types";
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { FaPaypal } from "react-icons/fa6";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -39,7 +48,6 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
   const {
-    paymentStatus,
     amountReceived,
     tips,
     paymentMethod,
@@ -136,6 +144,18 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     updateOrderMutation.isPending || createOrderMutation.isPending
   );
 
+  const PAYMENT_METHODS: {
+    value: PaymentMethod;
+    label: string;
+    Icon: React.FC<any>;
+  }[] = [
+    { value: "cash", label: "Cash", Icon: DollarSign },
+    { value: "card", label: "Card", Icon: CreditCard },
+    { value: "paypal", label: "PayPal", Icon: FaPaypal },
+    { value: "esewa", label: "eSewa", Icon: Wallet },
+    { value: "khalti", label: "Khalti", Icon: Wallet },
+  ];
+
   const handleFinalizeOrder = async () => {
     if (!currentlyActiveOrderId) {
       toast.error("No active order to finalize");
@@ -165,12 +185,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
           <span className="text-xl font-bold">Register Payment</span>
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === PAYMENT_STATUS.PAID
-                ? "bg-green-600"
-                : "bg-yellow-400"
+              isPaid ? "bg-green-600" : "bg-yellow-400"
             }`}
           >
-            {paymentStatus?.toUpperCase() || "PENDING"}
+            {isPaid ? "Paid" : "Unpaid"}
           </span>
         </div>
         {isPaid && (
@@ -190,30 +208,28 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             </div>
             {isPaid &&
               payments?.map((p, i) => (
-                <>
-                  <div
-                    key={p.id + i}
-                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
-                  >
-                    <div>
-                      <div className="text-lg text-gray-500">{p.method}</div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        Rs {p.amount_paid}
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      {new Date(p.created_at).toLocaleString()}
-                      <div className="text-gray-500 text-xs pt-2">
-                        <span className="block">
-                          Items: Rs {p.amount_paid - p.tip}
-                        </span>
-                        {/* {p.tip > 0 && ( */}
-                        <span className="block">Tip: Rs {p.tip}</span>
-                        {/* // )} */}
-                      </div>
+                <div
+                  key={p.id + i}
+                  className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
+                >
+                  <div>
+                    <div className="text-lg text-gray-500">{p.method}</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      Rs {p.amount_paid}
                     </div>
                   </div>
-                </>
+                  <div className="text-sm text-gray-400">
+                    {new Date(p.created_at).toLocaleString()}
+                    <div className="text-gray-500 text-xs pt-2">
+                      <span className="block">
+                        Items: Rs {p.amount_paid - p.tip}
+                      </span>
+                      {/* {p.tip > 0 && ( */}
+                      <span className="block">Tip: Rs {p.tip}</span>
+                      {/* // )} */}
+                    </div>
+                  </div>
+                </div>
               ))}
 
             {/* Finalize Order Button */}
@@ -236,11 +252,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   Payment Method
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: "cash", label: "Cash", Icon: Banknote },
-                    { value: "card", label: "Card", Icon: CreditCard },
-                    { value: "paypal", label: "PayPal", Icon: Wallet },
-                  ].map((method) => {
+                  {PAYMENT_METHODS.map((method) => {
                     const isActive = paymentMethod === method.value;
 
                     return (

@@ -90,13 +90,17 @@ export const ORDER_STATUS = {
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
+export const PAYMENT_METHOD = {
+  CASH: "cash",
+  CARD: "card",
+  PAYPAL: "paypal",
+  ESEWA: "esewa",
+  KHALTI: "khalti",
+  null: null,
+};
+
 export type PaymentMethod =
-  | "cash"
-  | "card"
-  | "paypal"
-  | "esewa"
-  | "khalti"
-  | null;
+  (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
 
 export interface CreateOrderPayload {
   order: {
