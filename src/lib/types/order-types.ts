@@ -128,6 +128,7 @@ export interface OrderPaymentPayload {
   amount_paid: number;
   tip?: number;
   change_returned?: number;
+  payment_status?: PaymentStatus;
 }
 
 export interface OrderItemPayload {

@@ -1,7 +1,7 @@
 import { CreateOrderPayload, OrderStatus } from "@/lib/types/order-types";
 
 export async function addOrderAPI(payload: CreateOrderPayload) {
-  const res = await fetch("/api/orders/create", {
+  const res = await fetch("/api/orders/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

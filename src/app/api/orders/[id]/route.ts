@@ -156,9 +156,9 @@ export async function GET(
     return NextResponse.json({
       ...order,
       payment_status,
-      // items: itemsWithDetails || [],
-      // payments: payments || [],
-      // status_logs: status_logs || [],
+      items: itemsWithDetails || [],
+      payments: payments || [],
+      status_logs: status_logs || [],
     });
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -217,15 +217,34 @@ export async function PATCH(
       );
     }
 
-    // 3️⃣ Fetch existing order with payment_status
+    // 3️⃣ Fetch existing order (exclude payment_status)
     const { data: existingOrder, error: existingError } = await supabase
       .from("orders")
-      .select("subtotal, total, payment_status")
+      .select("*")
       .eq("id", orderId)
       .single();
 
     if (existingError || !existingOrder) {
       throw new Error("Order not found");
+    }
+
+    // 3a️⃣ Fetch payment to enforce single source of truth
+    const { data: existingPayment, error: paymentFetchError } = await supabase
+      .from("order_payments")
+      .select("*")
+      .eq("order_id", orderId)
+      .single();
+
+    if (paymentFetchError && paymentFetchError.code !== "PGRST116") {
+      throw new Error(paymentFetchError.message);
+    }
+
+    // 3b️⃣ Block updates if order is already paid
+    if (existingPayment?.payment_status === PAYMENT_STATUS.PAID) {
+      return NextResponse.json(
+        { error: "Paid orders cannot be updated" },
+        { status: 400 }
+      );
     }
 
     // 4️⃣ Calculate updated order totals if items exist
@@ -238,7 +257,7 @@ export async function PATCH(
       total = subtotal + (payment?.tip ?? 0);
     }
 
-    // 5️⃣ Update order metadata (excluding payment_status for now)
+    // 5️⃣ Update order metadata (excluding payment_status)
     const { data: updatedOrder, error: orderError } = await supabase
       .from("orders")
       .update({
@@ -268,7 +287,6 @@ export async function PATCH(
         restaurant_id: order.restaurant_id ?? null,
       }));
 
-      // Delete previous items
       const { error: deleteItemsError } = await supabase
         .from("order_items")
         .delete()
@@ -277,7 +295,6 @@ export async function PATCH(
 
       if (deleteItemsError) throw new Error(deleteItemsError.message);
 
-      // Insert new items
       const { error: insertItemsError } = await supabase
         .from("order_items")
         .insert(itemsPayload);
@@ -285,37 +302,23 @@ export async function PATCH(
       if (insertItemsError) throw new Error(insertItemsError.message);
     }
 
-    // 7️⃣ Handle payment as the single source of truth
+    // 7️⃣ Handle payment as single source of truth
+    let finalPaymentStatus: string = PAYMENT_STATUS.UNPAID;
+
     if (payment) {
-      // Fetch existing payment
-      const { data: existingPayment, error: paymentFetchError } = await supabase
-        .from("order_payments")
-        .select("*")
-        .eq("order_id", orderId)
-        .single();
-
-      if (paymentFetchError && paymentFetchError.code !== "PGRST116") {
-        throw new Error(paymentFetchError.message);
-      }
-
-      // Block duplicate payment
-      if (existingPayment && existingPayment.amount_paid > 0) {
-        return NextResponse.json(
-          { error: "Payment already completed for this order" },
-          { status: 400 }
-        );
-      }
-
       const paymentPayload = {
         order_id: orderId,
         method: payment.method ?? null,
-        amount_paid: payment.amount_paid ?? null,
-        tip: payment.tip ?? null,
-        change_returned: payment.change_returned ?? null,
+        amount_paid: payment.amount_paid ?? 0,
+        tip: payment.tip ?? 0,
+        change_returned: payment.change_returned ?? 0,
         restaurant_id: order.restaurant_id ?? null,
+        payment_status:
+          payment.amount_paid && payment.amount_paid > 0
+            ? PAYMENT_STATUS.PAID
+            : PAYMENT_STATUS.UNPAID,
       };
 
-      // Insert or update payment
       if (existingPayment) {
         const { error: paymentError } = await supabase
           .from("order_payments")
@@ -331,21 +334,23 @@ export async function PATCH(
         if (paymentError) throw new Error(paymentError.message);
       }
 
-      // Update order payment_status after payment is saved
-      const newPaymentStatus =
-        payment.amount_paid && payment.amount_paid > 0
-          ? PAYMENT_STATUS.PAID
-          : PAYMENT_STATUS.UNPAID;
-
-      const { error: orderStatusError } = await supabase
-        .from("orders")
-        .update({ payment_status: newPaymentStatus })
-        .eq("id", orderId);
-
-      if (orderStatusError) throw new Error(orderStatusError.message);
+      finalPaymentStatus = paymentPayload.payment_status;
     }
 
-    return NextResponse.json({ success: true, order: updatedOrder });
+    // 8️⃣ Fetch payment_status from order_payments for response
+    const { data: paymentData } = await supabase
+      .from("order_payments")
+      .select("payment_status")
+      .eq("order_id", orderId)
+      .single();
+
+    return NextResponse.json({
+      success: true,
+      order: {
+        ...updatedOrder,
+        payment_status: paymentData?.payment_status || finalPaymentStatus,
+      },
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }

@@ -41,6 +41,7 @@ export const buildOrderPayload = (reataurantId: string): CreateOrderPayload => {
             amount_paid: amountReceived,
             tip: tips || 0,
             change_returned: change >= 0 ? change : 0,
+            payment_status: change >= 0 ? "paid" : "unpaid",
           },
         }
       : {}),

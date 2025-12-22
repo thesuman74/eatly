@@ -49,6 +49,7 @@ export default function CounterTable() {
   const queryClient = useQueryClient();
 
   const { data: orders = [], error } = useOrders();
+  console.log("orders form counter table", orders);
 
   const updateOrderStatus = useUpdateOrderStatus();
 
