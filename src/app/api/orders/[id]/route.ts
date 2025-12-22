@@ -59,12 +59,21 @@ export async function GET(
     // 1️⃣ Fetch order metadata
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("*")
+      .select(
+        `
+    *,
+    payments:order_payments (
+      payment_status
+    )
+  `
+      )
       .eq("id", orderId)
       .eq("restaurant_id", restaurantId)
       .single();
 
     // console.log("order", order);
+
+    const payment_status = order.payments?.[0]?.payment_status || "unpaid";
 
     if (orderError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -146,9 +155,10 @@ export async function GET(
     // 6️⃣ Return structured response
     return NextResponse.json({
       ...order,
-      items: itemsWithDetails || [],
-      payments: payments || [],
-      status_logs: status_logs || [],
+      payment_status,
+      // items: itemsWithDetails || [],
+      // payments: payments || [],
+      // status_logs: status_logs || [],
     });
   } catch (error) {
     console.error("Error fetching order:", error);

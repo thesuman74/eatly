@@ -1,3 +1,4 @@
+import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -5,48 +6,61 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { CircleX, MoreVertical, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 export function OrderOverflowMenu({
   onCancel,
   onDelete,
+  orderId,
 }: {
   onCancel: () => void;
   onDelete: () => void;
+  orderId: string;
 }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreVertical size={16} />
-        </Button>
-      </DropdownMenuTrigger>
+  const [cancelOpen, setCancelOpen] = useState(false);
 
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          className="hover:cursor-pointer hover:text-red-700 "
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <Trash2 size={16} />
-          Delete Order
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="hover:text-red-600 hover:cursor-pointer "
-          onClick={(e) => {
-            e.stopPropagation();
-            onCancel();
-          }}
-        >
-          <span className="mx-auto">Cancel Order</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" onClick={(e) => e.stopPropagation()}>
+            <MoreVertical size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            className="hover:cursor-pointer hover:text-red-700 "
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <span className="text-red-500 space-x-2 flex items-center">
+              <Trash2 size={16} />
+              <span>Delete Order</span>
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:cursor-pointer hover:text-red-600"
+            onClick={(e) => {
+              e.stopPropagation();
+              setCancelOpen(true); // open the dialog
+            }}
+          >
+            <CircleX size={16} className="mr-2" />
+            Cancel Order
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {/* Render the CancelOrderButton outside the dropdown */}{" "}
+      <CancelOrderButton
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        orderId={orderId}
+        onCancelSuccess={onDelete}
+      />
+    </>
   );
 }

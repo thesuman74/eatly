@@ -32,6 +32,8 @@ export function OrderRowActions({
   const showPay =
     order.status !== ORDER_STATUS.DRAFT && order.payment_status !== "PAID";
 
+  const orderId = order.id;
+
   return (
     <div className="flex items-center justify-end gap-2">
       {/* Status change only after accept */}
@@ -49,7 +51,11 @@ export function OrderRowActions({
         onFinish={onFinish}
       />
       {/* Overflow actions */}
-      <OrderOverflowMenu onCancel={onCancel} onDelete={onDelete} />
+      <OrderOverflowMenu
+        onCancel={onCancel}
+        onDelete={onDelete}
+        orderId={orderId}
+      />
     </div>
   );
 }

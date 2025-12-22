@@ -47,6 +47,13 @@ export async function PATCH(
 
   const { status, restaurantId } = parseResult.data;
 
+  if (status === ORDER_STATUS.CANCELLED) {
+    return NextResponse.json(
+      { error: "Please use the cancel endpoint" },
+      { status: 400 }
+    );
+  }
+
   // 3️⃣ Verify restaurant ownership
   const { data: restaurant, error: restError } = await supabase
     .from("restaurants")

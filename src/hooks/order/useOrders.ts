@@ -175,3 +175,49 @@ export const useDeleteOrderItem = () => {
     },
   });
 };
+
+interface CancelOrderParams {
+  orderId: string;
+  cancelled_reason: string;
+  cancel_note?: string;
+}
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+
+      cancelled_reason,
+      cancel_note,
+    }: CancelOrderParams) => {
+      if (!orderId) throw new Error("Order id is required");
+      const payload = {
+        orderId,
+        cancelled_reason,
+        cancel_note,
+        restaurantId,
+      };
+      console.log("payload", payload);
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to cancel order");
+      return data;
+    },
+    onSuccess: (_, { orderId }) => {
+      toast.success("Order cancelled successfully");
+      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to cancel order");
+    },
+  });
+};

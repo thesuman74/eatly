@@ -137,3 +137,25 @@ export interface OrderItemPayload {
   total_price: number;
   notes?: string;
 }
+
+// /lib/types/order-types.ts
+
+export enum ORDER_CANCEL_REASONS {
+  CUSTOMER_REQUEST = "customer_request",
+  REJECTED_ORDER = "rejected_order",
+  TEST_ORDER = "test_order",
+  PAYMENT_FAILED = "payment_failed",
+  RESTAURANT_CLOSED = "restaurant_closed",
+  OTHER = "other",
+}
+
+// Optional: if you want a mapping for labels
+export const ORDER_CANCEL_REASON_LABELS: Record<ORDER_CANCEL_REASONS, string> =
+  {
+    [ORDER_CANCEL_REASONS.CUSTOMER_REQUEST]: "Customer Request",
+    [ORDER_CANCEL_REASONS.REJECTED_ORDER]: "Rejected Order",
+    [ORDER_CANCEL_REASONS.TEST_ORDER]: "Test Order",
+    [ORDER_CANCEL_REASONS.PAYMENT_FAILED]: "Payment Failed",
+    [ORDER_CANCEL_REASONS.RESTAURANT_CLOSED]: "Restaurant Closed",
+    [ORDER_CANCEL_REASONS.OTHER]: "Other",
+  };

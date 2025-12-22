@@ -60,14 +60,6 @@ export function OrderStatusActions({
           >
             Delivered
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatusChange(ORDER_STATUS.CANCELLED);
-            }}
-          >
-            Cancelled
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
