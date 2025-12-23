@@ -141,7 +141,6 @@ export default function CounterTable() {
   const deleteOrder = async (orderId: string) => {
     try {
       await deleteOrderItemAPI(orderId);
-      toast.success("Order deleted");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     } catch {
       toast.error("Failed to delete order");

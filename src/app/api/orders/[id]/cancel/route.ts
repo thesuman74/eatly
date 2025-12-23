@@ -93,8 +93,7 @@ export async function POST(req: Request) {
     const { data: paymentData, error: paymentError } = await supabase
       .from("order_payments")
       .select("*")
-      .eq("order_id", orderId)
-      .maybeSingle();
+      .eq("order_id", orderId);
 
     if (paymentError) {
       return NextResponse.json(
@@ -104,8 +103,12 @@ export async function POST(req: Request) {
     }
 
     console.log("paymentData", paymentData);
-    const isPaid =
-      paymentData && paymentData?.payment_status === PAYMENT_STATUS.PAID;
+    // Compute net payment
+    const netPayment =
+      paymentData?.reduce((acc, p) => acc + (p.amount_paid || 0), 0) || 0;
+
+    // Check if order has been paid (any positive net amount)
+    const isPaid = netPayment > 0;
 
     if (isPaid) {
       return NextResponse.json(
