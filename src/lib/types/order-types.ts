@@ -47,6 +47,7 @@ export interface OrderPayment {
   tip: number;
   change_returned: number;
   created_at: string;
+  payment_status: PaymentStatus;
 }
 
 export interface OrderStatusLog {

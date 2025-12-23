@@ -15,6 +15,7 @@ import {
   CreditCard,
   DollarSign,
   Icon,
+  MoreHorizontal,
   MoveLeft,
   Wallet,
 } from "lucide-react";
@@ -36,6 +37,8 @@ import {
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { FaPaypal } from "react-icons/fa6";
+import { usePaymentRefund } from "@/hooks/order/usePayements";
+import { set } from "zod";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -44,6 +47,7 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
+  console.log("payments", payments);
   const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
@@ -72,9 +76,12 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
+  const paymentRefundMutation = usePaymentRefund();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  const isPaid = Boolean(payments?.length);
+  const isPaid = Boolean(
+    payments?.find((p) => p.payment_status === PAYMENT_STATUS.PAID)
+  );
 
   // const handleRegisterPayment = () => {
   //   setPaymentStatus(PAYMENT_STATUS.PAID);
@@ -156,6 +163,26 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     { value: "khalti", label: "Khalti", Icon: Wallet },
   ];
 
+  const handleRefundPayment = async () => {
+    if (!currentlyActiveOrderId) {
+      toast.error("No active order to refund");
+      return;
+    }
+
+    try {
+      // Call your mutation
+      await paymentRefundMutation.mutateAsync({
+        orderId: currentlyActiveOrderId,
+        restaurantId,
+      });
+      setOpen(false);
+
+      toast.success("Payment refunded successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to refund payment");
+    }
+  };
+
   const handleFinalizeOrder = async () => {
     if (!currentlyActiveOrderId) {
       toast.error("No active order to finalize");
@@ -188,7 +215,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
               isPaid ? "bg-green-600" : "bg-yellow-400"
             }`}
           >
-            {isPaid ? "Paid" : "Unpaid"}
+            {payments?.map((p) => p.payment_status)}
           </span>
         </div>
         {isPaid && (
@@ -207,30 +234,55 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
               </span>
             </div>
             {isPaid &&
-              payments?.map((p, i) => (
-                <div
-                  key={p.id + i}
-                  className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
-                >
-                  <div>
-                    <div className="text-lg text-gray-500">{p.method}</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      Rs {p.amount_paid}
+              payments?.map((p, i) => {
+                const [showMenu, setShowMenu] = useState(false);
+
+                return (
+                  <div
+                    key={p.id + i}
+                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center relative"
+                  >
+                    <div>
+                      <div className="text-lg text-gray-500">{p.method}</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        Rs {p.amount_paid}
+                      </div>
+                    </div>
+
+                    <div className="text-sm text-gray-400">
+                      {new Date(p.created_at).toLocaleString()}
+                      <div className="text-gray-500 text-xs pt-2">
+                        <span className="block">
+                          Items: Rs {p.amount_paid - p.tip}
+                        </span>
+                        <span className="block">Tip: Rs {p.tip}</span>
+                      </div>
+                    </div>
+
+                    {/* 3-dot button */}
+                    <div className="relative ml-2">
+                      <button
+                        className="p-1 hover:bg-gray-200 rounded-full"
+                        onClick={() => setShowMenu(!showMenu)}
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+
+                      {/* Dropdown menu */}
+                      {showMenu && (
+                        <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow z-10">
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-500"
+                            onClick={() => handleRefundPayment()}
+                          >
+                            Refund
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-400">
-                    {new Date(p.created_at).toLocaleString()}
-                    <div className="text-gray-500 text-xs pt-2">
-                      <span className="block">
-                        Items: Rs {p.amount_paid - p.tip}
-                      </span>
-                      {/* {p.tip > 0 && ( */}
-                      <span className="block">Tip: Rs {p.tip}</span>
-                      {/* // )} */}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
             {/* Finalize Order Button */}
             <button

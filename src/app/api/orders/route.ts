@@ -59,13 +59,13 @@ export async function GET(req: Request) {
     .select("*")
     .in("order_id", orderIds);
 
-  // map total amount for each order
   const ordersWithTotals = orders.map((order) => {
     const orderItems = items?.filter((i) => i.order_id === order.id) || [];
     const orderAddons = addons || [];
     const orderPayments =
       payments?.filter((p) => p.order_id === order.id) || [];
 
+    // Calculate items + addons total
     const itemsTotal = orderItems.reduce((acc, item) => {
       const addonTotal = orderAddons
         .filter((a) => a.order_item_id === item.id)
@@ -73,21 +73,34 @@ export async function GET(req: Request) {
       return acc + item.unit_price * item.quantity + addonTotal;
     }, 0);
 
-    const tipsTotal = orderPayments.reduce((acc, p) => acc + (p.tip || 0), 0);
+    // Sum all payments (including negative refunds) + tips
+    const netPayment = orderPayments.reduce(
+      (acc, p) => acc + (p.amount_paid || 0) + (p.tip || 0),
+      0
+    );
 
-    const formattedOrder = {
+    // Determine payment_status
+    let payment_status = "unpaid";
+    if (orderPayments.length > 0) {
+      if (netPayment === 0) {
+        payment_status = "refunded"; // fully refunded
+      } else if (netPayment > 0) {
+        payment_status = "paid"; // paid amount still remains
+      }
+    }
+
+    return {
       ...order,
-      payment_status: orderPayments?.[0]?.payment_status || "unpaid",
+      payment_status,
       items: orderItems,
       addons: orderAddons,
       payments: orderPayments,
-      total_amount: itemsTotal + tipsTotal,
+      total_amount: itemsTotal,
       order_number: order.order_number,
     };
+    // console.log("formattedOrder", formattedOrder);
 
-    console.log("formattedOrder", formattedOrder);
-
-    return formattedOrder;
+    // return formattedOrder;
 
     // return {
     //   id: order.id,

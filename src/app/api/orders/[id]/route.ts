@@ -73,8 +73,6 @@ export async function GET(
 
     // console.log("order", order);
 
-    const payment_status = order.payments?.[0]?.payment_status || "unpaid";
-
     if (orderError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
@@ -141,8 +139,19 @@ export async function GET(
       console.error("Error fetching payments:", paymentsError);
     }
 
-    console.log("payments", payments);
-    console.log("payments error", paymentsError);
+    // Calculate net payment including refunds
+    const netPayment =
+      payments?.reduce((acc, p) => acc + (p.amount_paid || 0), 0) || 0;
+
+    // Determine payment_status
+    let payment_status_corrected = "unpaid";
+    if (payments && payments.length > 0) {
+      if (netPayment === 0) {
+        payment_status_corrected = "refunded"; // fully refunded
+      } else if (netPayment > 0) {
+        payment_status_corrected = "paid"; // still paid
+      }
+    }
 
     // 5️⃣ Fetch status logs (optional)
     const { data: status_logs } = await supabase
@@ -155,7 +164,7 @@ export async function GET(
     // 6️⃣ Return structured response
     return NextResponse.json({
       ...order,
-      payment_status,
+      payment_status: payment_status_corrected,
       items: itemsWithDetails || [],
       payments: payments || [],
       status_logs: status_logs || [],
