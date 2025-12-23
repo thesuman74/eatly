@@ -39,6 +39,7 @@ import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { FaPaypal } from "react-icons/fa6";
 import { usePaymentRefund } from "@/hooks/order/usePayements";
 import { set } from "zod";
+import { PaymentList } from "./PaymentList";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -218,81 +219,10 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             {payments?.map((p) => p.payment_status)}
           </span>
         </div>
-        {isPaid && (
-          <div className="flex flex-col p-4 space-y-4">
-            {/* Payment Cards */}
-            {/* Total Paid Header */}
-            <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold text-gray-700">Total</span>
-                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                  Paid
-                </span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Rs {payments?.reduce((acc, p) => acc + p.amount_paid, 0)}
-              </span>
-            </div>
-            {isPaid &&
-              payments?.map((p, i) => {
-                const [showMenu, setShowMenu] = useState(false);
-
-                return (
-                  <div
-                    key={p.id + i}
-                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center relative"
-                  >
-                    <div>
-                      <div className="text-lg text-gray-500">{p.method}</div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        Rs {p.amount_paid}
-                      </div>
-                    </div>
-
-                    <div className="text-sm text-gray-400">
-                      {new Date(p.created_at).toLocaleString()}
-                      <div className="text-gray-500 text-xs pt-2">
-                        <span className="block">
-                          Items: Rs {p.amount_paid - p.tip}
-                        </span>
-                        <span className="block">Tip: Rs {p.tip}</span>
-                      </div>
-                    </div>
-
-                    {/* 3-dot button */}
-                    <div className="relative ml-2">
-                      <button
-                        className="p-1 hover:bg-gray-200 rounded-full"
-                        onClick={() => setShowMenu(!showMenu)}
-                      >
-                        <MoreHorizontal size={16} />
-                      </button>
-
-                      {/* Dropdown menu */}
-                      {showMenu && (
-                        <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow z-10">
-                          <button
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-500"
-                            onClick={() => handleRefundPayment()}
-                          >
-                            Refund
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-            {/* Finalize Order Button */}
-            <button
-              onClick={handleFinalizeOrder}
-              className="w-full mt-auto bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Finalize Order
-            </button>
-          </div>
-        )}
+        <PaymentList
+          payments={payments && payments.length > 0 ? payments : []}
+          handleRefundPayment={handleRefundPayment}
+        />
 
         {!isPaid && (
           <>
