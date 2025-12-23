@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaArrowLeft } from "react-icons/fa6";
 import CartItem from "./CartItem";
-import ServiceButton from "./ServiceButton";
 import CartFooter from "./CartFooter";
 import useCartStore from "@/stores/user/userCartStore";
 import BouncingText from "../animation/BouncingText";
@@ -13,23 +12,6 @@ const CartPage = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | null>(null);
-
-  // const cartItems = [
-  //   {
-  //     id: 1,
-  //     name: "Lemon Tea",
-  //     price: 5000,
-  //     image: "https://picsum.photos/200",
-  //     quantity: 1,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Green Tea",
-  //     price: 4000,
-  //     image: "https://picsum.photos/200",
-  //     quantity: 2,
-  //   },
-  // ];
 
   const { cartItems, total } = useCartStore();
 

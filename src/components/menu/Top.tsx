@@ -9,6 +9,7 @@ interface topProps {
     banner_url: string;
     logo_url: string;
     name: string;
+    id: string;
   };
 }
 

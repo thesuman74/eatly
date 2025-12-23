@@ -25,7 +25,6 @@ const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
         initialCategories={categories || []}
         restaurantDetails={restaurantDetails}
       />
-      <h1>Hello</h1>
     </Suspense>
   );
 };

@@ -30,6 +30,14 @@ export default function MenuPage({
 
   const { cartItems, addToCart, total } = useCartStore();
 
+  const { setRestaurantId } = useCartStore();
+
+  useEffect(() => {
+    if (restaurantDetails?.id) {
+      setRestaurantId(restaurantDetails.id);
+    }
+  }, [restaurantDetails, setRestaurantId]);
+
   const handleAddToCart = (items: ProductTypes) => {
     addToCart(items);
   };
