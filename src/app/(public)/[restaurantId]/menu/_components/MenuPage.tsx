@@ -40,6 +40,15 @@ export default function MenuPage({
 
   const handleAddToCart = (items: ProductTypes) => {
     addToCart(items);
+    console.log("Cart Items:", cartItems);
+    console.log(
+      "Guest ID after adding first item:",
+      useCartStore.getState().guest_id
+    );
+    console.log(
+      "Guest ID from localStorage:",
+      localStorage.getItem("guest_id")
+    );
   };
 
   useEffect(() => {

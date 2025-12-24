@@ -22,6 +22,7 @@ import useCartStore from "@/stores/user/userCartStore";
 import { useEffect, useState } from "react";
 import { ORDER_TYPES, OrderType } from "@/lib/types/order-types";
 import { userOrderPayload } from "@/utils/userOrderPayload";
+import { toast } from "react-toastify";
 
 export type userOrderPayload = {
   restaurant_id: string;
@@ -48,9 +49,13 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
   const { setOrderType } = useCartStore();
 
   const handlePlaceOrder = async () => {
+    if (!payment?.method) {
+      return toast.error("Please select a payment method");
+    }
+
     try {
       // 3️⃣ Build payload from Zustand (single source of truth)
-      const payload = userOrderPayload();
+      const payload = userOrderPayload("web");
 
       console.log("payload", payload);
 

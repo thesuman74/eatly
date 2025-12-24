@@ -7,8 +7,16 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     console.log("body", body);
-
-    const { restaurant_id, order_type, customer, notes, items, payment } = body;
+    const {
+      restaurant_id,
+      order_type,
+      customer,
+      notes,
+      items,
+      payment,
+      guest_id,
+      order_source,
+    } = body;
 
     // 1️⃣ Validate
     if (!restaurant_id || !order_type || !items?.length) {
@@ -22,10 +30,24 @@ export async function POST(req: Request) {
         restaurant_id,
         order_type,
         status: "draft",
+
+        // customer
         customer_name: customer?.name ?? null,
         customer_phone: customer?.phone ?? null,
         customer_address: customer?.address ?? null,
         notes: notes ?? null,
+
+        // guest tracking
+        guest_id: guest_id ?? null,
+
+        // order source
+        order_source: order_source ?? "web",
+
+        // financials (public-safe defaults)
+        subtotal: 0,
+        tax: 0,
+        delivery_fee: 0,
+        total: 0,
       })
       .select()
       .single();
