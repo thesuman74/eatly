@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { ORDER_TYPES, OrderType } from "@/lib/types/order-types";
 import { userOrderPayload } from "@/utils/userOrderPayload";
 import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 export type userOrderPayload = {
   restaurant_id: string;
@@ -43,12 +44,25 @@ export type userOrderPayload = {
 };
 
 export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
-  const { cartItems, total, customer, payment, setCustomer, setPayment } =
-    useCartStore();
+  const {
+    cartItems,
+    total,
+    customer,
+    payment,
+    clearCart,
+    setCustomer,
+    setPayment,
+  } = useCartStore();
 
   const { setOrderType } = useCartStore();
 
+  const restaurantId = useCartStore((state) => state.restaurant_id);
+
   const handlePlaceOrder = async () => {
+    if (!cartItems.length) {
+      return toast.error("Your cart is empty");
+    }
+
     if (!payment?.method) {
       return toast.error("Please select a payment method");
     }
@@ -81,11 +95,13 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
       const data = await res.json();
 
       // 6️⃣ Success handling
+      toast.success("Order created successfully");
       console.log("Order created:", data);
 
       // Optional:
-      // clearCart();
+      clearCart();
       // redirect to success page
+      redirect(`${window.location.origin}`);
     } catch (error) {
       console.error("Place order error:", error);
       // show toast / UI feedback
