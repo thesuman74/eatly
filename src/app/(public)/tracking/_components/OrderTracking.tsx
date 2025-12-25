@@ -13,6 +13,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getPublicOrderInfo } from "@/services/publicServices";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "react-toastify";
 
 const ORDER_STATUSES = ["draft", "preparing", "ready", "delivered"] as const;
 
@@ -31,33 +32,36 @@ export default function OrderTracking({ orderId }: { orderId: string }) {
     queryKey: ["public-order", orderId],
     queryFn: () => getPublicOrderInfo(orderId),
 
-    // enabled: false,
-    // refetchOnMount: false,
-    // refetchOnWindowFocus: false,
-    // refetchOnReconnect: false,
-    // retry: false,
+    staleTime: 1000 * 60, // 1 minute
   });
 
   const order = orderInfo?.orderData?.[0];
   const items = orderInfo?.orderItems ?? [];
   const payment = orderInfo?.paymentData?.[0];
 
-  console.log("order", orderInfo);
-
   const statusIndex = useMemo(
     () => getStatusIndex(order?.status),
     [order?.status]
   );
-
   useEffect(() => {
     if (cooldown <= 0) return;
-    const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
-    return () => clearInterval(timer);
+
+    const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => clearTimeout(timer);
   }, [cooldown]);
 
   const handleCheckStatus = async () => {
+    if (cooldown > 0) {
+      toast.info(`Please wait ${cooldown}s before checking again`);
+      return;
+    }
+    // console.log("order", orderInfo);
+
+    // Trigger manual refetch
+    await refetch();
+
+    // Start 30-second cooldown for the button
     setCooldown(30);
-    await refetch(); // ✅ ONLY place where API is called
   };
 
   if (isLoading) return <div className="text-center mt-20">Loading…</div>;
@@ -91,7 +95,13 @@ export default function OrderTracking({ orderId }: { orderId: string }) {
                 </div>
 
                 {i < ORDER_STATUSES.length - 1 && (
-                  <div className="flex-1 border-t border-dashed border-2 border-gray-500 mx-2" />
+                  <div
+                    className={`flex-1 border-t border-dashed border-2 ${
+                      i <= statusIndex - 1
+                        ? "border-green-600"
+                        : "border-muted-foreground"
+                    }  mx-2`}
+                  />
                 )}
               </div>
             ))}

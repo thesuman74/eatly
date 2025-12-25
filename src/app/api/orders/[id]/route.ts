@@ -139,19 +139,32 @@ export async function GET(
       console.error("Error fetching payments:", paymentsError);
     }
 
-    // Calculate net payment including refunds
-    const netPayment =
-      payments?.reduce((acc, p) => acc + (p.amount_paid || 0), 0) || 0;
-
-    // Determine payment_status
+    // Determine payment_status based on actual payment records
     let payment_status_corrected = "unpaid";
+
     if (payments && payments.length > 0) {
-      if (netPayment === 0) {
-        payment_status_corrected = "refunded"; // fully refunded
-      } else if (netPayment > 0) {
-        payment_status_corrected = "paid"; // still paid
+      if (payments.some((p) => p.payment_status === "paid")) {
+        payment_status_corrected = "paid"; // any payment marked as paid
+      } else if (payments.every((p) => p.payment_status === "refunded")) {
+        payment_status_corrected = "refunded"; // all refunded
+      } else {
+        payment_status_corrected = "unpaid"; // all unpaid
       }
     }
+
+    // Optionally, calculate netPayment including tips or refunds if needed
+    const netPayment =
+      payments?.reduce(
+        (acc, p) => acc + (p.amount_paid || 0) + (p.tip || 0),
+        0
+      ) || 0;
+
+    console.log(
+      "Payment status:",
+      payment_status_corrected,
+      "Net payment:",
+      netPayment
+    );
 
     // 5️⃣ Fetch status logs (optional)
     const { data: status_logs } = await supabase

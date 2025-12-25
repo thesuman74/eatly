@@ -72,20 +72,18 @@ export async function GET(req: Request) {
         .reduce((a, b) => a + b.price * b.quantity, 0);
       return acc + item.unit_price * item.quantity + addonTotal;
     }, 0);
+    const totalAmount =
+      itemsTotal + (order.tax || 0) + (order.delivery_fee || 0);
 
-    // Sum all payments (including negative refunds) + tips
-    const netPayment = orderPayments.reduce(
-      (acc, p) => acc + (p.amount_paid || 0) + (p.tip || 0),
-      0
-    );
-
-    // Determine payment_status
     let payment_status = "unpaid";
+
     if (orderPayments.length > 0) {
-      if (netPayment === 0) {
-        payment_status = "refunded"; // fully refunded
-      } else if (netPayment > 0) {
-        payment_status = "paid"; // paid amount still remains
+      if (orderPayments.some((p) => p.payment_status === "paid")) {
+        payment_status = "paid";
+      } else if (orderPayments.every((p) => p.payment_status === "refunded")) {
+        payment_status = "refunded"; // all refunded
+      } else {
+        payment_status = "unpaid"; // all unpaid
       }
     }
 
@@ -95,7 +93,7 @@ export async function GET(req: Request) {
       items: orderItems,
       addons: orderAddons,
       payments: orderPayments,
-      total_amount: itemsTotal,
+      total_amount: totalAmount,
       order_number: order.order_number,
     };
     // console.log("formattedOrder", formattedOrder);
