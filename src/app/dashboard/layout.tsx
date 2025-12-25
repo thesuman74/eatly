@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { RestaurantProvider } from "@/components/HOC/RestaurantProvider";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 import {
   SidebarInset,
@@ -21,6 +22,8 @@ export default async function AdminLayout({
   const onboarding = await getUserOnboardingStatus();
   const restaurantData = await getUserRestaurants();
 
+  const restaurantId = restaurantData[0]?.id;
+
   if (!onboarding.completed) {
     redirect("/onboarding");
   }
@@ -31,9 +34,14 @@ export default async function AdminLayout({
         <AppSidebar restaurants={restaurantData} />
         <SidebarInset className="min-w-0 max-w-full overflow-x-hidden">
           <header className="flex h-16   sticky z-10 top-0 shrink-0 items-center gap-2 transition-[width,height] bg-primary text-white ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator aria-orientation="vertical" className="mr-2 h-4" />
+            <div className="flex   w-full justify-between items-center gap-2 px-4">
+              <div>
+                <SidebarTrigger className="-ml-1" />
+                <Separator aria-orientation="vertical" className="mr-2 h-4" />
+              </div>
+              <div className="mr-10">
+                <NotificationBell restaurantId={restaurantId} />
+              </div>
             </div>
           </header>
           {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
