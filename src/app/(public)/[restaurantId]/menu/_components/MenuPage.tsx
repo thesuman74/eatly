@@ -174,7 +174,7 @@ export default function MenuPage({
               <div className="w-full ">
                 <Button asChild>
                   <Link
-                    href={"/cart"}
+                    href={"cart"}
                     className="w-full max-w-lg rounded-lg bg-blue-500 py-2 text-white"
                   >
                     See My Order

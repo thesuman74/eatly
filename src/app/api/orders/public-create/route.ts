@@ -86,14 +86,23 @@ export async function POST(req: Request) {
     await supabase.from("order_items").insert(orderItems);
 
     // 5️⃣ Create unpaid payment row (optional)
-    if (payment?.method) {
-      await supabase.from("order_payments").insert({
-        order_id: order.id,
-        restaurant_id,
-        method: payment.method,
-        amount_paid: 0,
-        payment_status: "unpaid",
-      });
+    if (payment) {
+      const { data: paymentData, error: paymentError } = await supabase
+        .from("order_payments")
+        .insert({
+          order_id: order.id,
+          restaurant_id,
+          method: payment.payment_method,
+          amount_paid: payment.amount_paid,
+          payment_status: "unpaid",
+        });
+
+      if (paymentError) {
+        return NextResponse.json(
+          { error: "Payment creation failed", paymentError },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json(

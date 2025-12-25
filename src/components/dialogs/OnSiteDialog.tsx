@@ -23,7 +23,7 @@ import { useEffect, useState } from "react";
 import { ORDER_TYPES, OrderType } from "@/lib/types/order-types";
 import { userOrderPayload } from "@/utils/userOrderPayload";
 import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export type userOrderPayload = {
   restaurant_id: string;
@@ -55,6 +55,7 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
   } = useCartStore();
 
   const { setOrderType } = useCartStore();
+  const router = useRouter();
 
   const restaurantId = useCartStore((state) => state.restaurant_id);
 
@@ -101,7 +102,7 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
       // Optional:
       clearCart();
       // redirect to success page
-      redirect(`${window.location.origin}`);
+      router.push(`/tracking/${data.order_id}`);
     } catch (error) {
       console.error("Place order error:", error);
       // show toast / UI feedback

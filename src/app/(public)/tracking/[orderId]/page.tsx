@@ -1,12 +1,16 @@
 import React from "react";
 import OrderTracking from "../../tracking/_components/OrderTracking";
 
-const page = () => {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
+  const { orderId } = await params;
+
   return (
     <div>
-      <OrderTracking />
+      <OrderTracking orderId={orderId} />
     </div>
   );
-};
-
-export default page;
+}

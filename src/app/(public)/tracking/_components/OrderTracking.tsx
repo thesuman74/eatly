@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,18 +10,44 @@ import {
   RefreshCcw,
   CreditCard,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getPublicOrderInfo } from "@/services/publicServices";
+import { Badge } from "@/components/ui/badge";
 
-const MOCK_ITEMS = [
-  { id: 1, name: "Chicken Mo:Mo", qty: 2, price: 180 },
-  { id: 2, name: "Coke 500ml", qty: 1, price: 60 },
-];
+const ORDER_STATUSES = ["draft", "preparing", "ready", "delivered"] as const;
 
-const ORDER_STATUSES = ["Order Placed", "Preparing", "Ready for delivery"];
+function getStatusIndex(status?: string) {
+  return Math.max(0, ORDER_STATUSES.indexOf(status as any));
+}
 
-export default function OrderTracking() {
+export default function OrderTracking({ orderId }: { orderId: string }) {
   const [cooldown, setCooldown] = useState(0);
-  const [statusIndex, setStatusIndex] = useState(2); // mock: Ready for delivery
-  const paymentStatus: "paid" | "unpaid" = "paid"; // mock
+
+  const {
+    data: orderInfo,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["public-order", orderId],
+    queryFn: () => getPublicOrderInfo(orderId),
+
+    // enabled: false,
+    // refetchOnMount: false,
+    // refetchOnWindowFocus: false,
+    // refetchOnReconnect: false,
+    // retry: false,
+  });
+
+  const order = orderInfo?.orderData?.[0];
+  const items = orderInfo?.orderItems ?? [];
+  const payment = orderInfo?.paymentData?.[0];
+
+  console.log("order", orderInfo);
+
+  const statusIndex = useMemo(
+    () => getStatusIndex(order?.status),
+    [order?.status]
+  );
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -29,27 +55,30 @@ export default function OrderTracking() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const handleCheckStatus = () => {
+  const handleCheckStatus = async () => {
     setCooldown(30);
-    // later: refetch order status from API
+    await refetch(); // ✅ ONLY place where API is called
   };
 
+  if (isLoading) return <div className="text-center mt-20">Loading…</div>;
+
   return (
-    <div className="max-w-4xl mx-auto mt-20 space-y-4 items-center">
+    <div className="max-w-4xl mx-auto mt-20 space-y-4">
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="flex flex-col items-center gap-2">
             <Package className="h-10 w-10" />
-            <span>Order #1</span>
+            <span>Order Tracking</span>
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {ORDER_STATUSES[statusIndex]}
-          </p>
+          <Badge variant={"outline"} className="w-fit">
+            {"Customer Name: " + order?.customer_name || "John Doe"}
+          </Badge>
+          {/* <span className="block">{order?.status}</span> */}
         </CardHeader>
 
-        <CardContent className="space-y-6 ">
+        <CardContent className="space-y-6">
           {/* Order Progress */}
-          <div className="flex items-center mx-auto max-w-2xl">
+          <div className="flex items-center mx-auto max-w-2xl mt-5">
             {ORDER_STATUSES.map((status, i) => (
               <div key={status} className="flex flex-1 items-center">
                 <div className="flex flex-col items-center text-xs">
@@ -58,11 +87,11 @@ export default function OrderTracking() {
                   ) : (
                     <Clock className="text-muted-foreground" />
                   )}
-                  <span className="mt-1 text-center">{status}</span>
+                  <span className="mt-1 capitalize text-center">{status}</span>
                 </div>
 
                 {i < ORDER_STATUSES.length - 1 && (
-                  <div className="flex-1 border-t border-dashed mx-2" />
+                  <div className="flex-1 border-t border-dashed border-2 border-gray-500 mx-2" />
                 )}
               </div>
             ))}
@@ -76,24 +105,24 @@ export default function OrderTracking() {
             </div>
             <span
               className={
-                paymentStatus === "paid"
+                payment?.payment_status === "paid"
                   ? "text-green-600 font-medium"
                   : "text-orange-500 font-medium"
               }
             >
-              {paymentStatus === "paid" ? "Paid" : "Unpaid"}
+              {payment?.payment_status ?? "unpaid"}
             </span>
           </div>
 
           {/* Items */}
           <div className="border-t pt-3 space-y-2">
             <h4 className="font-medium">Ordered items</h4>
-            {MOCK_ITEMS.map((item) => (
+            {items.map((item: any) => (
               <div key={item.id} className="flex justify-between text-sm">
                 <span>
-                  {item.name} × {item.qty}
+                  {item.product?.name} × {item.quantity}
                 </span>
-                <span>Rs. {item.price * item.qty}</span>
+                <span>Rs. {item.total_price}</span>
               </div>
             ))}
           </div>
@@ -102,10 +131,14 @@ export default function OrderTracking() {
           <Button
             className="w-full"
             onClick={handleCheckStatus}
-            disabled={cooldown > 0}
+            disabled={cooldown > 0 || isLoading}
           >
             <RefreshCcw className="mr-2 h-4 w-4" />
-            {cooldown > 0 ? `Check again in ${cooldown}s` : "Check status"}
+            {isLoading
+              ? "Checking…"
+              : cooldown > 0
+              ? `Check again in ${cooldown}s`
+              : "Check status"}
           </Button>
         </CardContent>
       </Card>

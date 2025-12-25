@@ -1,8 +1,15 @@
 import useCartStore from "@/stores/user/userCartStore";
 
 export const userOrderPayload = (source: "web" | "mobile" | "pos" = "web") => {
-  const { cartItems, customer, payment, restaurant_id, order_type, guest_id } =
-    useCartStore.getState();
+  const {
+    cartItems,
+    customer,
+    payment,
+    restaurant_id,
+    total,
+    order_type,
+    guest_id,
+  } = useCartStore.getState();
 
   return {
     restaurant_id,
@@ -17,7 +24,10 @@ export const userOrderPayload = (source: "web" | "mobile" | "pos" = "web") => {
     },
 
     // --- Payment info ---
-    payment_method: payment?.method || null,
+    payment: {
+      payment_method: payment?.method || null,
+      amount_paid: total || null,
+    },
 
     // --- Order items ---
     items: cartItems.map((item) => ({
