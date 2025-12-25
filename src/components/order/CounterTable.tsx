@@ -39,6 +39,7 @@ import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
 import { OrderRowActions } from "./OrderRowAction/OrderRowActions";
+import { Badge } from "../ui/badge";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
@@ -285,7 +286,7 @@ export default function CounterTable() {
                   </div>
 
                   {/* STATUS */}
-                  <div className="col-span-2 text-sm space-y-2">
+                  <div className="col-span-2 text-sm  space-y-2 ">
                     <div
                       className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
                         [ORDER_STATUS.DRAFT, "Preparing"].includes(order.status)
@@ -295,7 +296,9 @@ export default function CounterTable() {
                     >
                       {order.status.toLocaleUpperCase()}
                     </div>
-                    {/* <div className="text-xs text-gray-500">POS </div> */}
+                    <div className="text-xs ml-4 text-gray-500">
+                      {order.order_source.toUpperCase()}
+                    </div>
                   </div>
 
                   {/* TOTAL */}

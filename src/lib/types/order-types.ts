@@ -17,6 +17,7 @@ export interface Order {
   status_logs?: OrderStatusLog[];
   total_amount: number;
   order_number: string;
+  order_source: string;
 }
 
 export interface OrderItem {
@@ -112,6 +113,7 @@ export interface CreateOrderPayload {
     customer_phone?: string;
     customer_address?: string;
     notes?: string;
+    order_source?: string;
 
     // Optional override — backend defaults to "unpaid"
     payment_status?: PaymentStatus;

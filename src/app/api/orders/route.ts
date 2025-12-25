@@ -175,6 +175,7 @@ export async function POST(req: NextRequest) {
         total,
         notes: order.notes ?? null,
         restaurant_id: restaurant.id, // ✅ must include
+        order_source: order.order_source ?? null,
       })
       .select()
       .single();

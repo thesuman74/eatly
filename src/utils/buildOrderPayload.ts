@@ -26,6 +26,7 @@ export const buildOrderPayload = (reataurantId: string): CreateOrderPayload => {
       order_type: orderType,
       notes: notes || "",
       restaurant_id: reataurantId,
+      order_source: "pos",
     },
     items: cartItems.map((item) => ({
       product_id: item.product!.id,
