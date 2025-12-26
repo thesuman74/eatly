@@ -4,6 +4,8 @@ import { OrderOverflowMenu } from "./OrderOverflowMenu";
 import { PrimaryOrderButton } from "./PrimaryOrderAction";
 import { OrderStatusActions } from "../OrderStatusActions";
 import { PayButton } from "./PayButton";
+import { useState } from "react";
+import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
 
 export function OrderRowActions({
   order,
@@ -33,6 +35,9 @@ export function OrderRowActions({
     order.status !== ORDER_STATUS.DRAFT && order.payment_status !== "PAID";
 
   const orderId = order.id;
+  const [cancelOpen, setCancelOpen] = useState(false);
+
+  const handleCancelClick = () => setCancelOpen(true);
 
   return (
     <div className="flex items-center justify-end gap-2">
@@ -48,12 +53,19 @@ export function OrderRowActions({
         order={order}
         loading={loading}
         onAccept={onAccept}
+        onCancel={handleCancelClick}
         onFinish={onFinish}
       />
       {/* Overflow actions */}
       <OrderOverflowMenu
-        onCancel={onCancel}
+        onCancel={handleCancelClick}
         onDelete={onDelete}
+        orderId={orderId}
+      />
+
+      <CancelOrderButton
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
         orderId={orderId}
       />
     </div>

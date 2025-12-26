@@ -103,12 +103,22 @@ export async function POST(req: Request) {
     }
 
     console.log("paymentData", paymentData);
-    // Compute net payment
-    const netPayment =
-      paymentData?.reduce((acc, p) => acc + (p.amount_paid || 0), 0) || 0;
+
+    // Determine payment_status based on actual payment records
+    let payment_status = "unpaid";
+
+    if (paymentData && paymentData.length > 0) {
+      if (paymentData.some((p) => p.payment_status === "paid")) {
+        payment_status = "paid"; // any payment marked as paid
+      } else if (paymentData.every((p) => p.payment_status === "refunded")) {
+        payment_status = "refunded"; // all refunded
+      } else {
+        payment_status = "unpaid"; // all unpaid
+      }
+    }
 
     // Check if order has been paid (any positive net amount)
-    const isPaid = netPayment > 0;
+    const isPaid = payment_status === PAYMENT_STATUS.PAID;
 
     if (isPaid) {
       return NextResponse.json(

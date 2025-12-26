@@ -152,20 +152,6 @@ export async function GET(
       }
     }
 
-    // Optionally, calculate netPayment including tips or refunds if needed
-    const netPayment =
-      payments?.reduce(
-        (acc, p) => acc + (p.amount_paid || 0) + (p.tip || 0),
-        0
-      ) || 0;
-
-    console.log(
-      "Payment status:",
-      payment_status_corrected,
-      "Net payment:",
-      netPayment
-    );
-
     // 5️⃣ Fetch status logs (optional)
     const { data: status_logs } = await supabase
       .from("order_status_logs")
