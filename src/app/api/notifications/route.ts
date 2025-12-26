@@ -37,11 +37,22 @@ export async function GET(req: Request) {
       .limit(limit)
       .order("created_at", { ascending: false });
 
+    const { count: unreadCount, error: countError } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("restaurant_id", restaurantId)
+      .eq("user_id", user.id)
+      .eq("is_read", false);
+
+    if (countError) {
+      return NextResponse.json({ error: countError.message }, { status: 500 });
+    }
+
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ data }, { status: 200 });
+    return NextResponse.json({ data, unreadCount }, { status: 200 });
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return NextResponse.json(
@@ -64,6 +75,12 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { notificationId } = body;
+    if (!notificationId) {
+      return NextResponse.json(
+        { error: "Missing required notificationId" },
+        { status: 400 }
+      );
+    }
     const { error } = await supabase
       .from("notifications")
       .update({ is_read: true })
@@ -73,7 +90,12 @@ export async function PATCH(req: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ message: "Notification marked as read" });
+    return NextResponse.json(
+      { message: "Notification marked as read" },
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.error("Error marking notification as read:", error);
     return NextResponse.json(

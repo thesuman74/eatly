@@ -1,9 +1,34 @@
 "use client";
-import React from "react";
-import { CancelOrderButton } from "../dashboard/order/_components/cancelOrder/CancelOrderButton";
 
-const page = () => {
-  return <div>sds</div>;
-};
+export default function TestNotificationSound() {
+  const playSound = () => {
+    const audio = new Audio("/sounds/notifications.wav");
+    audio.play().catch(() => {
+      console.log("Audio playback blocked by browser");
+    });
+  };
 
-export default page;
+  const stop = () => {
+    const audio = new Audio("/sounds/notifications.wav");
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  return (
+    <>
+      <button
+        onClick={playSound}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        Play Notification Sound
+      </button>
+
+      <button
+        onClick={stop}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        stop Notification Sound
+      </button>
+    </>
+  );
+}

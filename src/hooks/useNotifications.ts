@@ -1,23 +1,31 @@
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import {
   fetchNotificationsAPI,
   markNotificationAsReadAPI,
 } from "@/services/notificationServices";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
-export const useNotifications = (restaurantId?: string) => {
+export const useNotifications = () => {
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
   return useQuery({
     queryKey: ["notifications", restaurantId],
     queryFn: async () => {
-      if (!restaurantId) return [];
-      const data = await fetchNotificationsAPI(restaurantId, 10);
-      return Array.isArray(data) ? data : [];
+      if (!restaurantId) {
+        return { notifications: [], unreadCount: 0 };
+      }
+      return fetchNotificationsAPI(restaurantId, 10);
     },
     enabled: !!restaurantId,
-    initialData: [],
+    initialData: { notifications: [], unreadCount: 0 },
   });
 };
 
-export const useMarkAsRead = (restaurantId: string) => {
+export const useMarkAsRead = () => {
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -26,23 +34,6 @@ export const useMarkAsRead = (restaurantId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["notifications", restaurantId],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["unread-count", restaurantId],
-      });
     },
-  });
-};
-
-export const useUnreadCount = (restaurantId: string) => {
-  return useQuery({
-    queryKey: ["unread-count", restaurantId],
-    queryFn: async () => {
-      const res = await fetch(
-        `/api/notifications?restaurantId=${restaurantId}`
-      );
-      const data = await res.json();
-      return data.filter((n: any) => !n.is_read).length;
-    },
-    enabled: !!restaurantId,
   });
 };

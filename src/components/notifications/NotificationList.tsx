@@ -1,35 +1,29 @@
 "use client";
 
-import { useMarkAsRead, useNotifications } from "@/hooks/useNotifications";
+import { Notification } from "@/lib/types/notifications-types";
+import { useMarkAsRead } from "@/hooks/useNotifications";
 import NotificationItem from "./NotificationItem";
 
 export default function NotificationList({
-  restaurantId,
+  notifications,
 }: {
-  restaurantId: string;
+  notifications: Notification[];
 }) {
-  const { data, isLoading } = useNotifications(restaurantId);
-  const { mutate } = useMarkAsRead(restaurantId);
-  console.log("data", data);
-
-  if (isLoading) return <div>Loading...</div>;
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="p-4 text-center text-gray-500">No notifications</div>
-    );
-  }
+  const { mutate: markAsRead } = useMarkAsRead();
 
   return (
     <div>
-      {data &&
-        data?.map((n: any) => (
-          <NotificationItem
-            key={n.id}
-            notification={n}
-            onClick={() => mutate(n.id)}
-          />
-        ))}
+      {notifications.map((notification) => (
+        <NotificationItem
+          key={notification.id}
+          notification={notification}
+          onClick={() => {
+            // optional: open modal / redirect
+            console.log("open notification", notification.id);
+          }}
+          onMarkAsRead={() => markAsRead(notification.id)}
+        />
+      ))}
     </div>
   );
 }
