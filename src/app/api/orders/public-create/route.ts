@@ -6,7 +6,6 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const body = await req.json();
 
-    console.log("body", body);
     const {
       restaurant_id,
       order_type,
@@ -57,6 +56,30 @@ export async function POST(req: Request) {
         { error: "Order creation failed", orderError },
         { status: 500 }
       );
+    }
+
+    // ✅ 2.1 Insert notification if order is from public/web
+    if (order.order_source === "web") {
+      const { error: notifError } = await supabase
+        .from("notifications")
+        .insert([
+          {
+            title: "New Online Order",
+            message: `Order #${order.id} has been placed by a public user`,
+            restaurant_id: order.restaurant_id,
+            user_id: null, // guest/public order
+            type: "order", // example, must match your enum type
+            entity_type: "order", // example, must match your enum entity
+            entity_id: order.id, // reference to this order
+            is_read: false,
+          },
+        ]);
+
+      if (notifError) {
+        console.error("Failed to create notification:", notifError.message);
+        console.log("Failed to create notification:", notifError);
+        // Optional: continue without failing the order
+      }
     }
 
     // 3️⃣ Fetch product prices (server truth)
