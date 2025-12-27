@@ -33,10 +33,9 @@ export function OrderStatusActions({
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-40 ">
           <DropdownMenuItem
             onClick={(e) => {
-              e.stopPropagation();
               onStatusChange(ORDER_STATUS.PREPARING);
             }}
           >
@@ -44,8 +43,6 @@ export function OrderStatusActions({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => {
-              e.stopPropagation();
-
               onStatusChange(ORDER_STATUS.READY);
             }}
           >
@@ -53,8 +50,6 @@ export function OrderStatusActions({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => {
-              e.stopPropagation();
-
               onStatusChange(ORDER_STATUS.DELIVERED);
             }}
           >
