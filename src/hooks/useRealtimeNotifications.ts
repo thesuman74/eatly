@@ -9,7 +9,11 @@ import { useNotificationSound } from "./useNotificationSound";
 
 export const useRealtimeNotifications = (
   restaurantId: string,
-  onNewNotification?: (notification: Notification) => void
+  {
+    onNewNotification,
+  }: {
+    onNewNotification?: (notification: Notification) => void;
+  }
 ) => {
   const supabase = createBrowserSupabaseClient();
 
@@ -33,12 +37,6 @@ export const useRealtimeNotifications = (
 
           // Optional callback for parent component
           if (onNewNotification) onNewNotification(newNotification);
-
-          // Toast notification
-          toast.info(`${newNotification.title}: ${newNotification.message}`, {
-            autoClose: 5000,
-            onClick: () => stop(), // stop sound when user clicks toast
-          });
 
           // Play notification sound
           play();
