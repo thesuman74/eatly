@@ -27,6 +27,9 @@ export const useEnhancedNotifications = () => {
       const isPageVisible = document.visibilityState === "visible";
       const hasBrowserPermission = permission === "granted";
 
+      // 2️⃣ Toast notification (foreground or fallback)
+      const soundPlayed = playSound();
+
       // 1️⃣ Prefer browser notification when tab is hidden
       if (!isPageVisible && hasBrowserPermission) {
         const notification = showBrowserNotification(title, {
@@ -38,16 +41,16 @@ export const useEnhancedNotifications = () => {
 
         if (notification) {
           notification.onclick = () => {
+            console.log("Notification clicked! ");
+            stopSound();
             window.focus();
             onClick?.();
             notification.close();
           };
+          notification.onclose = () => stopSound();
           return;
         }
       }
-
-      // 2️⃣ Toast notification (foreground or fallback)
-      const soundPlayed = playSound();
 
       const toastId = toast(
         ({ closeToast }) => (

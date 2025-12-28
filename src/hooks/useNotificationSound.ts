@@ -1,8 +1,6 @@
 "use client";
 import { useRef, useEffect, useCallback } from "react";
 
-const NOTIFICATION_SOUND = "/sounds/notifications.wav";
-
 export const useNotificationSound = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isUnlockedRef = useRef(false);
@@ -11,12 +9,15 @@ export const useNotificationSound = () => {
   // Initialize audio on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      audioRef.current = new Audio(NOTIFICATION_SOUND);
+      audioRef.current = new Audio("/sounds/notifications.wav");
       audioRef.current.loop = true;
       audioRef.current.preload = "auto";
       audioRef.current.volume = 0.5;
 
-      console.log("  Audio initialized with source:", NOTIFICATION_SOUND);
+      console.log(
+        "  Audio initialized with source:",
+        "/sounds/notifications.wav"
+      );
     }
 
     const unlockOnInteraction = () => {

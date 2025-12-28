@@ -17,8 +17,6 @@ export const useRealtimeNotifications = (
 ) => {
   const supabase = createBrowserSupabaseClient();
 
-  const { play, stop } = useNotificationSound();
-
   useEffect(() => {
     if (!restaurantId) return;
 
@@ -37,9 +35,6 @@ export const useRealtimeNotifications = (
 
           // Optional callback for parent component
           if (onNewNotification) onNewNotification(newNotification);
-
-          // Play notification sound
-          play();
         }
       )
       .subscribe();
