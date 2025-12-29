@@ -163,3 +163,17 @@ export const ORDER_CANCEL_REASON_LABELS: Record<ORDER_CANCEL_REASONS, string> =
     [ORDER_CANCEL_REASONS.RESTAURANT_CLOSED]: "Restaurant Closed",
     [ORDER_CANCEL_REASONS.OTHER]: "Other",
   };
+
+export type OrderActionType =
+  | "accept"
+  | "finish"
+  | "status"
+  | "pay"
+  | "cancel"
+  | "delete"
+  | null;
+
+export type OrderActionState = {
+  orderId: string | null;
+  type: OrderActionType;
+};

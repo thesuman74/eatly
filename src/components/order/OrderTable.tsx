@@ -19,6 +19,7 @@ import {
   ORDER_STATUS,
   PAYMENT_STATUS,
   OrderStatus,
+  OrderActionState,
 } from "@/lib/types/order-types";
 
 export type OrdersTableProps = {
@@ -30,6 +31,7 @@ export type OrdersTableProps = {
   onCancel: (id: string) => void;
   onDelete: (id: string) => void;
   openProductOrderSheet: (id: string) => void;
+  actionState: OrderActionState;
 };
 
 export default function OrdersTable({
@@ -41,6 +43,7 @@ export default function OrdersTable({
   onCancel,
   onDelete,
   openProductOrderSheet,
+  actionState,
 }: OrdersTableProps) {
   const columns: ColumnDef<any>[] = [
     {
@@ -149,15 +152,29 @@ export default function OrdersTable({
       header: "ACTIONS",
       cell: ({ row }) => {
         const order = row.original;
+
+        const loading = {
+          accept:
+            actionState.orderId === order.id && actionState.type === "accept",
+
+          finish:
+            actionState.orderId === order.id && actionState.type === "finish",
+
+          status:
+            actionState.orderId === order.id && actionState.type === "status",
+
+          cancel:
+            actionState.orderId === order.id && actionState.type === "cancel",
+
+          delete:
+            actionState.orderId === order.id && actionState.type === "delete",
+
+          pay: false, // UI-only
+        };
         return (
           <OrderRowActions
             order={order}
-            loading={{
-              accept: false,
-              finish: false,
-              status: false,
-              pay: false,
-            }}
+            loading={loading}
             onAccept={() => onAccept(order.id)}
             onFinish={() => onFinish(order)}
             onPay={() => onPay(order.id)}

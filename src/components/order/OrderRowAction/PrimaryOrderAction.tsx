@@ -49,7 +49,14 @@ export function PrimaryOrderButton({
             onAccept();
           }}
         >
-          {loading.accept ? <Loader2 className="animate-spin" /> : "Accept"}
+          {loading.accept ? (
+            <>
+              <Loader2 className="animate-spin mr-2" />
+              Accept
+            </>
+          ) : (
+            "Accept"
+          )}
         </Button>
       </>
     );
@@ -57,14 +64,17 @@ export function PrimaryOrderButton({
 
   return (
     <Button
-      disabled={loading.finish || loading.pay}
+      disabled={loading.finish}
       onClick={(e) => {
         e.stopPropagation();
         onFinish();
       }}
     >
-      {loading.finish || loading.pay ? (
-        <Loader2 className="animate-spin" />
+      {loading.finish ? (
+        <>
+          <Loader2 className="animate-spin mr-2" />
+          Finish
+        </>
       ) : (
         "Finish"
       )}

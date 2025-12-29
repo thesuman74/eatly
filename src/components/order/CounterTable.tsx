@@ -3,7 +3,12 @@ import { useState } from "react";
 import CounterTableFilters, { StatusFilter } from "./CounterTableFilters";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/order/useOrders";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
-import { ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
+import {
+  ORDER_STATUS,
+  OrderActionState,
+  OrderActionType,
+  OrderStatus,
+} from "@/lib/types/order-types";
 import { toast } from "react-toastify";
 import { deleteOrderItemAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,19 +28,36 @@ export default function CounterTable() {
     return order.status === statusFilter;
   });
 
-  const handleStatusChange = (id: string, status: OrderStatus) => {
+  const [actionState, setActionState] = useState<OrderActionState>({
+    orderId: null,
+    type: null,
+  });
+
+  const handleStatusChange = (
+    id: string,
+    status: OrderStatus,
+    type: OrderActionType
+  ) => {
+    setActionState({ orderId: id, type });
+
     updateOrderStatus.mutate(
       { id, status },
-      { onError: () => toast.error("Failed to update status") }
+      {
+        onSettled: () => {
+          setActionState({ orderId: null, type: null });
+        },
+      }
     );
   };
 
-  const acceptOrder = (id: string) =>
-    handleStatusChange(id, ORDER_STATUS.ACCEPTED);
+  const acceptOrder = (id: string) => {
+    handleStatusChange(id, ORDER_STATUS.ACCEPTED, "accept");
+  };
+
   const finishOrder = (order: any) =>
-    handleStatusChange(order.id, ORDER_STATUS.COMPLETED);
+    handleStatusChange(order.id, ORDER_STATUS.COMPLETED, "finish");
   const cancelOrder = (id: string) =>
-    handleStatusChange(id, ORDER_STATUS.CANCELLED);
+    handleStatusChange(id, ORDER_STATUS.CANCELLED, "cancel");
 
   const deleteOrder = async (id: string) => {
     try {
@@ -61,7 +83,10 @@ export default function CounterTable() {
           openProductOrderSheet(orderId);
           openpaymentPanelStore(orderId);
         }}
-        onStatusChange={handleStatusChange}
+        onStatusChange={(id, status) =>
+          handleStatusChange(id, status, "status")
+        }
+        actionState={actionState}
         onCancel={cancelOrder}
         onDelete={deleteOrder}
         openProductOrderSheet={openProductOrderSheet}
