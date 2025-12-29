@@ -112,7 +112,14 @@ export async function PATCH(req: Request) {
   try {
     const supabase = await createClient();
     const body = await req.json();
+    const { notificationId, restaurantId } = body;
 
+    if (!notificationId || !restaurantId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -120,18 +127,19 @@ export async function PATCH(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { notificationId } = body;
-    if (!notificationId) {
-      return NextResponse.json(
-        { error: "Missing required notificationId" },
-        { status: 400 }
-      );
-    }
+    const { data: restaurants, error: restaurantError } = await supabase
+      .from("restaurants")
+      .select("*")
+      .eq("id", restaurantId);
+    if (restaurantError) throw new Error(restaurantError.message);
+    if (!restaurants) throw new Error("Restaurant not found");
+
     const { error } = await supabase
       .from("notifications")
       .update({ is_read: true })
       .eq("id", notificationId)
-      .eq("user_id", user.id);
+      // .eq("user_id", user.id);
+      .eq("restaurant_id", restaurantId);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

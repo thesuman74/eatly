@@ -14,11 +14,14 @@ export async function fetchNotificationsAPI(
   };
 }
 
-export async function markNotificationAsReadAPI(notificationId: string) {
+export async function markNotificationAsReadAPI(
+  notificationId: string,
+  restaurantId: string
+) {
   const res = await fetch(`/api/notifications`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ notificationId }),
+    body: JSON.stringify({ notificationId, restaurantId }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error("Failed to mark notification as read");
