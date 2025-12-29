@@ -33,7 +33,7 @@ export async function GET(req: Request) {
       .maybeSingle();
 
     if (!userData?.restaurant_id) {
-      return [];
+      return NextResponse.json([]);
     }
 
     const { data: restaurants, error } = await supabase

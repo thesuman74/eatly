@@ -5,15 +5,18 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import ProductCard from "./ProductCard";
 import ProductSearch from "./ProductSearch";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 interface ProductGridProps {
   onProductClick?: (product: ProductTypes) => void;
 }
 
 export default function ProductGrid({ onProductClick }: ProductGridProps) {
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
   const { data: categories, isLoading } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
+    queryFn: () => getCategoriesAPI(restaurantId),
   });
 
   if (isLoading) return <div className="p-4">Loading products...</div>;

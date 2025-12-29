@@ -12,7 +12,7 @@ export default async function Page({
   return (
     <div>
       this is tracking {data.orderId}
-      <OrderTracking />
+      <OrderTracking orderId={data.orderId} />
     </div>
   );
 }
