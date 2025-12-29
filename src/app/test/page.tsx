@@ -1,269 +1,179 @@
 "use client";
 
-import { useState } from "react";
+import { NotificationPermissionPrompt } from "@/components/notificationPermissionPrompts";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useEnhancedNotifications } from "@/hooks/useEnhancedNotification";
+import { Bell, Volume2 } from "lucide-react";
 
-export default function VisaFormTest() {
-  const [formData, setFormData] = useState({
-    surname: "",
-    firstName: "",
-    dateOfBirth: "",
-    placeOfBirth: "",
-    countryOfBirth: "",
-    nationality: "",
-    passportNumber: "",
-    passportIssueDate: "",
-    passportExpiryDate: "",
-    phoneNumber: "",
-    email: "",
-    confirmEmail: "",
-    university: "",
-    residenceAddress: "",
-    reasonForAppointment: "",
-  });
+export default function Page() {
+  const { notify, hasNotificationPermission, requestPermission } =
+    useEnhancedNotifications();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleTestNotification = () => {
+    notify({
+      title: "Test Notification",
+      message:
+        "This is a test notification with looping sound. Click dismiss to stop the sound.",
+      onClick: () => {
+        console.log("Notification clicked!");
+      },
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Submitted Data:\n" + JSON.stringify(formData, null, 2));
+  const handleOrderNotification = () => {
+    notify({
+      title: "New Order Received",
+      message: "Order #1234 has been placed and requires your attention.",
+      icon: "/icon-light-32x32.png",
+    });
+  };
+
+  const handleMessageNotification = () => {
+    notify({
+      title: "New Message",
+      message: "You have received a new message from a customer.",
+    });
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">
-        German Visa Appointment Form (Test)
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="surname" className="block font-medium">
-            Surname
-          </label>
-          <input
-            id="surname"
-            type="text"
-            name="surname"
-            value={formData.surname}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
+    <div className="min-h-screen bg-background p-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold">Enhanced Notifications Demo</h1>
+          <p className="text-muted-foreground">
+            Test notification sounds that work even when tab is inactive
+          </p>
         </div>
 
-        <div>
-          <label htmlFor="firstName" className="block font-medium">
-            First Name
-          </label>
-          <input
-            id="firstName"
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        {!hasNotificationPermission && <NotificationPermissionPrompt />}
 
-        <div>
-          <label htmlFor="dateOfBirth" className="block font-medium">
-            Date of Birth
-          </label>
-          <input
-            id="dateOfBirth"
-            type="date"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              Notification Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">Browser Notifications</p>
+                <p className="text-sm text-muted-foreground">
+                  {hasNotificationPermission
+                    ? "✅ Enabled - Works in background tabs"
+                    : "⚠️ Disabled - Request permission for best experience"}
+                </p>
+              </div>
+              {!hasNotificationPermission && (
+                <Button onClick={requestPermission} variant="outline">
+                  Enable
+                </Button>
+              )}
+            </div>
 
-        <div>
-          <label htmlFor="placeOfBirth" className="block font-medium">
-            Place of Birth
-          </label>
-          <input
-            id="placeOfBirth"
-            type="text"
-            name="placeOfBirth"
-            value={formData.placeOfBirth}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">Audio Notifications</p>
+                <p className="text-sm text-muted-foreground">
+                  ✅ Looping sound until dismissed
+                </p>
+              </div>
+              <Volume2 className="w-5 h-5 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div>
-          <label htmlFor="countryOfBirth" className="block font-medium">
-            Country of Birth
-          </label>
-          <input
-            id="countryOfBirth"
-            type="text"
-            name="countryOfBirth"
-            value={formData.countryOfBirth}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Notifications</CardTitle>
+            <CardDescription>
+              Try these notifications. The sound will loop continuously until
+              you dismiss it.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={handleTestNotification}
+              className="w-full"
+              size="lg"
+            >
+              <Bell className="w-4 h-4 mr-2" />
+              Send Test Notification
+            </Button>
 
-        <div>
-          <label htmlFor="nationality" className="block font-medium">
-            Nationality
-          </label>
-          <input
-            id="nationality"
-            type="text"
-            name="nationality"
-            value={formData.nationality}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <Button
+              onClick={handleOrderNotification}
+              variant="outline"
+              className="w-full bg-transparent"
+              size="lg"
+            >
+              Send "New Order" Notification
+            </Button>
 
-        <div>
-          <label htmlFor="passportNumber" className="block font-medium">
-            Passport Number
-          </label>
-          <input
-            id="passportNumber"
-            type="text"
-            name="passportNumber"
-            value={formData.passportNumber}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <Button
+              onClick={handleMessageNotification}
+              variant="outline"
+              className="w-full bg-transparent"
+              size="lg"
+            >
+              Send "New Message" Notification
+            </Button>
+          </CardContent>
+        </Card>
 
-        <div>
-          <label htmlFor="passportIssueDate" className="block font-medium">
-            Passport Issue Date
-          </label>
-          <input
-            id="passportIssueDate"
-            type="date"
-            name="passportIssueDate"
-            value={formData.passportIssueDate}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Testing Instructions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div className="space-y-2">
+              <p className="font-medium">To test background notifications:</p>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground ml-2">
+                <li>
+                  Click "Enable" for browser notifications (if not already
+                  enabled)
+                </li>
+                <li>Click any notification button above</li>
+                <li>Switch to a different tab immediately</li>
+                <li>You should receive a system notification with sound</li>
+                <li>
+                  Click the notification or return to this tab and click
+                  "Dismiss"
+                </li>
+              </ol>
+            </div>
 
-        <div>
-          <label htmlFor="passportExpiryDate" className="block font-medium">
-            Passport Expiry Date
-          </label>
-          <input
-            id="passportExpiryDate"
-            type="date"
-            name="passportExpiryDate"
-            value={formData.passportExpiryDate}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <div className="space-y-2">
+              <p className="font-medium">To test active tab notifications:</p>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Stay on this tab</li>
+                <li>Click any notification button</li>
+                <li>A toast notification will appear with looping sound</li>
+                <li>Click "Dismiss" to stop the sound</li>
+              </ol>
+            </div>
 
-        <div>
-          <label htmlFor="phoneNumber" className="block font-medium">
-            Phone Number
-          </label>
-          <input
-            id="phoneNumber"
-            type="tel"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block font-medium">
-            Email Address
-          </label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="confirmEmail" className="block font-medium">
-            Confirm Email Address
-          </label>
-          <input
-            id="confirmEmail"
-            type="email"
-            name="confirmEmail"
-            value={formData.confirmEmail}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label htmlFor="university" className="block font-medium">
-            university
-          </label>
-          <input
-            id="university"
-            type="text"
-            name="university"
-            value={formData.university}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="residenceAddress" className="block font-medium">
-            Residence Address in Nepal
-          </label>
-          <input
-            id="residenceAddress"
-            type="text"
-            name="residenceAddress"
-            value={formData.residenceAddress}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="reasonForAppointment" className="block font-medium">
-            Reason for Appointment
-          </label>
-          <select
-            id="reasonForAppointment"
-            name="reasonForAppointment"
-            value={formData.reasonForAppointment}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select</option>
-            <option value="student-visa">Student Visa</option>
-            <option value="language-course">Language Course</option>
-            <option value="blocked-account">Blocked Account</option>
-          </select>
-        </div>
-
-        <p className="text-gray-500 text-sm">
-          Captcha cannot be autofilled and must be completed manually on the
-          actual website.
-        </p>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Submit (Dummy)
-        </button>
-      </form>
+            <div className="p-4 bg-muted rounded-lg mt-4">
+              <p className="font-medium mb-2">Key Features:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Sound loops continuously until dismissed</li>
+                <li>
+                  Works even when tab is inactive (with browser permission)
+                </li>
+                <li>Audio auto-unlocks on any user interaction</li>
+                <li>Notifications require interaction to dismiss</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

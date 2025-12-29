@@ -2,7 +2,6 @@
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import { X } from "lucide-react";
-import Link from "next/link";
 
 export default function CartPreview() {
   const { cartItems, updateQuantity, removeFromCart } = useCartStore();
@@ -18,53 +17,59 @@ export default function CartPreview() {
           <span className="font-bold text-lg w-full text-white bg-blue-500 p-2">
             + Products
           </span>
-          {/* <div className="text-gray-400">Kitchen</div> */}
         </div>
 
         <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">
-          {cartItems.map((item) => (
-            <div
-              key={item.product?.id}
-              className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
-            >
-              <img
-                src={item.product?.images[0]?.url || "/Images/coffee.png"}
-                alt={item.product?.name}
-                className="h-16 w-16 object-cover rounded-lg"
-              />
-              <div className="flex flex-1 flex-col ">
-                <div className="flex justify-between w-full items-center">
-                  <h4 className="w-full line-clamp-1 font-semibold">
-                    {item.product?.name}
-                  </h4>
-                  <span>${item.product?.price}</span>
-                  <button
-                    className="text-gray-500 px-2"
-                    onClick={() => removeFromCart(item?.product!.id)}
-                  >
-                    <X />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.product!.id, item.quantity - 1)
-                    }
-                  >
-                    -
-                  </button>
-                  <span>{item.quantity}</span>
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.product!.id, item.quantity + 1)
-                    }
-                  >
-                    +
-                  </button>
+          {cartItems.map((item) => {
+            const itemImage =
+              item.product?.images?.find((img) => img.is_primary)?.url ||
+              item.product?.images?.[0]?.url ||
+              "/Images/coffee.png";
+
+            return (
+              <div
+                key={item.product?.id}
+                className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
+              >
+                <img
+                  src={itemImage}
+                  alt={item.product?.name}
+                  className="h-16 w-16 object-cover rounded-lg"
+                />
+                <div className="flex flex-1 flex-col ">
+                  <div className="flex justify-between w-full items-center">
+                    <h4 className="w-full line-clamp-1 font-semibold">
+                      {item.product?.name}
+                    </h4>
+                    <span>${item.product?.price}</span>
+                    <button
+                      className="text-gray-500 px-2"
+                      onClick={() => removeFromCart(item?.product!.id)}
+                    >
+                      <X />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.product!.id, item.quantity - 1)
+                      }
+                    >
+                      -
+                    </button>
+                    <span>{item.quantity}</span>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.product!.id, item.quantity + 1)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

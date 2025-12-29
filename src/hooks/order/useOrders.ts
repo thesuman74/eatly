@@ -16,6 +16,7 @@ import {
   updateOrderStatusAPI,
 } from "@/services/orderServices";
 import { toast } from "react-toastify";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
@@ -33,10 +34,10 @@ export const useCreateOrder = () => {
   });
 };
 
-export const useOrder = (orderId: string | null) =>
+export const useOrder = (orderId: string | null, restauratId: string) =>
   useQuery({
     queryKey: ["order-details", orderId],
-    queryFn: () => getOrderDetailsAPI(orderId),
+    queryFn: () => getOrderDetailsAPI(orderId, restauratId),
     enabled: !!orderId,
   });
 
@@ -49,10 +50,22 @@ export const useOrders = (status?: OrderStatus) =>
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
   return useMutation({
-    mutationFn: updateOrderStatusAPI,
+    mutationFn: ({ id, status }: { id: string; status: OrderStatus }) => {
+      if (!restaurantId) {
+        throw new Error("No active restaurant selected");
+      }
+
+      return updateOrderStatusAPI({
+        id,
+        status,
+        restaurantId,
+      });
+    },
     onSuccess: (_, { id }) => {
-      toast.success("Order status updated!");
+      toast.success("Order status updated");
       queryClient.invalidateQueries({ queryKey: ["order", id] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
@@ -107,7 +120,7 @@ export const useUpdateOrder = () => {
     { id: string; payload: CreateOrderPayload } // mutation input type
   >({
     mutationFn: async ({ id, payload }) => {
-      const res = await fetch(`/api/orders/${id}/update`, {
+      const res = await fetch(`/api/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -159,6 +172,52 @@ export const useDeleteOrderItem = () => {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["order-details"] });
+    },
+  });
+};
+
+interface CancelOrderParams {
+  orderId: string;
+  cancelled_reason: string;
+  cancel_note?: string;
+}
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+
+      cancelled_reason,
+      cancel_note,
+    }: CancelOrderParams) => {
+      if (!orderId) throw new Error("Order id is required");
+      const payload = {
+        orderId,
+        cancelled_reason,
+        cancel_note,
+        restaurantId,
+      };
+      console.log("payload", payload);
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to cancel order");
+      return data;
+    },
+    onSuccess: (_, { orderId }) => {
+      toast.success("Order cancelled successfully");
+      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to cancel order");
     },
   });
 };

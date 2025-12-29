@@ -96,7 +96,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   notes: "",
 
   paymentStatus: PAYMENT_STATUS.UNPAID,
-  paymentMethod: undefined,
+  paymentMethod: "cash",
   tips: 0,
   amountReceived: 0,
 
@@ -194,7 +194,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       notes: "",
       tips: 0,
       amountReceived: 0,
-      paymentMethod: undefined,
+      paymentMethod: "cash",
       paymentStatus: PAYMENT_STATUS.UNPAID,
       orderStatus: ORDER_STATUS.DRAFT,
       orderType: ORDER_TYPES.ON_SITE,

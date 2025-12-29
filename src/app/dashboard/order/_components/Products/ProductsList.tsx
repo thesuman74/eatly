@@ -23,9 +23,12 @@ import { useProductStore } from "@/stores/admin/useProductStores";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 const ProductsList = () => {
   // const categories = ProductCategoriesData;
+
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const [cartItems, setCartItems] = useState<ProductTypes[]>([]);
   const [total, setTotal] = useState(0);
@@ -33,7 +36,8 @@ const ProductsList = () => {
 
   const { data: categories } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
+    queryFn: () => getCategoriesAPI(restaurantId),
+    enabled: !!restaurantId,
   });
 
   const handleAddToCart = (categoryId: string, product: ProductTypes) => {

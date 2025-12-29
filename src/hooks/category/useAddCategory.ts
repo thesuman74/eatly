@@ -15,6 +15,8 @@ export function useAddCategory() {
     },
     onSuccess: (category) => {
       // Invalidate categories or append to cached categories
+      queryClient.invalidateQueries({ queryKey: ["categories", restaurantId] });
+
       queryClient.setQueryData(["categories"], (old: any) => [
         ...(old || []),
         category,

@@ -2,20 +2,26 @@
 
 import { clientAxiosInstance } from "@/lib/axios/ClientAxiosInstance";
 
-export async function getCategoriesAPI() {
+export async function getCategoriesAPI(restaurantId: string) {
+  console.log("getCategoriesAPI", restaurantId);
+
   try {
-    const res = await clientAxiosInstance.get("/api/menu/structured");
-    return res.data; // already parsed JSON
+    const res = await fetch(
+      `/api/menu/structured?restaurantId=${restaurantId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = await res.json();
+
+    return data || [];
   } catch (error: any) {
-    console.error(
-      "Error fetching categories:",
-      error.response?.data || error.message
-    );
-    throw new Error(
-      error.response?.data?.error || "Failed to fetch categories"
-    );
+    console.error("Error fetching categories:", error.message);
+    return [];
   }
 }
+
 export async function addCategoryAPI(restaurantId: string) {
   try {
     const res = await clientAxiosInstance.post(

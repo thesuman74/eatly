@@ -26,8 +26,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { getUserRestaurants } from "@/services/resturantServices";
-import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 // console.log("restaurantData", restaurantData);
 
@@ -114,7 +112,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   restaurants: Array<{
     id: string;
     name: string;
-    logo: string;
+    logo_url: string;
   }>;
 };
 
@@ -129,7 +127,7 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

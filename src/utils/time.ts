@@ -1,4 +1,5 @@
 // utils/time.ts
+// utils/time.ts
 export function timeAgo(updatedAt?: string | null) {
   if (!updatedAt) return "00:00";
 
@@ -8,8 +9,13 @@ export function timeAgo(updatedAt?: string | null) {
   const diffMs = Date.now() - time.getTime();
   const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
 
-  const minutes = Math.floor(totalSeconds / 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours} hr ${minutes} min`;
+  }
 
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
     2,

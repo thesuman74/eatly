@@ -12,7 +12,6 @@ const page = async () => {
   }
   return (
     <div>
-      <h1>Onboarding</h1>
       <OnboardingPage />
     </div>
   );

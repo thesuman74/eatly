@@ -36,27 +36,25 @@ interface CategoryListProps {
 
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
-  const [categories, setCategories] = useState<ProductCategoryTypes[]>([]);
-  console.log("categories", categories);
+  const [categories, setCategories] = useState<ProductCategoryTypes[]>(
+    initialCategories || []
+  );
 
-  const queryClient = useQueryClient();
+  // console.log("initialCategories", categories);
 
-  // Fetch categories from API (or use SSR initial categories)
-  const { data: fetchedCategories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
-    initialData: initialCategories,
-  });
+  // console.log("restaurandId", restaurandId);
+
+  useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    }
+  }, [initialCategories]);
 
   // React Query mutations
   const addCategory = useAddCategory();
   const updateCategory = useUpdateCategories();
 
   const sensors = useSensors(useSensor(PointerSensor));
-
-  useEffect(() => {
-    if (fetchedCategories) setCategories(fetchedCategories);
-  }, [fetchedCategories]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -115,11 +113,11 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={categories.map((category) => category.id)}
+            items={categories?.map((category) => category.id)}
             strategy={verticalListSortingStrategy}
           >
-            {categories.length > 0 ? (
-              categories.map((category, index) => (
+            {categories && categories?.length > 0 ? (
+              categories?.map((category, index) => (
                 <CategoryItem key={category.id + index} category={category} />
               ))
             ) : (

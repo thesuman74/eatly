@@ -1,11 +1,11 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CounterTable from "./CounterTable";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { MdOutlineTableBar } from "react-icons/md";
 import { GoChecklist } from "react-icons/go";
 import { RefreshCcw, Search } from "lucide-react";
 import NewOrderDropdown from "@/app/dashboard/order/_components/NewOrderDropdown";
+import CounterTable from "./CounterTable";
 
 const OrderTabsSection = () => {
   const tablist = [

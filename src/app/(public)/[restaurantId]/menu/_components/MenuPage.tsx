@@ -15,32 +15,40 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import useCartStore from "@/stores/user/userCartStore";
 import Top from "@/components/menu/Top";
-import {
-  getRestaurants,
-  getUserRestaurants,
-} from "@/services/resturantServices";
 
 interface MenuPageProps {
-  initialCategories: ProductCategoryTypes[];
-  restaurants: any;
+  initialCategories: ProductCategoryTypes[] | [];
+  restaurantDetails: any;
 }
 
 export default function MenuPage({
   initialCategories,
-  restaurants,
+  restaurantDetails,
 }: MenuPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [fullUrl, setFullUrl] = useState<string>("");
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesAPI,
-    initialData: initialCategories,
-  });
   const { cartItems, addToCart, total } = useCartStore();
+
+  const { setRestaurantId } = useCartStore();
+
+  useEffect(() => {
+    if (restaurantDetails?.id) {
+      setRestaurantId(restaurantDetails.id);
+    }
+  }, [restaurantDetails, setRestaurantId]);
 
   const handleAddToCart = (items: ProductTypes) => {
     addToCart(items);
+    console.log("Cart Items:", cartItems);
+    console.log(
+      "Guest ID after adding first item:",
+      useCartStore.getState().guest_id
+    );
+    console.log(
+      "Guest ID from localStorage:",
+      localStorage.getItem("guest_id")
+    );
   };
 
   useEffect(() => {
@@ -50,7 +58,7 @@ export default function MenuPage({
     }
   }, []);
 
-  const filteredCategories = categories.reduce(
+  const filteredCategories = initialCategories.reduce(
     (acc: ProductCategoryTypes[], category: ProductCategoryTypes) => {
       // Filter products in this category
       const filteredProducts = category.products.filter(
@@ -74,7 +82,7 @@ export default function MenuPage({
   return (
     <div className="min-h-screen max-w-7xl mx-auto ">
       {/* Top Section */}
-      <Top restaurant={restaurants[0]} />
+      <Top restaurant={restaurantDetails} />
 
       <div className="container mx-auto px-4">
         <div className=" z-40 py-4 space-y-4">
@@ -166,7 +174,7 @@ export default function MenuPage({
               <div className="w-full ">
                 <Button asChild>
                   <Link
-                    href={"/cart"}
+                    href={"cart"}
                     className="w-full max-w-lg rounded-lg bg-blue-500 py-2 text-white"
                   >
                     See My Order

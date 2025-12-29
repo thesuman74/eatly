@@ -1,0 +1,73 @@
+import { ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
+
+import { OrderOverflowMenu } from "./OrderOverflowMenu";
+import { PrimaryOrderButton } from "./PrimaryOrderAction";
+import { OrderStatusActions } from "../OrderStatusActions";
+import { PayButton } from "./PayButton";
+import { useState } from "react";
+import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
+
+export function OrderRowActions({
+  order,
+  loading,
+  onAccept,
+  onFinish,
+  onPay,
+  onStatusChange,
+  onCancel,
+  onDelete,
+}: {
+  order: any;
+  loading: {
+    accept?: boolean;
+    finish?: boolean;
+    pay?: boolean;
+    status?: boolean;
+  };
+  onAccept: () => void;
+  onFinish: () => void;
+  onPay: () => void;
+  onStatusChange: (s: OrderStatus) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+}) {
+  const showPay =
+    order.status !== ORDER_STATUS.DRAFT && order.payment_status !== "PAID";
+
+  const orderId = order.id;
+  const [cancelOpen, setCancelOpen] = useState(false);
+
+  const handleCancelClick = () => setCancelOpen(true);
+
+  return (
+    <div className="flex items-center justify-end gap-2">
+      {/* Status change only after accept */}
+      {order.status !== ORDER_STATUS.DRAFT && (
+        <OrderStatusActions
+          onStatusChange={onStatusChange}
+          loading={loading.status}
+        />
+      )}
+      {showPay && <PayButton onPay={onPay} loading={loading.pay} />}
+      <PrimaryOrderButton
+        order={order}
+        loading={loading}
+        onAccept={onAccept}
+        onCancel={handleCancelClick}
+        onFinish={onFinish}
+      />
+      {/* Overflow actions */}
+      <OrderOverflowMenu
+        onCancel={handleCancelClick}
+        onDelete={onDelete}
+        orderId={orderId}
+      />
+
+      <CancelOrderButton
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        orderId={orderId}
+      />
+    </div>
+  );
+}

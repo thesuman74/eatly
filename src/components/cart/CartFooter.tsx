@@ -18,9 +18,9 @@ const CartFooter = ({ onServiceClick }: CartFooterProps) => {
         </span>
       </div>
       <div className="flex w-full max-w-5xl flex-wrap justify-center gap-2 py-2">
-        <OnsiteDialog name="On Site" />
-        <OnsiteDialog name="Take Away" />
-        <OnsiteDialog name="Delivery" />
+        <OnsiteDialog order_type="OnSite" />
+        <OnsiteDialog order_type="Takeaway" />
+        <OnsiteDialog order_type="Delivery" />
       </div>
     </footer>
   );

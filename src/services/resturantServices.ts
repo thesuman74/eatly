@@ -1,42 +1,18 @@
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-
-export async function getUserRestaurants() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
+export async function getUserRestaurantsAPI(restaurantId: string) {
+  try {
+    const res = await fetch(`/api/restaurant?restaurantId=${restaurantId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await res.json();
+    return data;
+  } catch (error: any) {
+    console.error(
+      "Error fetching restaurant:",
+      error.response?.data || error.message
+    );
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch categories"
+    );
   }
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("restaurant_id")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!userData?.restaurant_id) {
-    return [];
-  }
-
-  const { data: restaurants, error } = await supabase
-    .from("restaurants")
-    .select("*")
-    .eq("id", userData.restaurant_id);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return restaurants;
-}
-
-export async function getRestaurants() {
-  const supabase = await createClient();
-  const { data: restaurants } = await supabase.from("restaurants").select("*");
-  return restaurants;
 }

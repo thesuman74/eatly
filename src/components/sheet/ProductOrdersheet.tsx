@@ -16,11 +16,12 @@ import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/E
 import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/stores/admin/useCartStore";
-import { PAYMENT_STATUS } from "@/lib/types/order-types";
+import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { Spinner } from "../Spinner";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
@@ -33,9 +34,11 @@ const ProductOrdersheet = () => {
     closepaymentPanelStore,
   } = paymentPanelStore();
 
-  const { data, isLoading, error } = useOrder(orderId);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  useSecondTicker(); // 👈 this enables live updates
+  const { data, isLoading, error } = useOrder(orderId, restaurantId);
+
+  // useSecondTicker(); // 👈 this enables live updates
   const elapsed = getElapsedSeconds(data?.created_at);
 
   const timeColor = clsx(
@@ -75,7 +78,7 @@ const ProductOrdersheet = () => {
     setOrderTitle(data.order_title || "");
   }, [data, orderId]);
 
-  const paymentStatus = useCartStore((state) => state.paymentStatus);
+  // const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   if (!isProductOrderSheetOpen) return null;
 
@@ -237,7 +240,7 @@ const ProductOrdersheet = () => {
                           <span>Cancel</span>
                         </Button>
 
-                        {data.paymentStatus !== "Paid" && (
+                        {data.paymentStatus !== PAYMENT_STATUS.PAID && (
                           <Button
                             variant={"outline"}
                             onClick={() => openpaymentPanelStore(data.id)}

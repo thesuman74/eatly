@@ -1,4 +1,5 @@
 "use client";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 
@@ -9,6 +10,8 @@ interface SidePreviewProps {
 
 const SidePreview = ({ src, showSidePreview }: SidePreviewProps) => {
   const [SidePreview, setSidePreview] = useState(showSidePreview || false);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
   return (
     <>
       {SidePreview && (

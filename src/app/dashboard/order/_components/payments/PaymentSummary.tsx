@@ -10,7 +10,15 @@ import { useCartStore } from "@/stores/admin/useCartStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Banknote, CreditCard, Icon, MoveLeft, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CreditCard,
+  DollarSign,
+  Icon,
+  MoreHorizontal,
+  MoveLeft,
+  Wallet,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -22,11 +30,16 @@ import {
   CreateOrderPayload,
   ORDER_STATUS,
   OrderPayment,
+  PAYMENT_METHOD,
   PAYMENT_STATUS,
   PaymentMethod,
 } from "@/lib/types/order-types";
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { FaPaypal } from "react-icons/fa6";
+import { usePaymentRefund } from "@/hooks/order/usePayements";
+import { set } from "zod";
+import { PaymentList } from "./PaymentList";
 
 interface PaymentSummaryProps {
   open: boolean;
@@ -35,11 +48,11 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
+  console.log("payments", payments);
   const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
   const {
-    paymentStatus,
     amountReceived,
     tips,
     paymentMethod,
@@ -64,15 +77,18 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
+  const paymentRefundMutation = usePaymentRefund();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  const isPaid = Boolean(payments?.length);
+  const isPaid = Boolean(
+    payments?.find((p) => p.payment_status === PAYMENT_STATUS.PAID)
+  );
 
-  const handleRegisterPayment = () => {
-    setPaymentStatus(PAYMENT_STATUS.PAID);
-    setOpen(false);
-    toast.success("Simulating Payment Success ");
-  };
+  // const handleRegisterPayment = () => {
+  //   setPaymentStatus(PAYMENT_STATUS.PAID);
+  //   setOpen(false);
+  //   toast.success("Simulating Payment Success ");
+  // };
 
   const handleSaveAsPending = async () => {
     // clear payment-related local state
@@ -132,6 +148,42 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 
   const updateOrderStatusMutation = useUpdateOrderStatus();
 
+  const isRegisteringPayment = Boolean(
+    updateOrderMutation.isPending || createOrderMutation.isPending
+  );
+
+  const PAYMENT_METHODS: {
+    value: PaymentMethod;
+    label: string;
+    Icon: React.FC<any>;
+  }[] = [
+    { value: "cash", label: "Cash", Icon: DollarSign },
+    { value: "card", label: "Card", Icon: CreditCard },
+    { value: "paypal", label: "PayPal", Icon: FaPaypal },
+    { value: "esewa", label: "eSewa", Icon: Wallet },
+    { value: "khalti", label: "Khalti", Icon: Wallet },
+  ];
+
+  const handleRefundPayment = async () => {
+    if (!currentlyActiveOrderId) {
+      toast.error("No active order to refund");
+      return;
+    }
+
+    try {
+      // Call your mutation
+      await paymentRefundMutation.mutateAsync({
+        orderId: currentlyActiveOrderId,
+        restaurantId,
+      });
+      setOpen(false);
+
+      toast.success("Payment refunded successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to refund payment");
+    }
+  };
+
   const handleFinalizeOrder = async () => {
     if (!currentlyActiveOrderId) {
       toast.error("No active order to finalize");
@@ -161,66 +213,16 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
           <span className="text-xl font-bold">Register Payment</span>
           <span
             className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              paymentStatus === PAYMENT_STATUS.PAID
-                ? "bg-green-600"
-                : "bg-yellow-400"
+              isPaid ? "bg-green-600" : "bg-yellow-400"
             }`}
           >
-            {paymentStatus?.toUpperCase() || "PENDING"}
+            {payments?.map((p) => p.payment_status)}
           </span>
         </div>
-        {isPaid && (
-          <div className="flex flex-col p-4 space-y-4">
-            {/* Payment Cards */}
-            {/* Total Paid Header */}
-            <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold text-gray-700">Total</span>
-                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                  Paid
-                </span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Rs {payments?.reduce((acc, p) => acc + p.amount_paid, 0)}
-              </span>
-            </div>
-            {isPaid &&
-              payments?.map((p, i) => (
-                <>
-                  <div
-                    key={p.id + i}
-                    className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
-                  >
-                    <div>
-                      <div className="text-lg text-gray-500">{p.method}</div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        Rs {p.amount_paid}
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      {new Date(p.created_at).toLocaleString()}
-                      <div className="text-gray-500 text-xs pt-2">
-                        <span className="block">
-                          Items: Rs {p.amount_paid - p.tip}
-                        </span>
-                        {/* {p.tip > 0 && ( */}
-                        <span className="block">Tip: Rs {p.tip}</span>
-                        {/* // )} */}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ))}
-
-            {/* Finalize Order Button */}
-            <button
-              onClick={handleFinalizeOrder}
-              className="w-full mt-auto bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Finalize Order
-            </button>
-          </div>
-        )}
+        <PaymentList
+          payments={payments && payments.length > 0 ? payments : []}
+          handleRefundPayment={handleRefundPayment}
+        />
 
         {!isPaid && (
           <>
@@ -232,11 +234,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                   Payment Method
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: "cash", label: "Cash", Icon: Banknote },
-                    { value: "card", label: "Card", Icon: CreditCard },
-                    { value: "paypal", label: "PayPal", Icon: Wallet },
-                  ].map((method) => {
+                  {PAYMENT_METHODS.map((method) => {
                     const isActive = paymentMethod === method.value;
 
                     return (
@@ -381,16 +379,19 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
                 </Badge>
               </div>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 className="w-full border-blue-600 text-blue-600 hover:bg-blue-100"
                 onClick={() => handleRegisterPayment()}
+                disabled={isRegisteringPayment}
               >
                 Register Payment
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
+                disabled={isRegisteringPayment}
+                // disabled={true}
                 onClick={handleRegisterAndAcceptOrder}
               >
                 Register and Accept Order

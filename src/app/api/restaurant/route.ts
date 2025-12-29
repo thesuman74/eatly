@@ -1,6 +1,55 @@
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 const RESTAURANT_TYPES = ["restaurant", "bar", "cafe", "other"];
+
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const restaurantId = url.searchParams.get("restaurantId");
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    const { data: userData } = await supabase
+      .from("users")
+      .select("restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!userData?.restaurant_id) {
+      return NextResponse.json([]);
+    }
+
+    const { data: restaurants, error } = await supabase
+      .from("restaurants")
+      .select("*")
+      .eq("id", userData.restaurant_id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json(restaurants);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   const supabase = await createClient();

@@ -6,12 +6,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
-import { Printer } from "lucide-react";
+import { Loader2, Printer } from "lucide-react";
 
 export function OrderStatusActions({
   onStatusChange,
+  loading,
 }: {
-  onStatusChange: (s: OrderStatus) => void; // <-- use OrderStatus here
+  onStatusChange: (s: OrderStatus) => void;
+  loading?: boolean;
 }) {
   return (
     <>
@@ -21,27 +23,37 @@ export function OrderStatusActions({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Status</Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            variant="outline"
+          >
+            {loading ? <Loader2 className="animate-spin" /> : "Status"}
+          </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-40 ">
           <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.PREPARING)}
+            onClick={(e) => {
+              onStatusChange(ORDER_STATUS.PREPARING);
+            }}
           >
             Preparing
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusChange(ORDER_STATUS.READY)}>
+          <DropdownMenuItem
+            onClick={(e) => {
+              onStatusChange(ORDER_STATUS.READY);
+            }}
+          >
             Ready
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.DELIVERED)}
+            onClick={(e) => {
+              onStatusChange(ORDER_STATUS.DELIVERED);
+            }}
           >
             Delivered
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => onStatusChange(ORDER_STATUS.CANCELLED)}
-          >
-            Cancelled
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

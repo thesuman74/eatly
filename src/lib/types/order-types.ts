@@ -17,6 +17,7 @@ export interface Order {
   status_logs?: OrderStatusLog[];
   total_amount: number;
   order_number: string;
+  order_source: string;
 }
 
 export interface OrderItem {
@@ -47,6 +48,7 @@ export interface OrderPayment {
   tip: number;
   change_returned: number;
   created_at: string;
+  payment_status: PaymentStatus;
 }
 
 export interface OrderStatusLog {
@@ -90,13 +92,17 @@ export const ORDER_STATUS = {
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
+export const PAYMENT_METHOD = {
+  CASH: "cash",
+  CARD: "card",
+  PAYPAL: "paypal",
+  ESEWA: "esewa",
+  KHALTI: "khalti",
+  null: null,
+};
+
 export type PaymentMethod =
-  | "cash"
-  | "card"
-  | "paypal"
-  | "esewa"
-  | "khalti"
-  | null;
+  (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
 
 export interface CreateOrderPayload {
   order: {
@@ -107,6 +113,7 @@ export interface CreateOrderPayload {
     customer_phone?: string;
     customer_address?: string;
     notes?: string;
+    order_source?: string;
 
     // Optional override — backend defaults to "unpaid"
     payment_status?: PaymentStatus;
@@ -124,6 +131,7 @@ export interface OrderPaymentPayload {
   amount_paid: number;
   tip?: number;
   change_returned?: number;
+  payment_status?: PaymentStatus;
 }
 
 export interface OrderItemPayload {
@@ -133,3 +141,39 @@ export interface OrderItemPayload {
   total_price: number;
   notes?: string;
 }
+
+// /lib/types/order-types.ts
+
+export enum ORDER_CANCEL_REASONS {
+  CUSTOMER_REQUEST = "customer_request",
+  REJECTED_ORDER = "rejected_order",
+  TEST_ORDER = "test_order",
+  PAYMENT_FAILED = "payment_failed",
+  RESTAURANT_CLOSED = "restaurant_closed",
+  OTHER = "other",
+}
+
+// Optional: if you want a mapping for labels
+export const ORDER_CANCEL_REASON_LABELS: Record<ORDER_CANCEL_REASONS, string> =
+  {
+    [ORDER_CANCEL_REASONS.CUSTOMER_REQUEST]: "Customer Request",
+    [ORDER_CANCEL_REASONS.REJECTED_ORDER]: "Rejected Order",
+    [ORDER_CANCEL_REASONS.TEST_ORDER]: "Test Order",
+    [ORDER_CANCEL_REASONS.PAYMENT_FAILED]: "Payment Failed",
+    [ORDER_CANCEL_REASONS.RESTAURANT_CLOSED]: "Restaurant Closed",
+    [ORDER_CANCEL_REASONS.OTHER]: "Other",
+  };
+
+export type OrderActionType =
+  | "accept"
+  | "finish"
+  | "status"
+  | "pay"
+  | "cancel"
+  | "delete"
+  | null;
+
+export type OrderActionState = {
+  orderId: string | null;
+  type: OrderActionType;
+};

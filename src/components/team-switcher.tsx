@@ -26,12 +26,14 @@ export function RestaurantsSwitcher({
   restaurants: {
     id: string;
     name: string;
-    logo: string;
+    logo_url: string;
   }[];
 }) {
   const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(restaurants[0]);
   const setRestaurantId = useRestaurantStore((state) => state.setRestaurantId);
+
+  console.log("restaurants", restaurants);
 
   return (
     <SidebarMenu>
@@ -43,7 +45,11 @@ export function RestaurantsSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                {/* <activeTeam.logo className="size-4" /> */}
+                <img
+                  src={activeTeam.logo_url}
+                  alt=""
+                  className="size-8 rounded-full"
+                />{" "}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
@@ -72,7 +78,11 @@ export function RestaurantsSwitcher({
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  {/* <item.logo className="size-4 shrink-0" /> */}
+                  <img
+                    src={item.logo_url}
+                    alt=""
+                    className="size-6 rounded-full"
+                  />
                 </div>
                 {item.name}
                 {/* <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut> */}
