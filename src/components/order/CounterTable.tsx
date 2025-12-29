@@ -14,6 +14,7 @@ import { deleteOrderItemAPI } from "@/services/orderServices";
 import { useQueryClient } from "@tanstack/react-query";
 import OrdersTable from "./OrderTable";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
+import { requiresPayment } from "@/lib/actions/orderActions";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
@@ -24,7 +25,18 @@ export default function CounterTable() {
   const { openpaymentPanelStore } = paymentPanelStore();
 
   const filteredData = orders.filter((order) => {
+    // Hide COMPLETED or CANCELLED orders
+    if (
+      order.status === ORDER_STATUS.COMPLETED ||
+      order.status === ORDER_STATUS.CANCELLED
+    ) {
+      return false;
+    }
+
+    // Show all if "all" filter is selected
     if (statusFilter === "all") return true;
+
+    // Otherwise, match the selected status
     return order.status === statusFilter;
   });
 
@@ -54,8 +66,15 @@ export default function CounterTable() {
     handleStatusChange(id, ORDER_STATUS.ACCEPTED, "accept");
   };
 
-  const finishOrder = (order: any) =>
-    handleStatusChange(order.id, ORDER_STATUS.COMPLETED, "finish");
+  const finishOrder = (order: any) => {
+    if (requiresPayment(order)) {
+      openProductOrderSheet(order.id);
+      openpaymentPanelStore(order.id);
+    } else {
+      handleStatusChange(order.id, ORDER_STATUS.COMPLETED, "finish");
+    }
+  };
+
   const cancelOrder = (id: string) =>
     handleStatusChange(id, ORDER_STATUS.CANCELLED, "cancel");
 
