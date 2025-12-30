@@ -21,3 +21,23 @@ export async function addRestaurantAPI(payload: AddRestaurantPayload) {
     throw new Error(message);
   }
 }
+
+export async function deleteRestaurantAPI(restaurantId: string) {
+  try {
+    const response = await clientAxiosInstance.delete(
+      `/api/restaurant?restaurantId=${restaurantId}`,
+      {
+        requiresAuth: true,
+      }
+    );
+
+    return response.data; //
+  } catch (error: any) {
+    // handle axios error
+    const message =
+      error?.response?.data?.error ||
+      error.message ||
+      "Failed to delete restaurant";
+    throw new Error(message);
+  }
+}

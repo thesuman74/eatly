@@ -5,17 +5,28 @@ import { notFound } from "next/navigation";
 import MenuPage from "./menu/_components/MenuPage";
 import RestaurantHome from "./RestaurantHome";
 import { getPublicRestaurantDetails } from "@/services/server/serverRestaurantServices";
+import { getRestaurantBySubdomain, getSubdomainData } from "@/lib/redis";
 
-const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
-  const { restaurantId } = await context.params;
+const page = async ({
+  params,
+}: {
+  params: Promise<{ restaurantId: string }>;
+}) => {
+  const paramsData = await params;
+  const restaurantId = paramsData.restaurantId;
+  console.log("paramsData", paramsData);
+  // const subdomainData = await getSubdomainData(restaurantId);
+  // console.log("subdomainData", subdomainData);
 
-  // Fetch restaurant details
+  // if (!subdomainData) {
+  //   notFound();
+  // }
+
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
+  console.log("restaurantDetails", restaurantDetails);
+  if (!restaurantDetails) return notFound();
 
-  // If restaurant not found, show 404 page
-  if (!restaurantDetails) {
-    return notFound(); // Next.js built-in 404 handler
-  }
+  // const restaurantId = restaurantDetails.restaurantId;
 
   // Fetch categories
   const categories = await getPublicCategoriesFromDB(restaurantId);
@@ -26,6 +37,7 @@ const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
         restaurantId={restaurantId}
         restaurantDetails={restaurantDetails}
       />
+      <h1>{"restaurantId"}</h1>
     </Suspense>
   );
 };

@@ -194,3 +194,51 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+
+  const url = new URL(req.url);
+  const restaurantId = url.searchParams.get("restaurantId");
+
+  try {
+    // Get current authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    if (!restaurantId) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields" }),
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Delete restaurant
+    const { error: deleteError } = await supabase
+      .from("restaurants")
+      .delete()
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id);
+
+    if (deleteError) {
+      return new Response(JSON.stringify({ error: deleteError.message }), {
+        status: 500,
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
+  }
+}
