@@ -9,7 +9,7 @@ import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "react-toastify";
 
-export default function UploadPage() {
+export default function UploadForm() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);

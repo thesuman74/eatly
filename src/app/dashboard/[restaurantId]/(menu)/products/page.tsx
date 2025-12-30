@@ -11,9 +11,6 @@ import { Suspense } from "react";
 export default function Page() {
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  // const restaurandId = "56cce575-a8e0-4b9e-85c6-da6c699284bc";
-  // console.log("restaurandId FROM [PAGE-ZUSTAND ", restaurandId);
-
   const { data: categoriesData } = useQuery({
     queryKey: ["categories", restaurantId],
     queryFn: () => getCategoriesAPI(restaurantId),

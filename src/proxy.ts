@@ -1,24 +1,87 @@
-import { type NextRequest } from "next/server";
-import { updateSession } from "./lib/supabase/proxy";
+import { NextRequest, NextResponse } from "next/server";
+import { rootDomain } from "@/lib/utils";
+import { getRestaurantBySubdomain, getSubdomainData } from "@/lib/redis";
+
+function extractSubdomain(request: NextRequest): string | null {
+  const host = request.headers.get("host") || "";
+  const hostname = host.split(":")[0];
+
+  if (hostname.includes(".lvh.me")) {
+    return hostname.split(".")[0]; // e.g., 'pasal'
+  }
+
+  const root = rootDomain.split(":")[0];
+  if (hostname.endsWith(`.${root}`) && hostname !== root) {
+    return hostname.replace(`.${root}`, "");
+  }
+
+  return null;
+}
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request);
+  const { pathname } = request.nextUrl;
+  const subdomain = extractSubdomain(request);
+  console.log("subdomain", subdomain);
+  console.log("pathname", pathname);
+
+  // 🔹 INCOMING REQUEST LOG
+  console.log("[INCOMING]", {
+    host: request.headers.get("host"),
+    pathname,
+    subdomain,
+  });
+
+  // 1️⃣ Allow Next.js internals, API routes, and assets
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/onboarding")
+  ) {
+    console.log("[AUTH BYPASS]", pathname);
+    return NextResponse.next();
+  }
+
+  // 2️⃣ Handle subdomain-based routing
+  if (subdomain) {
+    const restaurant = await getSubdomainData(subdomain);
+
+    if (!restaurant) {
+      return NextResponse.redirect(new URL("/not_found", request.url));
+    }
+
+    const url = request.nextUrl.clone();
+
+    // ✅ DASHBOARD ROUTES
+    if (pathname.startsWith("/dashboard")) {
+      // Rewrite clean URL to folder structure internally
+      url.pathname = `/dashboard/${restaurant.restaurantId}${pathname.replace(
+        "/dashboard",
+        ""
+      )}`;
+      return NextResponse.rewrite(url);
+    }
+
+    // ✅ PUBLIC ROUTES
+    url.pathname = `/${restaurant.restaurantId}${pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // // 3️⃣ Root domain → login
+  // if (pathname === "/") {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  // matcher: [
-  //   /*
-  //    * Match all request paths except for the ones starting with:
-  //    * - _next/static (static files)
-  //    * - _next/image (image optimization files)
-  //    * - favicon.ico (favicon file)
-  //    * Feel free to modify this pattern to include more paths.
-  //    */
-  //   // '/dashboard/:path*',    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-
-  //   "/dashboard/:path*",          // protect dashboard
-  //   "/((?!_next|favicon.ico).*)", // run only on pages, not APIs
-
-  // ],
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/((?!_next|api|favicon.ico).*)"],
 };

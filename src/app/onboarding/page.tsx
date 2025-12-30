@@ -5,6 +5,7 @@ import { getUserOnboardingStatus } from "@/lib/supabase/getUserOnboardingStatus"
 
 const page = async () => {
   const { completed: isOnboarded } = await getUserOnboardingStatus(); // <-- renamed here
+
   console.log("isOnboarded", isOnboarded);
 
   if (isOnboarded) {

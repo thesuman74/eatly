@@ -30,6 +30,14 @@ import {
 // console.log("restaurantData", restaurantData);
 
 // This is sample data.
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  restaurants: Array<{
+    id: string;
+    name: string;
+    logo_url: string;
+  }>;
+};
+
 const data = {
   user: {
     name: "shadcn",
@@ -75,7 +83,7 @@ const data = {
       items: [
         {
           title: "Order History",
-          url: "#",
+          url: "/dashboard/orders",
         },
         {
           title: "Statics",
@@ -107,13 +115,6 @@ const data = {
       icon: Users,
     },
   ],
-};
-type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  restaurants: Array<{
-    id: string;
-    name: string;
-    logo_url: string;
-  }>;
 };
 
 export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {

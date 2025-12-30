@@ -19,7 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
-import UploadPage from "@/app/dashboard/(menu)/upload/_components/UploadForm";
+import UploadPage from "@/app/dashboard/[restaurantId]/(menu)/upload/_components/UploadForm";
 import CategoryItem from "./CategoryItem";
 
 import { useAddCategory } from "@/hooks/category/useAddCategory";

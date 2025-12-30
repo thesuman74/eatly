@@ -5,7 +5,7 @@ import { PrimaryOrderButton } from "./PrimaryOrderAction";
 import { OrderStatusActions } from "../OrderStatusActions";
 import { PayButton } from "./PayButton";
 import { useState } from "react";
-import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
+import { CancelOrderButton } from "@/app/dashboard/[restaurantId]/order/_components/CancelOrderButton";
 
 export function OrderRowActions({
   order,

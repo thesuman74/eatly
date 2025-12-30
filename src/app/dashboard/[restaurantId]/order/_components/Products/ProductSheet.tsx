@@ -3,7 +3,7 @@
 import ProductSearch from "./ProductSearch";
 import ProductCategory from "./ProductCategories";
 import ProductSidebar from "./ProductSidebar";
-import { ProductCategoriesData } from "../../../../../../data/menu";
+import { ProductCategoriesData } from "../../../../../../../data/menu";
 
 type ProductSheetProps = {
   open?: boolean;

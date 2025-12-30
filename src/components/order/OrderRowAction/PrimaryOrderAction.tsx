@@ -1,4 +1,4 @@
-import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
+import { CancelOrderButton } from "@/app/dashboard/[restaurantId]/order/_components/CancelOrderButton";
 import { Button } from "@/components/ui/button";
 import { ORDER_STATUS } from "@/lib/types/order-types";
 import { Loader2, X } from "lucide-react";

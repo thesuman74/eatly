@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getUserPrimarySubdomain } from "../redis";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -13,20 +14,22 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
+  // 1️⃣ Sign in with Supabase
   const { data, error } = await supabase.auth.signInWithPassword(credentials);
+  if (error) return error.message;
 
-  console.log("🔐 Login attempt:");
-  console.log("User:", credentials.email);
-  console.log("Error:", error);
-  console.log("Session:", data?.session);
-  console.log("User:", data?.user);
+  const userId = data.user.id;
 
-  if (error) {
-    return error.message; // ❌ login failed
-  }
+  // 2️⃣ Lookup restaurant subdomain via Redis utility
+  const subdomain = await getUserPrimarySubdomain(userId);
+  console.log("subdomain", subdomain);
+  if (!subdomain) return "No restaurant found for this user";
 
+  // 3️⃣ Revalidate cache if needed
   revalidatePath("/", "layout");
-  redirect("/onboarding");
+
+  // 4️⃣ Redirect to restaurant subdomain dashboard
+  redirect(`http://${subdomain}.lvh.me:3000/dashboard/products`);
 }
 
 export async function signup(formData: FormData) {

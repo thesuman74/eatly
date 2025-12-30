@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import React, { useState } from "react";
 import CartPreview from "./CartPreview";
-import PaymentSummary from "../payments/PaymentSummary";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
+import PaymentSummary from "../payments/PaymentSummary";
 
 const ProductOrderSideBar = () => {
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { rootDomain } from "../utils";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -20,7 +21,11 @@ export async function createClient() {
         setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, {
+                ...options,
+                domain: ".lvh.me",
+                path: "/", // must be root
+              })
             );
           } catch {
             // Ignore if called from Server Component

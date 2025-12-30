@@ -11,9 +11,7 @@ import {
 } from "@/hooks/order/useOrders";
 import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
-import CartPreview from "@/app/dashboard/order/_components/Products/CartPreview";
-import EditableOrderItemsList from "@/app/dashboard/order/_components/Products/EditableOrderItemsList";
-import PaymentSummary from "@/app/dashboard/order/_components/payments/PaymentSummary";
+import PaymentSummary from "@/app/dashboard/[restaurantId]/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/types/order-types";
@@ -22,6 +20,7 @@ import { Spinner } from "../Spinner";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import EditableOrderItemsList from "@/app/dashboard/[restaurantId]/order/_components/Products/EditableOrderItemsList";
 
 const ProductOrdersheet = () => {
   const { orderId } = useOrderWorkspace();
