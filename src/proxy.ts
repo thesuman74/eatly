@@ -6,7 +6,7 @@ function extractSubdomain(request: NextRequest): string | null {
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
 
-  if (hostname.includes(".localhost")) {
+  if (hostname.includes(".lvh.me")) {
     return hostname.split(".")[0]; // e.g., 'pasal'
   }
 
@@ -21,6 +21,8 @@ function extractSubdomain(request: NextRequest): string | null {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const subdomain = extractSubdomain(request);
+  console.log("subdomain", subdomain);
+  console.log("pathname", pathname);
 
   // 🔹 INCOMING REQUEST LOG
   console.log("[INCOMING]", {
@@ -50,7 +52,6 @@ export async function proxy(request: NextRequest) {
   // 2️⃣ Handle subdomain-based routing
   if (subdomain) {
     const restaurant = await getSubdomainData(subdomain);
-    console.log("restaurant", restaurant);
 
     if (!restaurant) {
       return NextResponse.redirect(new URL("/not_found", request.url));
@@ -60,17 +61,13 @@ export async function proxy(request: NextRequest) {
 
     // ✅ DASHBOARD ROUTES
     if (pathname.startsWith("/dashboard")) {
-      url.pathname =
-        `/dashboard/${restaurant.restaurantId}` +
-        pathname.replace("/dashboard", "");
+      // Rewrite clean URL to folder structure internally
+      url.pathname = `/dashboard/${restaurant.restaurantId}${pathname.replace(
+        "/dashboard",
+        ""
+      )}`;
       return NextResponse.rewrite(url);
     }
-    // 🔹 OUTGOING REWRITE LOG (dashboard)
-    console.log("[REWRITE]", {
-      from: pathname,
-      to: url.pathname,
-      type: "dashboard",
-    });
 
     // ✅ PUBLIC ROUTES
     url.pathname = `/${restaurant.restaurantId}${pathname}`;
