@@ -81,7 +81,10 @@ const OnboardingPage = () => {
         restaurantId: restaurant.id,
       });
 
-      router.push(`${protocol}//${subdomain}.${rootDomain}/dashboard`);
+      // router.push(
+      //   `${protocol}//${subdomain}.${rootDomain}/dashboard/${restaurant.id}`
+      // );
+      router.push(`${protocol}//${rootDomain}/dashboard/${restaurant.id}`);
     } catch (err: any) {
       toast.error(err.message);
     } finally {
