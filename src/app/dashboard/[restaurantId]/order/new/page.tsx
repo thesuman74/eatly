@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
-import ProductsList from "../../../order/_components/Products/ProductsList";
-import ProductOrderSideBar from "../../../order/_components/Products/ProductOrderSideBar";
+import ProductsList from "../_components/Products/ProductsList";
+import ProductOrderSideBar from "../_components/Products/ProductOrderSideBar";
 
 const page = () => {
   return (

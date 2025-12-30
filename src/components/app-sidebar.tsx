@@ -52,7 +52,7 @@ const data = {
   navMain: [
     {
       title: "Order Pos",
-      url: "order",
+      url: "/dashboard/order",
       icon: NotebookPen,
       isActive: true,
     },
@@ -63,7 +63,7 @@ const data = {
       items: [
         {
           title: "Product Page",
-          url: "products",
+          url: "/dashboard/products",
         },
         {
           title: "Welcome Page",
@@ -83,7 +83,7 @@ const data = {
       items: [
         {
           title: "Order History",
-          url: "#",
+          url: "/dashboard/orders",
         },
         {
           title: "Statics",
