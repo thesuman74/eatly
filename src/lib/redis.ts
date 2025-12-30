@@ -28,3 +28,17 @@ export async function getSubdomainData(subdomain: string) {
   );
   return data;
 }
+
+export async function setUserPrimarySubdomain(
+  userId: string,
+  subdomain: string
+) {
+  await redis.set(`user:${userId}:primaryRestaurant`, subdomain);
+}
+
+export async function getUserPrimarySubdomain(
+  userId: string
+): Promise<string | null> {
+  const subdomain = await redis.get<string>(`user:${userId}:primaryRestaurant`);
+  return subdomain ?? null;
+}
