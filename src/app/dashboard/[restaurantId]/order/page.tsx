@@ -3,7 +3,7 @@ import OrderTabsSection from "@/components/order/TabsSection";
 import TopPart from "@/components/order/TopPart";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
 import React from "react";
-import OrderWorkspace from "./_components/layout/OrderWorkSpace";
+import OrderWorkspace from "./_components/OrderWorkSpace";
 
 const page = () => {
   return (

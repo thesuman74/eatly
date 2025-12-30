@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { X } from "lucide-react";
-import { productListSheetStore } from "@/stores/ui/productListSheetStore";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { OrderItem } from "@/lib/types/order-types";
 import { useCartStore } from "@/stores/admin/useCartStore";

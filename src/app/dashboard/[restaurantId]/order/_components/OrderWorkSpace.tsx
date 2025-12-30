@@ -2,8 +2,8 @@
 
 import { X } from "lucide-react";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
-import ProductsList from "../Products/ProductsList";
 import ProductOrdersheet from "@/components/sheet/ProductOrdersheet";
+import ProductsList from "./Products/ProductsList";
 
 export default function OrderWorkspace() {
   const { isProductListOpen, closeProductList } = useOrderWorkspace();
