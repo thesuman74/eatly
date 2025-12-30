@@ -1,4 +1,4 @@
-import { CancelOrderButton } from "@/app/dashboard/order/_components/cancelOrder/CancelOrderButton";
+import { CancelOrderButton } from "@/app/dashboard/[restaurantId]/order/_components/CancelOrderButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

@@ -22,6 +22,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const subdomain = extractSubdomain(request);
 
+  // 🔹 INCOMING REQUEST LOG
+  console.log("[INCOMING]", {
+    host: request.headers.get("host"),
+    pathname,
+    subdomain,
+  });
+
   // 1️⃣ Allow Next.js internals, API routes, and assets
   if (
     pathname.startsWith("/_next") ||
@@ -31,25 +38,49 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2️⃣ If subdomain exists, rewrite to restaurantId route
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/onboarding")
+  ) {
+    console.log("[AUTH BYPASS]", pathname);
+    return NextResponse.next();
+  }
+
+  // 2️⃣ Handle subdomain-based routing
   if (subdomain) {
     const restaurant = await getSubdomainData(subdomain);
+    console.log("restaurant", restaurant);
 
     if (!restaurant) {
       return NextResponse.redirect(new URL("/not_found", request.url));
     }
 
-    // Preserve the nested path after the root
-    const newPathname = `/${restaurant.restaurantId}${pathname}`;
     const url = request.nextUrl.clone();
-    url.pathname = newPathname;
+
+    // ✅ DASHBOARD ROUTES
+    if (pathname.startsWith("/dashboard")) {
+      url.pathname =
+        `/dashboard/${restaurant.restaurantId}` +
+        pathname.replace("/dashboard", "");
+      return NextResponse.rewrite(url);
+    }
+    // 🔹 OUTGOING REWRITE LOG (dashboard)
+    console.log("[REWRITE]", {
+      from: pathname,
+      to: url.pathname,
+      type: "dashboard",
+    });
+
+    // ✅ PUBLIC ROUTES
+    url.pathname = `/${restaurant.restaurantId}${pathname}`;
     return NextResponse.rewrite(url);
   }
 
-  // 3️⃣ Root domain → login
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // // 3️⃣ Root domain → login
+  // if (pathname === "/") {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
   return NextResponse.next();
 }

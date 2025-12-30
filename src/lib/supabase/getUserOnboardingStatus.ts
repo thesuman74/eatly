@@ -13,6 +13,7 @@ export async function getUserOnboardingStatus() {
   const userId = user?.id;
 
   if (!userId) {
+    console.log("user not logged in ");
     redirect("/login");
   }
 
