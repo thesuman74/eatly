@@ -7,10 +7,9 @@ function extractSubdomain(request: NextRequest): string | null {
   const hostname = host.split(":")[0];
 
   if (hostname.includes(".localhost")) {
-    return hostname.split(".")[0]; // e.g., 'pasal' from 'pasal.localhost'
+    return hostname.split(".")[0]; // e.g., 'pasal'
   }
 
-  // Production: extract subdomain from main domain
   const root = rootDomain.split(":")[0];
   if (hostname.endsWith(`.${root}`) && hostname !== root) {
     return hostname.replace(`.${root}`, "");
@@ -32,29 +31,26 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2️⃣ If subdomain exists, rewrite to restaurantId page
+  // 2️⃣ If subdomain exists, rewrite to restaurantId route
   if (subdomain) {
     const restaurant = await getSubdomainData(subdomain);
-    console.log("restaurant in proxy", restaurant);
 
     if (!restaurant) {
       return NextResponse.redirect(new URL("/not_found", request.url));
     }
 
-    // Rewrite to internal route without changing the URL in browser
+    // Preserve the nested path after the root
+    const newPathname = `/${restaurant.restaurantId}${pathname}`;
     const url = request.nextUrl.clone();
-    url.pathname = `/${restaurant.restaurantId}${
-      pathname === "/" ? "" : pathname
-    }`;
+    url.pathname = newPathname;
     return NextResponse.rewrite(url);
   }
 
-  // 3️⃣ If root domain and `/`, redirect to login
+  // 3️⃣ Root domain → login
   if (pathname === "/") {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 4️⃣ Allow everything else
   return NextResponse.next();
 }
 
