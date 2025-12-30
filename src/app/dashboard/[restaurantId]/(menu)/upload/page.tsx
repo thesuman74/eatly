@@ -1,7 +1,4 @@
-import { Upload } from "lucide-react";
-import React from "react";
-import UploadForm from "../../[restaurantId]/(menu)/upload/_components/UploadForm";
-import ReviewExtractedMenu from "../../[restaurantId]/(menu)/upload/_components/ReviewExtractedMenu";
+import UploadForm from "./_components/UploadForm";
 
 const page = () => {
   return (

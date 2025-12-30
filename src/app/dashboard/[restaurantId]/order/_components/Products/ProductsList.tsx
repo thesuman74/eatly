@@ -15,7 +15,6 @@ import {
 import React, { useState } from "react";
 import ProductSearch from "./ProductSearch";
 import ProductCard from "./ProductCard";
-import { ProductCategoriesData } from "../../../../../../data/menu";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import BouncingText from "@/components/animation/BouncingText";
 import Link from "next/link";
