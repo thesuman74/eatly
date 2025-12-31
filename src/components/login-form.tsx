@@ -30,12 +30,12 @@ export function LoginForm({
 
     const formData = new FormData(event.currentTarget);
 
-    const errorMessage = await login(formData);
-    if (errorMessage) {
-      setError(errorMessage);
-    }
+    const result = await login(formData);
 
-    setLoading(false);
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    }
   };
 
   const supabase = createBrowserSupabaseClient();
