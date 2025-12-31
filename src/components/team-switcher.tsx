@@ -1,15 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Plus } from "lucide-react";
-
+import { ChevronsUpDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -23,17 +21,14 @@ import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 export function RestaurantsSwitcher({
   restaurants,
 }: {
-  restaurants: {
-    id: string;
-    name: string;
-    logo_url: string;
-  }[];
+  restaurants: { id: string; name: string; logo_url: string }[];
 }) {
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(restaurants[0]);
-  const setRestaurantId = useRestaurantStore((state) => state.setRestaurantId);
+  const { restaurantId, restaurantName, setRestaurant } = useRestaurantStore();
 
-  console.log("restaurants", restaurants);
+  // Find the current active restaurant from the global store
+  const activeRestaurant =
+    restaurants.find((r) => r.id === restaurantId) || restaurants[0];
 
   return (
     <SidebarMenu>
@@ -45,21 +40,23 @@ export function RestaurantsSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <img
-                  src={activeTeam.logo_url}
-                  alt=""
-                  className="size-8 rounded-full"
-                />{" "}
+                {activeRestaurant.logo_url && (
+                  <img
+                    src={activeRestaurant.logo_url}
+                    alt=""
+                    className="size-8 rounded-full"
+                  />
+                )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeTeam.name}
+                  {activeRestaurant.name}
                 </span>
-                {/* <span className="truncate text-xs">{activeTeam.plan}</span> */}
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             align="start"
@@ -67,27 +64,28 @@ export function RestaurantsSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              restaurants
+              Restaurants
             </DropdownMenuLabel>
-            {restaurants.map((item, index) => (
+
+            {restaurants.map((item) => (
               <DropdownMenuItem
-                key={item.name}
-                onClick={() => {
-                  setActiveTeam(item), setRestaurantId(item.id);
-                }}
+                key={item.id}
+                onClick={() => setRestaurant(item.id, item.name)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <img
-                    src={item.logo_url}
-                    alt=""
-                    className="size-6 rounded-full"
-                  />
+                  {item.logo_url && (
+                    <img
+                      src={item.logo_url}
+                      alt=""
+                      className="size-6 rounded-full"
+                    />
+                  )}
                 </div>
                 {item.name}
-                {/* <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             ))}
+
             <DropdownMenuSeparator />
           </DropdownMenuContent>
         </DropdownMenu>

@@ -21,6 +21,7 @@ export default async function AdminLayout({
   // Check onboarding
   const onboarding = await getUserOnboardingStatus();
   const restaurantData = await getUserRestaurants();
+  console.log("restaurantData", restaurantData);
 
   const restaurantId = restaurantData[0]?.id;
 

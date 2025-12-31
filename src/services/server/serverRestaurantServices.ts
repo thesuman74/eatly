@@ -40,7 +40,7 @@ export async function getUserRestaurants() {
   const { data: restaurants, error } = await supabase
     .from("restaurants")
     .select("*")
-    .eq("id", userData.restaurant_id);
+    .eq("owner_id", user.id);
 
   if (error) {
     throw new Error(error.message);

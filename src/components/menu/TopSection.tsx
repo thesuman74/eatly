@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageUp, Info, MapPin } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ContactSection from "./ContactSection";
 import { Button } from "../ui/button";
 import ShareButton from "../ui/sharebutton";
@@ -16,6 +16,8 @@ interface TopSectionProps {
 const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
   const [isSaving, setIsSaving] = useState(false);
 
+  // console.log("restaurant inside top section", restaurant);
+
   const [logoUrl, setLogoUrl] = useState(
     restaurant?.logo_url || "/Images/logo.png"
   );
@@ -23,6 +25,12 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
     restaurant?.banner_url || "https://picsum.photos/1200/300"
   );
   const [name, setName] = useState(restaurant?.name);
+
+  useEffect(() => {
+    setLogoUrl(restaurant?.logo_url || "/Images/logo.png");
+    setBannerUrl(restaurant?.banner_url || "https://picsum.photos/1200/300");
+    setName(restaurant?.name);
+  }, [restaurant]);
 
   const uploadImage = async (file: File, type: "logo" | "banner") => {
     if (!file) return;
