@@ -4,7 +4,6 @@ import { createBrowserSupabaseClient } from "../supabase/client";
 export async function doCredentialLogin(formData: FormData) {
   const email = formData.get("username");
   const password = formData.get("password");
-  console.log("email forom docredentail login", email, "password", password);
 
   try {
     const response = await signIn("credentials", {
@@ -14,7 +13,6 @@ export async function doCredentialLogin(formData: FormData) {
     });
 
     if (!response) {
-      console.log("error in sign in", response);
       throw new Error("Invalid credentials");
     }
     if (response) {
@@ -22,9 +20,7 @@ export async function doCredentialLogin(formData: FormData) {
 
     return response;
   } catch (error: any) {
-    console.log("authactions:", error);
     const errorMessage = error.cause?.err?.message;
-    console.log("authactions errromessage", errorMessage);
     throw new Error(errorMessage);
   }
 }

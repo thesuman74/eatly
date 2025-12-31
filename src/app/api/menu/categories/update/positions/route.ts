@@ -6,8 +6,6 @@ export async function PATCH(req: Request) {
     const supabase = await createClient();
     const { updates } = await req.json();
 
-    console.log("updates", updates);
-
     if (!updates || !Array.isArray(updates)) {
       return NextResponse.json(
         { error: "Invalid updates array" },

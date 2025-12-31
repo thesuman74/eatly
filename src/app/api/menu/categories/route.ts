@@ -192,7 +192,6 @@ export async function DELETE(req: Request) {
   const url = new URL(req.url);
   const categoryId = url.searchParams.get("categoryId");
 
-  console.log("categoryId", categoryId);
 
   if (!categoryId) {
     return NextResponse.json(

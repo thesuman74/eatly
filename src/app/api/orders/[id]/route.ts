@@ -19,11 +19,9 @@ export async function GET(
   const url = new URL(req.url);
   const restaurantId = url.searchParams.get("restaurantId");
 
-  console.log("context.params", await context.params);
   const supabase = await createClient();
 
-  console.log("orderId", orderId);
-  console.log("restaurantId", restaurantId);
+
   try {
     //Authenticate use
 
@@ -71,7 +69,6 @@ export async function GET(
       .eq("restaurant_id", restaurantId)
       .single();
 
-    // console.log("order", order);
 
     if (orderError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -84,7 +81,6 @@ export async function GET(
       .eq("order_id", orderId)
       .eq("restaurant_id", restaurantId);
 
-    // console.log("items", items);
 
     // 2️⃣ Get product IDs
     const productIds = items?.map((i) => i.product_id) || [];
@@ -109,7 +105,6 @@ export async function GET(
       product: products.find((p) => p.id === item.product_id) || null, // fallback to null
     }));
 
-    // console.log(" itemsWithDetails", itemsWithDetails);
 
     // 3️⃣ Fetch addons for each item
     const itemIds = items?.map((i) => i.id) || [];

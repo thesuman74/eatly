@@ -55,7 +55,6 @@ export default function OrderTracking({ orderId }: { orderId: string }) {
       toast.info(`Please wait ${cooldown}s before checking again`);
       return;
     }
-    // console.log("order", orderInfo);
 
     // Trigger manual refetch
     await refetch();

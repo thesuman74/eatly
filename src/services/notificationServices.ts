@@ -6,7 +6,6 @@ export async function fetchNotificationsAPI(
     `/api/notifications?restaurantId=${restaurantId}&limit=${limit}`
   );
   const data = await res.json();
-  console.log("notification api data", data);
   if (!res.ok) throw new Error(data.error || "Failed to fetch notifications");
   return {
     notifications: data.data ?? [],

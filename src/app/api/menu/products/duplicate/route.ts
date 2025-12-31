@@ -6,8 +6,6 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { productId } = await req.json();
 
-    console.log("productId", productId);
-
     if (!productId) {
       return NextResponse.json(
         { error: "Missing required productId" },
@@ -68,7 +66,6 @@ export async function POST(req: Request) {
       .select("*")
       .eq("product_id", productId)
       .eq("restaurant_id", product.categories.restaurant_id);
-    console.log("Images:", images);
 
     if (images && images.length > 0) {
       const newImages = images.map((img) => ({

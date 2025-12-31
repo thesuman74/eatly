@@ -16,8 +16,6 @@ interface TopSectionProps {
 const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
   const [isSaving, setIsSaving] = useState(false);
 
-  // console.log("restaurant inside top section", restaurant);
-
   const [logoUrl, setLogoUrl] = useState(
     restaurant?.logo_url || "/Images/logo.png"
   );

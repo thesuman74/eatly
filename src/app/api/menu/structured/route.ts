@@ -4,11 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   try {
-    console.log("structured api req", req);
     const { searchParams } = new URL(req.url);
     const restaurantId = searchParams.get("restaurantId");
 
-    console.log("restaurantId from routes", restaurantId);
 
     if (!restaurantId) {
       return NextResponse.json(

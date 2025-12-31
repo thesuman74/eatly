@@ -28,13 +28,7 @@ export function RestaurantsSwitcher({
 
   const hydrated = useRestaurantStore?.persist?.hasHydrated();
 
-  console.log("restaurants infromation ", restaurants);
-
-  console.log("hydraions tatus", hydrated);
-
   const activeRestaurant = restaurants.find((r) => r.id === restaurantId);
-
-  console.log("activeRestaurant", activeRestaurant);
 
   if (!activeRestaurant) return null; // or a loader
   return (

@@ -13,17 +13,11 @@ export const useNotificationSound = () => {
       audioRef.current.loop = true;
       audioRef.current.preload = "auto";
       audioRef.current.volume = 0.5;
-
-      console.log(
-        "  Audio initialized with source:",
-        "/sounds/notifications.wav"
-      );
     }
 
     const unlockOnInteraction = () => {
       if (!isUnlockedRef.current) {
         isUnlockedRef.current = true;
-        console.log("  Audio unlocked via user interaction");
       }
     };
 
@@ -63,7 +57,6 @@ export const useNotificationSound = () => {
         playPromise
           .then(() => {
             isPlayingRef.current = true;
-            console.log("  Audio playing successfully");
           })
           .catch((error) => {
             console.log("  Audio play blocked:", error.message);
@@ -82,7 +75,6 @@ export const useNotificationSound = () => {
     audioRef.current.pause();
     audioRef.current.currentTime = 0;
     isPlayingRef.current = false;
-    console.log("  Audio stopped");
   }, []);
 
   return { play, stop, isUnlocked: isUnlockedRef.current };

@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
-// console.log("restaurantData", restaurantData);
 
 // This is sample data.
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {

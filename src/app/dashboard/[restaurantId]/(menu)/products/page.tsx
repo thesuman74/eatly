@@ -12,15 +12,11 @@ import { Suspense } from "react";
 export default function Page() {
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  console.log(" current restaurantId", restaurantId);
-
   const { data: categoriesData } = useQuery({
     queryKey: ["categories", restaurantId],
     queryFn: () => getCategoriesAPI(restaurantId),
     enabled: !!restaurantId,
   });
-
-  console.log("categoriesData", categoriesData);
 
   const {
     data: restaurantData,
@@ -43,10 +39,6 @@ export default function Page() {
   const activeRestaurant = restaurantData?.find(
     (r: Restaurant) => r.id === restaurantId
   );
-
-  console.log("activeRestaurant", activeRestaurant);
-
-  console.log("restaurantData", restaurantData);
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">

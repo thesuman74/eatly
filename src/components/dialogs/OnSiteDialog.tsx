@@ -97,7 +97,6 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
 
       // 6️⃣ Success handling
       toast.success("Order created successfully");
-      console.log("Order created:", data);
 
       // Optional:
       clearCart();

@@ -9,8 +9,6 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const categoryId = searchParams.get("categoryId");
 
-    console.log("categoryId from routes", categoryId);
-
     if (!categoryId) {
       return NextResponse.json(
         { error: "Missing required categoryId" },
@@ -22,8 +20,6 @@ export async function GET(req: Request) {
       .from("products")
       .select("*, images:product_images(*)")
       .eq("category_id", categoryId);
-
-    console.log("get products api", products);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -62,8 +58,6 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
-    console.log("price", price);
 
     // Authenticate user
     const {

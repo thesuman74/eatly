@@ -231,7 +231,6 @@ const OnboardingPage = () => {
         restaurantName: businessName,
         type: selectedBusiness,
       });
-      console.log("restaurant onboarding", data);
       toast.success("Restaurant created successfully!");
       router.push(`/dashboard/${data?.restaurant?.name || "a"}/products`);
     } catch (error: any) {

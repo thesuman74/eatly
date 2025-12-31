@@ -51,9 +51,6 @@ const ProductOrdersheet = () => {
   const showPaymentPanelForThisOrder =
     isPaymentSheetOpen && currentOrderId === data?.id;
 
-  console.log("data in order sheet", data);
-  console.log("customer name", data?.customer_name);
-
   // const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
 

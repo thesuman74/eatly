@@ -25,10 +25,3 @@ export const useRestaurantStore = create<RestaurantStore>()(
     }
   )
 );
-
-let prevId = useRestaurantStore.getState().restaurantId;
-
-useRestaurantStore.subscribe((state) => {
-  console.log("[Zustand] restaurantId changed:", prevId, "→", state.restaurantId);
-  prevId = state.restaurantId;
-});

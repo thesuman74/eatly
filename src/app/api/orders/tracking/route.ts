@@ -34,8 +34,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: orderError }, { status: 400 });
     }
 
-    console.log("data", orderData);
-
     // from order_items
     // quantity + unit price + total
 
@@ -49,8 +47,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: orderItemsError }, { status: 400 });
     }
 
-    console.log("orderItems", orderItems);
-
     // from order_payments
     // payment status
 
@@ -62,8 +58,6 @@ export async function GET(req: NextRequest) {
     if (!paymentData && paymentError) {
       return NextResponse.json({ error: paymentError }, { status: 400 });
     }
-
-    console.log("paymentData", paymentData);
 
     return NextResponse.json(
       { orderData, orderItems, paymentData },

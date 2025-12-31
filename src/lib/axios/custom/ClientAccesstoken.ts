@@ -15,8 +15,6 @@ export async function getClientAccessToken(): Promise<string | null> {
       data: { session },
     } = await supabase.auth.getSession();
 
-    console.log("session from getClientAccessToken", session);
-
     if (session?.access_token) {
       return session.access_token;
     }

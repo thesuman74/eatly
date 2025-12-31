@@ -122,7 +122,6 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (existing) {
       // update quantity and addons
 
-      console.log("existing item found:", existing);
       set({
         cartItems: get().cartItems.map((item) =>
           item.product_id === product.id
@@ -138,7 +137,6 @@ export const useCartStore = create<CartState>((set, get) => ({
       });
     } else {
       // add new item with required fields
-      console.log("new item:", existing);
 
       set({
         cartItems: [
