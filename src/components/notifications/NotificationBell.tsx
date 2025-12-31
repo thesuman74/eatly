@@ -9,14 +9,13 @@ import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { useEnhancedNotifications } from "@/hooks/useEnhancedNotification";
 import NotificationList from "./NotificationList";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
-export default function NotificationBell({
-  restaurantId,
-}: {
-  restaurantId: string;
-}) {
+export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const { data, refetch } = useNotifications();
   const notifications = data?.notifications || [];

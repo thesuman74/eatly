@@ -3,7 +3,6 @@ import { createBrowserSupabaseClient } from "../supabase/client";
 export async function uploadProductImages(productId: string, files: File[]) {
   const supabase = createBrowserSupabaseClient(); // browser client
 
-  console.log("uploadProductImages called");
 
   const uploadedUrls: string[] = [];
 

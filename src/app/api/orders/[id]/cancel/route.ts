@@ -102,8 +102,6 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("paymentData", paymentData);
-
     // Determine payment_status based on actual payment records
     let payment_status = "unpaid";
 

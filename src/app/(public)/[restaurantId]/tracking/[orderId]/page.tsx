@@ -8,7 +8,6 @@ export default async function Page({
 }) {
   const data = await params;
 
-  console.log("orderId data", data);
   return (
     <div>
       this is tracking {data.orderId}

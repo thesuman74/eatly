@@ -41,7 +41,6 @@ export const useEnhancedNotifications = () => {
 
         if (notification) {
           notification.onclick = () => {
-            console.log("Notification clicked! ");
             stopSound();
             window.focus();
             onClick?.();

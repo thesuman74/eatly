@@ -4,8 +4,6 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("instruments").select("*");
-  console.log("data", data);
-  console.log("error", error);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

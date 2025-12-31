@@ -24,8 +24,6 @@ export async function createRestaurantWithSubdomain({
     // 1. Create restaurant in DB
     const response = await addRestaurantAPI({ restaurantName, type });
     const restaurant = response.restaurant;
-    console.log("restaurant", restaurant);
-    console.log("resaruant id", restaurant.id);
 
     if (!restaurant?.id) {
       throw new Error("Failed to create restaurant");

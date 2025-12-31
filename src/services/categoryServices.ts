@@ -3,8 +3,6 @@
 import { clientAxiosInstance } from "@/lib/axios/ClientAxiosInstance";
 
 export async function getCategoriesAPI(restaurantId: string) {
-  console.log("getCategoriesAPI", restaurantId);
-
   try {
     const res = await fetch(
       `/api/menu/structured?restaurantId=${restaurantId}`,

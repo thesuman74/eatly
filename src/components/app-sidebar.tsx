@@ -26,8 +26,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
-// console.log("restaurantData", restaurantData);
 
 // This is sample data.
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -38,86 +38,90 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   }>;
 };
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  // resturants: restaurantData.map((restaurant) => ({
-  //   name: restaurant.name,
-  //   logo: Store,
-  //   plan: "Free",
-  // })),
-  navMain: [
-    {
-      title: "Order Pos",
-      url: "/dashboard/order",
-      icon: NotebookPen,
-      isActive: true,
-    },
-    {
-      title: "Menus",
-      url: "#",
-      icon: Utensils,
-      items: [
-        {
-          title: "Product Page",
-          url: "/dashboard/products",
-        },
-        {
-          title: "Welcome Page",
-          url: "#",
-        },
-        {
-          title: "Ordering Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Sales",
-      url: "#",
-      icon: CircleDollarSign,
-      isActive: true,
-      items: [
-        {
-          title: "Order History",
-          url: "/dashboard/orders",
-        },
-        {
-          title: "Statics",
-          url: "#",
-        },
-      ],
-    },
-
-    {
-      title: "Kitchen",
-      url: "#",
-      icon: CookingPot,
-    },
-    {
-      title: "Stocks",
-      url: "#",
-      icon: ListOrdered,
-    },
-  ],
-  projects: [
-    {
-      name: "Employees",
-      url: "#",
-      icon: Bot,
-    },
-    {
-      name: "Customers",
-      url: "#",
-      icon: Users,
-    },
-  ],
-};
-
 export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
+  // const restaurantId = useRestaurantStore((state) => state.restaurantId);
+  const restaurantName = useRestaurantStore((state) => state.restaurantName);
+
+  const data = {
+    user: {
+      name: "shadcn",
+      email: "m@example.com",
+      avatar: "/avatars/shadcn.jpg",
+    },
+    // resturants: restaurantData.map((restaurant) => ({
+    //   name: restaurant.name,
+    //   logo: Store,
+    //   plan: "Free",
+    // })),
+    navMain: [
+      {
+        title: "Order Pos",
+        // url: "/dashboard/order",
+        url: `/dashboard/${restaurantName}/order`,
+        icon: NotebookPen,
+        isActive: true,
+      },
+      {
+        title: "Menus",
+        url: "#",
+        icon: Utensils,
+        items: [
+          {
+            title: "Product Page",
+            url: `/dashboard/${restaurantName}/products`,
+            // url: "/dashboard/products",
+          },
+          {
+            title: "Welcome Page",
+            url: "#",
+          },
+          {
+            title: "Ordering Settings",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Sales",
+        url: "#",
+        icon: CircleDollarSign,
+        isActive: true,
+        items: [
+          {
+            title: "Order History",
+            url: "/dashboard/orders",
+          },
+          {
+            title: "Statics",
+            url: "#",
+          },
+        ],
+      },
+
+      {
+        title: "Kitchen",
+        url: "#",
+        icon: CookingPot,
+      },
+      {
+        title: "Stocks",
+        url: "#",
+        icon: ListOrdered,
+      },
+    ],
+    projects: [
+      {
+        name: "Employees",
+        url: "#",
+        icon: Bot,
+      },
+      {
+        name: "Customers",
+        url: "#",
+        icon: Users,
+      },
+    ],
+  };
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

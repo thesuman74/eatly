@@ -48,7 +48,6 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
-  console.log("payments", payments);
   const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
   const cartItems = useCartStore((state) => state.cartItems);
@@ -118,14 +117,13 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     const payload = buildOrderPayload(restaurantId);
 
     try {
-      console.log("inside");
       if (currentlyActiveOrderId) {
         // Update existing order
         await updateOrderMutation.mutateAsync({
           id: currentlyActiveOrderId,
           payload,
         });
-        console.log("clearing cart..."), setOpen(false);
+         setOpen(false);
         clearCart();
       } else {
         // Create new order

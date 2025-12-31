@@ -6,54 +6,62 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: Request) {
   const supabase = await createClient();
   const url = new URL(req.url);
-  const statusFilter = url.searchParams.get("status");
+  const restaurantId = url.searchParams.get("restaurantId");
 
-  // 1️⃣ Fetch orders with optional status
-  let query = supabase
+  if (!restaurantId) {
+    return NextResponse.json(
+      { error: "Missing required restaurantId" },
+      { status: 400 }
+    );
+  }
+
+  // Authenticate user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Verify that user owns this restaurant
+  const { data: restaurant } = await supabase
+    .from("restaurants")
+    .select("*")
+    .eq("owner_id", user.id)
+    .eq("id", restaurantId);
+
+  if (!restaurant) {
+    return NextResponse.json(
+      { error: "Not authorized for this restaurant" },
+      { status: 401 }
+    );
+  }
+
+  // Fetch orders for this restaurant only
+  const { data: orders } = await supabase
     .from("orders")
-    .select(
-      `
-    *,
-    payments:order_payments (
-      payment_status
-    )
-  `
-    )
-    .order("created_at", { ascending: false });
+    .select("*")
+    .eq("restaurant_id", restaurantId);
 
-  if (statusFilter) {
-    query = query.eq("status", statusFilter);
-  }
+  if (!orders) return NextResponse.json([], { status: 200 });
 
-  const { data: orders, error } = await query;
-
-  console.log("orders", orders);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
-
-  if (!orders || orders.length === 0) {
-    return NextResponse.json([], { status: 200 });
-  }
-
-  // 2️⃣ Compute total for each order (items + addons + tip)
   const orderIds = orders.map((o) => o.id);
 
-  // fetch items
+  // Fetch order items
   const { data: items } = await supabase
     .from("order_items")
     .select("*")
     .in("order_id", orderIds);
 
-  // fetch addons
+  // Fetch addons
   const itemIds = items?.map((i) => i.id) || [];
   const { data: addons } = await supabase
     .from("order_item_addons")
     .select("*")
     .in("order_item_id", itemIds);
 
-  // fetch payments (to include tip)
+  // Fetch payments
   const { data: payments } = await supabase
     .from("order_payments")
     .select("*")
@@ -65,26 +73,22 @@ export async function GET(req: Request) {
     const orderPayments =
       payments?.filter((p) => p.order_id === order.id) || [];
 
-    // Calculate items + addons total
     const itemsTotal = orderItems.reduce((acc, item) => {
       const addonTotal = orderAddons
         .filter((a) => a.order_item_id === item.id)
-        .reduce((a, b) => a + b.price * b.quantity, 0);
+        .reduce((sum, a) => sum + a.price * a.quantity, 0);
       return acc + item.unit_price * item.quantity + addonTotal;
     }, 0);
+
     const totalAmount =
       itemsTotal + (order.tax || 0) + (order.delivery_fee || 0);
 
     let payment_status = "unpaid";
-
     if (orderPayments.length > 0) {
-      if (orderPayments.some((p) => p.payment_status === "paid")) {
+      if (orderPayments.some((p) => p.payment_status === "paid"))
         payment_status = "paid";
-      } else if (orderPayments.every((p) => p.payment_status === "refunded")) {
-        payment_status = "refunded"; // all refunded
-      } else {
-        payment_status = "unpaid"; // all unpaid
-      }
+      else if (orderPayments.every((p) => p.payment_status === "refunded"))
+        payment_status = "refunded";
     }
 
     return {
@@ -94,22 +98,7 @@ export async function GET(req: Request) {
       addons: orderAddons,
       payments: orderPayments,
       total_amount: totalAmount,
-      order_number: order.order_number,
     };
-    // console.log("formattedOrder", formattedOrder);
-
-    // return formattedOrder;
-
-    // return {
-    //   id: order.id,
-    //   customer_name: order.customer_name,
-    //   order_type: order.order_type,
-    //   status: order.status,
-    //   payment_status: payments?.[0]?.payment_status || "unpaid",
-    //   created_at: order.created_at,
-    //   total_amount: itemsTotal + tipsTotal,
-    //   order_number: order.order_number,
-    // };
   });
 
   return NextResponse.json(ordersWithTotals);

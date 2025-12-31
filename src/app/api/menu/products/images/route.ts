@@ -7,15 +7,6 @@ export async function POST(req: Request) {
   try {
     const { productId, imageName, images } = await req.json();
 
-    console.log(
-      "productId",
-      productId,
-      "ImageName",
-      imageName,
-      "images",
-      images
-    );
-
     if (!productId || !imageName || !Array.isArray(images)) {
       return NextResponse.json(
         { error: "Invalid request body" },
@@ -32,8 +23,6 @@ export async function POST(req: Request) {
     const { error } = await serverService
       .from("product_images")
       .insert(inserts);
-
-    console.log("Insert error:", error);
 
     if (error) throw error;
 

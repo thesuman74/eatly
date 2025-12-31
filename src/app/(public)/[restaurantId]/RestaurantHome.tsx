@@ -58,8 +58,8 @@ export default function RestaurantHome({
           </div>
         </div>
         <Link
-          href={`/menu`}
-          // href={`/${restaurantId}/menu`}
+          // href={`/menu`}
+          href={`/${restaurantId}/menu`}
           className="flex h-[20%] w-full items-center text-3xl justify-center cursor-pointer "
         >
           <span className="h-fit  border-white border-2 rounded-sm px-4 py-2 hover:scale-110 transition-all duration-200">

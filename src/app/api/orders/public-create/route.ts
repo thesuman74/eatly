@@ -77,7 +77,6 @@ export async function POST(req: Request) {
 
       if (notifError) {
         console.error("Failed to create notification:", notifError.message);
-        console.log("Failed to create notification:", notifError);
         // Optional: continue without failing the order
       }
     }

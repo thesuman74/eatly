@@ -30,8 +30,8 @@ export async function getOrderDetailsAPI(
   return data;
 }
 
-export async function getOrderListAPI(status?: OrderStatus) {
-  const url = status ? `/api/orders?status=${status}` : "/api/orders";
+export async function getOrderListAPI(restaurantId: string) {
+  const url = `/api/orders?restaurantId=${restaurantId}`;
   const res = await fetch(url);
   const data = await res.json();
 

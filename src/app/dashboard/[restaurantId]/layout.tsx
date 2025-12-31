@@ -22,8 +22,6 @@ export default async function AdminLayout({
   const onboarding = await getUserOnboardingStatus();
   const restaurantData = await getUserRestaurants();
 
-  const restaurantId = restaurantData[0]?.id;
-
   if (!onboarding.completed) {
     redirect("/onboarding");
   }
@@ -40,7 +38,7 @@ export default async function AdminLayout({
                 <Separator aria-orientation="vertical" className="mr-2 h-4" />
               </div>
               <div className="mr-10">
-                <NotificationBell restaurantId={restaurantId} />
+                <NotificationBell />
               </div>
             </div>
           </header>

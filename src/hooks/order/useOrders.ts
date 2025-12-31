@@ -41,11 +41,14 @@ export const useOrder = (orderId: string | null, restauratId: string) =>
     enabled: !!orderId,
   });
 
-export const useOrders = (status?: OrderStatus) =>
-  useQuery<Order[]>({
-    queryKey: ["orders"],
-    queryFn: () => getOrderListAPI(status),
+export const useOrders = () => {
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
+  return useQuery<Order[]>({
+    queryKey: ["orders-list", restaurantId],
+    queryFn: () => getOrderListAPI(restaurantId),
   });
+};
 
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
@@ -67,7 +70,9 @@ export const useUpdateOrderStatus = () => {
     onSuccess: (_, { id }) => {
       toast.success("Order status updated");
       queryClient.invalidateQueries({ queryKey: ["order", id] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({
+        queryKey: ["orders-list", restaurantId],
+      });
     },
   });
 };

@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
     const fromData = await req.formData();
     // console.log("fromData", fromData);
     const image = fromData.get("image") as File;
-    // console.log("image", image);
 
     if (!image) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
@@ -16,7 +15,6 @@ export async function POST(req: NextRequest) {
     const base64Image = buffer.toString("base64");
 
     const ApiKey = process.env.GEMINI_API_KEY;
-    console.log("ApiKey", ApiKey);
 
     if (!ApiKey) {
       return NextResponse.json({ error: "No API key found" }, { status: 400 });
@@ -74,7 +72,6 @@ Only return the JSON array. Assume currency is NPR. Use placeholder image "/imag
 
     try {
       const data = JSON.parse(raw);
-      console.log("Data from gemini", data);
       return NextResponse.json({ data }, { status: 200 });
     } catch {
       return NextResponse.json(

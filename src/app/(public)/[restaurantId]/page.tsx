@@ -14,7 +14,6 @@ const page = async ({
 }) => {
   const paramsData = await params;
   const restaurantId = paramsData.restaurantId;
-  console.log("paramsData", paramsData);
   // const subdomainData = await getSubdomainData(restaurantId);
   // console.log("subdomainData", subdomainData);
 
@@ -23,7 +22,6 @@ const page = async ({
   // }
 
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
-  console.log("restaurantDetails", restaurantDetails);
   if (!restaurantDetails) return notFound();
 
   // const restaurantId = restaurantDetails.restaurantId;

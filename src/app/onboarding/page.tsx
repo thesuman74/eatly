@@ -4,12 +4,10 @@ import { redirect } from "next/navigation";
 import { getUserOnboardingStatus } from "@/lib/supabase/getUserOnboardingStatus";
 
 const page = async () => {
-  const { completed: isOnboarded } = await getUserOnboardingStatus(); // <-- renamed here
-
-  console.log("isOnboarded", isOnboarded);
+  const { completed: isOnboarded } = await getUserOnboardingStatus();
 
   if (isOnboarded) {
-    redirect("/dashboard");
+    redirect("/dashboard/r/products");
   }
   return (
     <div>
