@@ -8,9 +8,9 @@ const page = async () => {
 
   console.log("isOnboarded", isOnboarded);
 
-  if (isOnboarded) {
-    redirect("/dashboard");
-  }
+  // if (isOnboarded) {
+  //   redirect("/dashboard");
+  // }
   return (
     <div>
       <OnboardingPage />
