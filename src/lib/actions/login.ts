@@ -43,15 +43,13 @@ import { protocol, rootDomain } from "../utils";
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  const credentials = {
+  const { error } = await supabase.auth.signInWithPassword({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
-  };
-
-  const { data, error } = await supabase.auth.signInWithPassword(credentials);
+  });
 
   if (error) {
-    return error.message;
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
