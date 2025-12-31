@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getUserPrimarySubdomain } from "../redis";
+import { root } from "postcss";
+import { protocol, rootDomain } from "../utils";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -29,7 +31,9 @@ export async function login(formData: FormData) {
   revalidatePath("/", "layout");
 
   // 4️⃣ Redirect to restaurant subdomain dashboard
-  redirect(`http://${subdomain}.lvh.me:3000/dashboard/products`);
+  redirect(
+    `${rootDomain.replace("://", `://${subdomain}.`)}/dashboard/products`
+  );
 }
 
 export async function signup(formData: FormData) {
