@@ -24,12 +24,19 @@ export function RestaurantsSwitcher({
   restaurants: { id: string; name: string; logo_url: string }[];
 }) {
   const { isMobile } = useSidebar();
-  const { restaurantId, restaurantName, setRestaurant } = useRestaurantStore();
+  const { restaurantId, setRestaurant } = useRestaurantStore();
 
-  // Find the current active restaurant from the global store
-  const activeRestaurant =
-    restaurants.find((r) => r.id === restaurantId) || restaurants[0];
+  const hydrated = useRestaurantStore?.persist?.hasHydrated();
 
+  console.log("restaurants infromation ", restaurants);
+
+  console.log("hydraions tatus", hydrated);
+
+  const activeRestaurant = restaurants.find((r) => r.id === restaurantId);
+
+  console.log("activeRestaurant", activeRestaurant);
+
+  if (!activeRestaurant) return null; // or a loader
   return (
     <SidebarMenu>
       <SidebarMenuItem>

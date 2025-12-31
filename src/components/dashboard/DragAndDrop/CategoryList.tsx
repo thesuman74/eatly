@@ -45,10 +45,10 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
   // console.log("restaurandId", restaurandId);
 
   useEffect(() => {
-    if (initialCategories && initialCategories.length > 0) {
+    if (initialCategories) {
       setCategories(initialCategories);
     }
-  }, [initialCategories]);
+  }, [initialCategories, categories]);
 
   // React Query mutations
   const addCategory = useAddCategory();

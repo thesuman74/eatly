@@ -20,7 +20,7 @@ export default function Page() {
     enabled: !!restaurantId,
   });
 
-  // console.log("categoriesData", categoriesData);
+  console.log("categoriesData", categoriesData);
 
   const {
     data: restaurantData,
