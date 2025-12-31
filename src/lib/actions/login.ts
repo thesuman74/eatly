@@ -31,9 +31,13 @@ export async function login(formData: FormData) {
   revalidatePath("/", "layout");
 
   // 4️⃣ Redirect to restaurant subdomain dashboard
-  redirect(
-    `${rootDomain.replace("://", `://${subdomain}.`)}/dashboard/products`
-  );
+  const tenant = subdomain; // Redis lookup
+  const url =
+    process.env.NODE_ENV === "production"
+      ? `${protocol}://${rootDomain}/${tenant}/dashboard/products` // path-based routing
+      : `${protocol}://${tenant}.${rootDomain}/dashboard/products`; // local subdomain
+
+  redirect(url);
 }
 
 export async function signup(formData: FormData) {
