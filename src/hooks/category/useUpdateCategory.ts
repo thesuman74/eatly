@@ -15,7 +15,7 @@ export function useUpdateCategories() {
       updateCategoriesAPI(updates, restaurantId),
     onSuccess: () => {
       toast.success("Categories updated!");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories", restaurantId] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to update categories");

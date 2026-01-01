@@ -44,7 +44,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
     if (initialCategories) {
       setCategories(initialCategories);
     }
-  }, [initialCategories, categories]);
+  }, [initialCategories]);
 
   // React Query mutations
   const addCategory = useAddCategory();
