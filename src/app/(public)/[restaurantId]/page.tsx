@@ -35,7 +35,6 @@ const page = async ({
         restaurantId={restaurantId}
         restaurantDetails={restaurantDetails}
       />
-      <h1>{"restaurantId"}</h1>
     </Suspense>
   );
 };
