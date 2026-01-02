@@ -92,9 +92,10 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, phone, role, restaurantId, name } = body;
+    console.log("body", body);
+    const { email, password, phone, role, restaurantId, full_name } = body;
 
-    if (!email || !password || !phone || !role || !restaurantId || !name) {
+    if (!email || !password || !phone || !role || !restaurantId || !full_name) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -143,7 +144,7 @@ export async function POST(req: Request) {
         email,
         password,
         user_metadata: {
-          full_name: name,
+          full_name: full_name,
           phone,
         },
       });
