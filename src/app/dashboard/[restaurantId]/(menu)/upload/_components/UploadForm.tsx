@@ -21,7 +21,6 @@ export default function UploadForm() {
   // 🚀 Load saved extracted menu from localStorage
   useEffect(() => {
     const savedMenu = localStorage.getItem("extracted_menu");
-    toast.success("Extracted menu saved!");
 
     if (savedMenu) {
       setReviewMenuData(JSON.parse(savedMenu));
@@ -106,13 +105,13 @@ export default function UploadForm() {
           {/* Dropzone */}
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition 
+            className={`border-2  mx-auto max-w-2xl h-60 border-dashed rounded-xl p-8 text-center cursor-pointer transition 
               ${
                 isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
               }`}
           >
             <input {...getInputProps()} />
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col  items-center justify-center">
               <img
                 src="/images/uploadplaceholder.png"
                 alt="Upload placeholder"
