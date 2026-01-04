@@ -15,6 +15,7 @@ export function useStaffActions() {
     queryKey: ["Staffs", restaurantId],
     queryFn: () => getStaffsAPI(restaurantId),
     enabled: !!restaurantId,
+    retry: false,
   });
 
   // Invite staff (magic link)

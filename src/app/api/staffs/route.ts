@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { serverService } from "@/lib/supabase/serverService"; // supabase client with SERVICE_ROLE
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -13,9 +14,8 @@ export async function GET(req: Request) {
   }
 
   try {
+    // 1️⃣ Use anon client to check current user
     const supabase = await createClient();
-
-    // Authenticate requesting user
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -24,64 +24,40 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify restaurant ownership
-    const { data: restaurant, error: restaurantError } = await supabase
-      .from("restaurants")
-      .select("id")
-      .eq("id", restaurantId)
-      .eq("owner_id", user.id)
-      .single();
-
-    if (!restaurant) {
-      return NextResponse.json(
-        { error: "You are not authorized for this restaurant" },
-        { status: 401 }
-      );
-    }
-    if (restaurantError) {
-      return NextResponse.json(
-        {
-          error: "Restaurant ownership check failed",
-          details: restaurantError,
-        },
-        { status: 500 }
-      );
-    }
-
-    // Fetch users with info from auth.users
-    const { data: users, error: usersError } = await supabase
+    // 2️⃣ Fetch all users from your 'users' table for this restaurant
+    const { data: users, error: usersError } = await serverService
       .from("users")
-      .select(
-        `
-        id,
-        role,
-        restaurant_id,
-        created_at,
-        auth_user:auth_users!inner(id, email, phone, raw_user_meta_data)
-      `
-      )
+      .select("*")
       .eq("restaurant_id", restaurantId);
 
     if (usersError) {
+      console.error("Users fetch error:", usersError);
       return NextResponse.json(
         { error: "Failed to fetch users", details: usersError },
         { status: 500 }
       );
     }
+    console.log("users", users);
 
-    // Format users with email and name from auth_user
-    const formattedUsers = users.map((u: any) => ({
-      id: u.id,
-      role: u.role,
-      restaurant_id: u.restaurant_id,
-      created_at: u.created_at,
-      email: u.auth_user.email,
-      phone: u.auth_user.phone,
-      name: u.auth_user.raw_user_meta_data?.full_name || "",
-    }));
+    // 3️⃣ Fetch auth info for all users using getUserById
+    const authResults = await Promise.all(
+      users.map((u) => serverService.auth.admin.getUserById(u.id))
+    );
+
+    // 4️⃣ Map auth info to your users
+    const formattedUsers = users.map((u, i) => {
+      const authUser = authResults[i].data;
+      return {
+        ...u,
+        email: authUser?.user?.email || null,
+        phone: authUser?.user?.phone || null,
+        full_name: authUser?.user?.user_metadata.full_name || "",
+      };
+    });
 
     return NextResponse.json({ users: formattedUsers });
   } catch (error) {
+    console.error("GET /users error:", error);
     return NextResponse.json(
       { error: "Something went wrong", details: error },
       { status: 500 }

@@ -9,7 +9,7 @@ export async function getStaffsAPI(restaurantId: string) {
     throw new Error(data.error || "Failed to fetch Staffs");
   }
 
-  return data.Staffs;
+  return data;
 }
 
 export async function addStaffAPI(StaffData: StaffTypes, restaurantId: string) {

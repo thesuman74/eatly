@@ -13,7 +13,6 @@ export interface StaffTypes {
   // From auth.users
   id?: string; // Auth user ID (UUID)
   email: string;
-  password: string;
   full_name?: string;
   phone?: string;
   avatar_url?: string; // Optional user photo

@@ -36,58 +36,50 @@ export const InviteStaffForm = ({
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-sm p-6">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-center">
-            Invite Staff
-          </CardTitle>
-        </CardHeader>
+    <div className="mb-6 p-4 border rounded-md bg-white max-w-xl">
+      <h3 className="font-semibold mb-2">Invite Staff</h3>
 
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="flex items-center space-x-2">
-              <Label className="text-sm">Role: </Label>
+      <div>
+        <form className=" flex space-x-4" onSubmit={handleSubmit}>
+          {/* Email */}
+          <Input
+            placeholder="Staff Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <div className="flex items-center space-x-2">
+            <Label className="text-sm">Role: </Label>
 
-              {/* Role */}
-              <Select
-                value={role}
-                onValueChange={(val: StaffRole) => setRole(val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(STAFFROLES).map((roleOption) => (
-                    <SelectItem
-                      key={roleOption}
-                      value={roleOption}
-                      className="capitalize"
-                    >
-                      {roleOption}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Role */}
+            <Select
+              value={role}
+              onValueChange={(val: StaffRole) => setRole(val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Role" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(STAFFROLES).map((roleOption) => (
+                  <SelectItem
+                    key={roleOption}
+                    value={roleOption}
+                    className="capitalize"
+                  >
+                    {roleOption}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Email */}
-            <Input
-              placeholder="Staff Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            {/* Submit Button */}
-            <Button type="submit" className="w-full">
-              {isLoading && <Loader2 className="animate-spin mr-2" />} Send
-              Invite
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Submit Button */}
+          <Button type="submit" className="">
+            {isLoading && <Loader2 className="animate-spin mr-2" />} Send Invite
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

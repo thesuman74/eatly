@@ -9,11 +9,11 @@ const page = () => {
   if (getStaffs.isLoading) return <div>Loading...</div>;
   if (getStaffs.isError) return <div>Error: {getStaffs.error?.message}</div>;
 
-  console.log("Staff data:", getStaffs.data);
+  const staffData = getStaffs?.data.users;
 
   return (
     <div>
-      <StaffPageUI />
+      <StaffPageUI staffData={staffData} />
     </div>
   );
 };
