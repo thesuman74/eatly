@@ -39,7 +39,7 @@ From the image I am uploading, extract structured menu data in the following JSO
       name: "<Product Name>",
       slug: "<slugified-product-name>",
       description: "<Brief description of the product>",
-      price: <price in cents>,
+      price: <price>,
       currency: "NPR",
       image: {
         url: "/images/coffee.png",

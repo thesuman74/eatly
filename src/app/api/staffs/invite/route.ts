@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // Invite user via magic link
     const { data: invitedUser, error: inviteError } =
       await serverService.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/staff/complete-signup`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/staff`,
       });
 
     if (inviteError) {
@@ -60,10 +60,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // Optionally, insert a pending staff record in your users table
     const { error: insertError } = await supabase.from("users").insert({
-      email,
-      role,
+      email: email,
+      role: role,
       restaurant_id: restaurantId,
       status: "pending", // mark as invited
     });

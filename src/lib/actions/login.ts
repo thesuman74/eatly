@@ -48,6 +48,8 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   });
 
+  console.log("login error", error);
+
   if (error) {
     return { error: error.message };
   }

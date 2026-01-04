@@ -49,7 +49,10 @@ export default function StaffPage() {
           onClose={() => setIsModalOpen(false)}
         />
       )} */}
-      <InviteStaffForm onSubmit={handleInvite} />
+      <InviteStaffForm
+        onSubmit={handleInvite}
+        isLoading={inviteStaff.isPending}
+      />
     </div>
   );
 }

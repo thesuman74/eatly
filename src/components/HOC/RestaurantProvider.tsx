@@ -19,7 +19,7 @@ export const RestaurantProvider: React.FC<RestaurantProviderProps> = ({
   children,
 }) => {
   const { restaurantId, setRestaurant } = useRestaurantStore();
-  const hasHydrated = useRestaurantStore.persist.hasHydrated();
+  const hasHydrated = useRestaurantStore?.persist?.hasHydrated();
 
   // Prevent double initialization (StrictMode, rerenders)
   const initializedRef = useRef(false);

@@ -56,10 +56,11 @@ export async function getPublicRestaurantDetails(restaurantId: string) {
     .from("restaurants")
     .select("*")
     .eq("id", restaurantId)
-    .maybeSingle(); // only one restaurant
-
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!restaurants) throw new Error("Restaurant not found");
+
+  console.log("restaurants from supabase", restaurants);
 
   return restaurants;
 }

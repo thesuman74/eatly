@@ -61,6 +61,7 @@ export default function UploadForm() {
 
     const res = await fetch("/api/gemini", { method: "POST", body: formData });
     const data = await res.json();
+    console.log("gemini data", data);
 
     setReviewMenuData(data.data);
 

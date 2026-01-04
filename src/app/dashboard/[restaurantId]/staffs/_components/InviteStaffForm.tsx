@@ -14,12 +14,17 @@ import {
 import { STAFFROLES, StaffRole } from "@/lib/types/staff-types";
 import { Label } from "@/components/ui/label";
 import { ST } from "next/dist/shared/lib/utils";
+import { Loader2 } from "lucide-react";
 
 interface InviteStaffFormProps {
   onSubmit: (email: string, role: StaffRole) => void;
+  isLoading?: boolean;
 }
 
-export const InviteStaffForm = ({ onSubmit }: InviteStaffFormProps) => {
+export const InviteStaffForm = ({
+  onSubmit,
+  isLoading,
+}: InviteStaffFormProps) => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<StaffRole>("staff");
 
@@ -77,7 +82,8 @@ export const InviteStaffForm = ({ onSubmit }: InviteStaffFormProps) => {
 
             {/* Submit Button */}
             <Button type="submit" className="w-full">
-              Send Invite
+              {isLoading && <Loader2 className="animate-spin mr-2" />} Send
+              Invite
             </Button>
           </form>
         </CardContent>
