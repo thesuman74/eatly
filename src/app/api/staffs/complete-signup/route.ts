@@ -1,14 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-import { STAFFROLES } from "@/lib/types/staff-types";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { full_name, phone, password, restaurantId } = await req.json();
+    const { full_name, phone, password } = await req.json();
 
-    if (!full_name || !phone || !password || !restaurantId) {
+    if (!full_name || !phone || !password) {
       return NextResponse.json(
-        { error: "Full name, phone, password, and restaurantId are required" },
+        { error: "Full name, phone, and password are required" },
         { status: 400 }
       );
     }
@@ -25,15 +24,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Update auth user metadata
-    const { data: updatedUser, error: updateError } =
-      await supabase.auth.updateUser({
-        password,
-        data: {
-          full_name,
-          phone,
-        },
-      });
+    // Fetch pending invite for this user's email
+    const { data: invite } = await supabase
+      .from("staff_invites")
+      .select("*")
+      .eq("email", user.email)
+      .eq("invite_status", "pending")
+      .maybeSingle();
+
+    if (!invite) {
+      return NextResponse.json(
+        { error: "No pending invite found for this user" },
+        { status: 404 }
+      );
+    }
+
+    // Update auth user metadata (full name, phone, password)
+    const { error: updateError } = await supabase.auth.updateUser({
+      password,
+      data: {
+        full_name,
+        phone,
+      },
+    });
 
     if (updateError) {
       return NextResponse.json(
@@ -42,11 +55,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert into users table with active status
+    // Insert into users table using restaurantId and role from invite
     const { error: insertError } = await supabase.from("users").insert({
-      id: user.id, // match auth.users
-      role: STAFFROLES.STAFF, // assign role
-      restaurant_id: restaurantId,
+      id: user.id,
+      role: invite.role,
+      restaurant_id: invite.restaurant_id,
       status: "active",
     });
 
@@ -56,6 +69,15 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
+    // Mark invite as accepted
+    await supabase
+      .from("staff_invites")
+      .update({
+        invite_status: "accepted",
+        accepted_at: new Date().toISOString(),
+      })
+      .eq("id", invite.id);
 
     return NextResponse.json({ message: "Signup completed successfully" });
   } catch (err) {
