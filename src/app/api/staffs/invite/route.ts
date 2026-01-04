@@ -1,7 +1,5 @@
-// File: /app/api/staff/invite/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { serverService } from "@/lib/supabase/serverService";
-import { url } from "inspector";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -17,7 +15,7 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
 
-    // Authenticate requesting admin
+    // Auth check
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -26,59 +24,63 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify admin owns the restaurant
-    const { data: restaurant, error: restaurantError } = await supabase
+    // Owner verification
+    const { data: restaurant } = await supabase
       .from("restaurants")
       .select("id")
       .eq("id", restaurantId)
       .eq("owner_id", user.id)
       .single();
 
-    if (restaurantError || !restaurant) {
+    if (!restaurant) {
       return NextResponse.json(
         { error: "You are not authorized for this restaurant" },
         { status: 403 }
       );
     }
 
-    // Invite user via magic link
-    const { data: invitedUser, error: inviteError } =
-      await serverService.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/staff`,
+    // Prevent duplicate active invites
+    const { data: existingInvite } = await supabase
+      .from("staff_invites")
+      .select("id")
+      .eq("email", email)
+      .eq("restaurant_id", restaurantId)
+      .eq("invite_status", "pending")
+      .maybeSingle();
+
+    if (existingInvite) {
+      return NextResponse.json(
+        { error: "An active invite already exists for this email" },
+        { status: 409 }
+      );
+    }
+
+    await serverService.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/staff`,
+    });
+
+    // Save invite
+    const { error: inviteInsertError } = await supabase
+      .from("staff_invites")
+      .insert({
+        email,
+        role,
+        restaurant_id: restaurantId,
+        invited_by: user.id,
+        invite_status: "pending",
       });
 
-    if (inviteError) {
-      // Check for email already exists
-      if (inviteError.code === "email_exists") {
-        return NextResponse.json(
-          {
-            error:
-              "This email is already registered. Try logging in or using another email.",
-          },
-          { status: 422 }
-        );
-      }
+    if (inviteInsertError) {
+      return NextResponse.json(
+        { error: "Failed to create invite" },
+        { status: 500 }
+      );
     }
 
-    const { error: insertError } = await supabase.from("users").insert({
-      email: email,
-      role: role,
-      restaurant_id: restaurantId,
-      status: "pending", // mark as invited
-    });
-
-    if (insertError) {
-      console.warn("Failed to insert pending staff:", insertError);
-    }
-
-    return NextResponse.json({
-      message: "Invite sent successfully",
-      invitedUser,
-    });
+    return NextResponse.json({ message: "Invite sent successfully" });
   } catch (err) {
-    console.error("Invite Staff Error:", err);
     return NextResponse.json(
-      { error: "Unexpected server error", details: err },
+      { error: "Unexpected server error" },
       { status: 500 }
     );
   }
