@@ -19,6 +19,7 @@ export async function getAllPublicRestaurants() {
 export async function getUserRestaurants() {
   const supabase = await createClient();
 
+  // 1. Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,28 +28,33 @@ export async function getUserRestaurants() {
     redirect("/login");
   }
 
-  const { data: userData } = await supabase
+  // 2. Get user's restaurant assignment
+  const { data: userData, error: userError } = await supabase
     .from("users")
-    .select("restaurant_id")
+    .select("role, restaurant_id")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!userData?.restaurant_id) {
+  if (userError) {
+    throw new Error(userError.message);
+  }
+
+  if (!userData) {
     return [];
   }
 
+  // 3. Query restaurants where user is owner OR staff
   const { data: restaurants, error } = await supabase
     .from("restaurants")
     .select("*")
-    .eq("owner_id", user.id);
+    .or(`owner_id.eq.${user.id},id.eq.${userData.restaurant_id || "null"}`);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return restaurants;
+  return restaurants || [];
 }
-
 export async function getPublicRestaurantDetails(restaurantId: string) {
   const supabase = await createClient();
 
