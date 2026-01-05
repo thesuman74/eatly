@@ -229,6 +229,73 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(
+  req: Request,
+  { params }: { params: { restaurantId: string } }
+) {
+  try {
+    const supabase = await createClient();
+    const url = new URL(req.url);
+    const restaurantId = url.searchParams.get("restaurantId");
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!userData)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    // Permission check
+    if (
+      !can({ role: userData.role, permission: Permission.UPDATE_RESTAURANT })
+    ) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await req.json();
+
+    // Optionally, allow only owner to update logo/banner/name
+
+    const allowedFields: string[] = ["name", "logo_url", "banner_url"];
+    const updates: Record<string, any> = {};
+
+    allowedFields.forEach((field) => {
+      if (body[field as keyof typeof body] !== undefined) {
+        updates[field] = body[field as keyof typeof body];
+      }
+    });
+
+    const { data, error } = await supabase
+      .from("restaurants")
+      .update(updates)
+      .eq("id", restaurantId);
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return NextResponse.json(data);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   const supabase = await createClient();
 

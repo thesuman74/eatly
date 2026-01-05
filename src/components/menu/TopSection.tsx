@@ -8,14 +8,13 @@ import ShareButton from "../ui/sharebutton";
 import { Restaurant } from "@/lib/types/resturant-types";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { toast } from "react-toastify";
+import { UserRoles } from "@/lib/rbac/roles";
 
 interface TopSectionProps {
   restaurant: Restaurant;
 }
 
 const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
-  const [isSaving, setIsSaving] = useState(false);
-
   const [logoUrl, setLogoUrl] = useState(
     restaurant?.logo_url || "/Images/logo.png"
   );
@@ -23,12 +22,53 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
     restaurant?.banner_url || "https://picsum.photos/1200/300"
   );
   const [name, setName] = useState(restaurant?.name);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setLogoUrl(restaurant?.logo_url || "/Images/logo.png");
     setBannerUrl(restaurant?.banner_url || "https://picsum.photos/1200/300");
     setName(restaurant?.name);
   }, [restaurant]);
+
+  // Generic API update function
+  const updateRestaurantField = async (
+    field: "name" | "logo_url" | "banner_url",
+    value: string
+  ) => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/restaurant?restaurantId=${restaurant.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to update");
+      }
+
+      // Update local state
+      if (field === "name") setName(value);
+      if (field === "logo_url") setLogoUrl(value);
+      if (field === "banner_url") setBannerUrl(value);
+
+      toast.success(
+        `${field.replace("_", " ").toUpperCase()} updated successfully`
+      );
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Update failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleNameBlur = () => {
+    if (name !== restaurant?.name) {
+      updateRestaurantField("name", name!);
+    }
+  };
 
   const uploadImage = async (file: File, type: "logo" | "banner") => {
     if (!file) return;
@@ -94,30 +134,6 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
     }
   };
 
-  const handleNameBlur = async () => {
-    if (name === restaurant?.name) return; // No change
-    setIsSaving(true);
-
-    try {
-      const supabase = createBrowserSupabaseClient();
-
-      const { error } = await supabase
-        .from("restaurants")
-        .update({ name })
-        .eq("id", restaurant.id);
-
-      if (error) {
-        toast.error(error.message || "Failed to update name");
-      } else {
-        toast.success("Name updated successfully");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update name");
-    } finally {
-      setIsSaving(false);
-    }
-  };
   return (
     <section className="flex flex-col">
       {/* Banner */}
