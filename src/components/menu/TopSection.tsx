@@ -9,6 +9,8 @@ import { Restaurant } from "@/lib/types/resturant-types";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { toast } from "react-toastify";
 import { UserRoles } from "@/lib/rbac/roles";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 interface TopSectionProps {
   restaurant: Restaurant;
@@ -143,17 +145,19 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
           alt="Banner"
           className="h-full w-full rounded-b-sm object-cover"
         />
-        <label className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
-          <ImageUp className="text-blue-600" />
-          <input
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) =>
-              e.target.files && uploadImage(e.target.files[0], "banner")
-            }
-          />
-        </label>
+        <ActionGuard action={Permission.UPDATE_RESTAURANT}>
+          <label className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
+            <ImageUp className="text-blue-600" />
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && uploadImage(e.target.files[0], "banner")
+              }
+            />
+          </label>
+        </ActionGuard>
       </div>
 
       {/* Heading Section */}
@@ -165,17 +169,19 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
             alt="Logo"
             className="rounded-xl object-cover w-16 h-16 sm:w-24 sm:h-24"
           />
-          <label className="absolute left-1/2 bottom-0 -translate-x-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
-            <ImageUp className="text-blue-600" />
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={(e) =>
-                e.target.files && uploadImage(e.target.files[0], "logo")
-              }
-            />
-          </label>
+          <ActionGuard action={Permission.UPDATE_RESTAURANT}>
+            <label className="absolute left-1/2 bottom-0 -translate-x-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
+              <ImageUp className="text-blue-600" />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) =>
+                  e.target.files && uploadImage(e.target.files[0], "logo")
+                }
+              />
+            </label>
+          </ActionGuard>
         </div>
 
         {/* Content */}

@@ -1,3 +1,4 @@
+import ClientWrapper from "@/components/admin/ClientWrapper";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RestaurantProvider } from "@/components/HOC/RestaurantProvider";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -51,7 +52,7 @@ export default async function AdminLayout({
               <div className="min-h-[100vh] flex-1 rounded-xl bg-gray-300/50 md:min-h-min" />
             </div> */}
 
-          {children}
+          <ClientWrapper>{children}</ClientWrapper>
         </SidebarInset>
       </SidebarProvider>
     </RestaurantProvider>
