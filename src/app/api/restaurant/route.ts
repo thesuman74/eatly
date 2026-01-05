@@ -1,3 +1,6 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { UserRoles } from "@/lib/rbac/roles";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -10,44 +13,75 @@ export async function GET(req: Request) {
 
     if (!restaurantId) {
       return NextResponse.json(
-        { error: "restaurantId is required" },
+        { error: "Missing restaurantId" },
         { status: 400 }
       );
     }
+
     const supabase = await createClient();
 
+    // 1. Authenticate
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-      });
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
     }
 
-    const { data: userData } = await supabase
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("restaurant_id")
+      .select("role, restaurant_id")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (!userData?.restaurant_id) {
-      return NextResponse.json([]);
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { data: restaurants, error } = await supabase
-      .from("restaurants")
-      .select("*")
-      .eq("owner_id", user.id);
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.READ_RESTAURANT_INFO,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
+    // 4. Role-based scoping
+    let query = supabase.from("restaurants").select("*").eq("id", restaurantId);
+
+    if (userData.role === UserRoles.OWNER) {
+      query = query.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== restaurantId) {
+        return NextResponse.json(
+          { error: "Resource access denied" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error } = await query.maybeSingle();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return NextResponse.json(restaurants);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(restaurant);
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 

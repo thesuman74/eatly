@@ -1,6 +1,18 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { UserRoles } from "@/lib/rbac/roles";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+// Every protected routes should go through this
+
+// 1. Authenticate user
+// 2. Resolve role from DB
+// 3. Check permission
+// 4. Fail fast if unauthorized
+// 5. Execute business logic
+
 export async function getAllPublicRestaurants() {
   const supabase = await createClient();
 
@@ -19,7 +31,7 @@ export async function getAllPublicRestaurants() {
 export async function getUserRestaurants() {
   const supabase = await createClient();
 
-  // 1. Get current user
+  // 1. Authenticate user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -28,32 +40,47 @@ export async function getUserRestaurants() {
     redirect("/login");
   }
 
-  // 2. Get user's restaurant assignment
+  // 2. Fetch role and restaurant assignment
   const { data: userData, error: userError } = await supabase
     .from("users")
     .select("role, restaurant_id")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (userError) {
-    throw new Error(userError.message);
-  }
-
-  if (!userData) {
+  if (userError || !userData) {
     return [];
   }
 
-  // 3. Query restaurants where user is owner OR staff
-  const { data: restaurants, error } = await supabase
-    .from("restaurants")
-    .select("*")
-    .or(`owner_id.eq.${user.id},id.eq.${userData.restaurant_id || "null"}`);
+  // 3. Permission check (RBAC)
+  const isAllowed = can({
+    role: userData.role,
+    permission: Permission.READ_RESTAURANT_INFO,
+  });
+
+  if (!isAllowed) {
+    return [];
+  }
+
+  // 4. Scope query by role
+  let query = supabase.from("restaurants").select("*");
+
+  if (userData.role === UserRoles.OWNER) {
+    query = query.eq("owner_id", user.id);
+  } else {
+    // staff / kitchen / customer → only assigned restaurant
+    if (!userData.restaurant_id) {
+      return [];
+    }
+    query = query.eq("id", userData.restaurant_id);
+  }
+
+  const { data: restaurants, error } = await query;
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return restaurants || [];
+  return restaurants ?? [];
 }
 export async function getPublicRestaurantDetails(restaurantId: string) {
   const supabase = await createClient();
