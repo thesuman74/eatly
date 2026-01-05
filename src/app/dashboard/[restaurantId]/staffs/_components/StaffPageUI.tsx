@@ -42,60 +42,10 @@ interface StaffPageUIProps {
 }
 
 export default function StaffPageUI({ staffData }: StaffPageUIProps) {
-  // const [users, setUsers] = useState(staffData);
-  const [invites, setInvites] = useState(pendingInvites);
-
-  const { inviteStaff } = useStaffActions();
-
-  const handleInviteUser = async (email: string, role: StaffRole) => {
-    if (!email || !role) {
-      return toast.error("Please provide both email and role.");
-    }
-
-    try {
-      await inviteStaff.mutateAsync({ email, role });
-    } catch (error) {}
-  };
-
   return (
-    <div className="p-4">
+    <div className="p-4 bg-white">
       <h2 className="text-2xl font-bold mb-4">Manage My Team</h2>
-
-      {/* Invite Section */}
-
-      <InviteStaffForm
-        onSubmit={handleInviteUser}
-        isLoading={inviteStaff.isPending}
-      />
-
-      {/* Staff Table */}
-      <div className="mb-6 bg-white p-2">
-        <h3 className="font-semibold mb-2">Staff & Owner</h3>
-        <StaffTable users={staffData} />
-      </div>
-
-      {/* Pending Invites */}
-      <div className="bg-white p-2">
-        <h3 className="font-semibold mb-2">Pending Invites</h3>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2 text-left">Email</th>
-              <th className="border p-2 text-left">Role</th>
-              <th className="border p-2 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invites.map((invite) => (
-              <tr key={invite.id}>
-                <td className="border p-2">{invite.email}</td>
-                <td className="border p-2">{invite.role}</td>
-                <td className="border p-2">{invite.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <StaffTable users={staffData} />
     </div>
   );
 }

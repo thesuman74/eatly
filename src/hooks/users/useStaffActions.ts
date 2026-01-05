@@ -18,6 +18,17 @@ export function useStaffActions() {
     retry: false,
   });
 
+  const getStaffsInvite = useQuery({
+    queryKey: ["StaffsInvite", restaurantId],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/staffs/invite?restaurantId=${restaurantId}&inviteStatus=pending`
+      );
+      return await res.json();
+    },
+    enabled: !!restaurantId,
+  });
+
   // Invite staff (magic link)
   const inviteStaff = useMutation({
     mutationFn: async ({ email, role }: { email: string; role: StaffRole }) => {
@@ -37,6 +48,11 @@ export function useStaffActions() {
     onSuccess: () => {
       // Invalidate staff list so it refreshes after invite
       queryClient.invalidateQueries({ queryKey: ["Staffs", restaurantId] });
+
+      // Invalidate invite list so it refreshes after invite
+      queryClient.invalidateQueries({
+        queryKey: ["StaffsInvite", restaurantId],
+      });
 
       toast.success("Invite sent successfully!");
     },
@@ -70,5 +86,5 @@ export function useStaffActions() {
     onError: () => {},
   });
 
-  return { getStaffs, inviteStaff, updateStaff, deleteStaff };
+  return { getStaffs, getStaffsInvite, inviteStaff, updateStaff, deleteStaff };
 }

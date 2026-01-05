@@ -37,7 +37,7 @@ export const InviteStaffForm = ({
 
   return (
     <div className="mb-6 p-4 border rounded-md bg-white max-w-xl">
-      <h3 className="font-semibold mb-2">Invite Staff</h3>
+      <h2 className="text-2xl font-bold mb-4">Invite staffs</h2>
 
       <div>
         <form className=" flex space-x-4" onSubmit={handleSubmit}>

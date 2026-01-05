@@ -85,3 +85,66 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const restaurantId = url.searchParams.get("restaurantId");
+
+  if (!restaurantId) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Auth check
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    //check if owner
+
+    const { data: restaurant } = await supabase
+      .from("restaurants")
+      .select("id")
+      .eq("id", restaurantId)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (!restaurant) {
+      return NextResponse.json(
+        { error: "You are not authorized for this restaurant" },
+        { status: 403 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("staff_invites")
+      .select("*")
+      .eq("invited_by", user.id)
+      .eq("restaurant_id", restaurantId);
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to fetch invites" },
+        { status: 500 }
+      );
+    }
+
+    console.log("staff invites", data);
+
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Unexpected server error" },
+      { status: 500 }
+    );
+  }
+}
