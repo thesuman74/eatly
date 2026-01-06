@@ -24,6 +24,8 @@ export default function CounterTable() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { openpaymentPanelStore } = paymentPanelStore();
 
+  console.log("orders", orders);
+
   const filteredData = orders.filter((order) => {
     // Hide COMPLETED or CANCELLED orders
     if (

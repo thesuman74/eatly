@@ -5,9 +5,12 @@ import { Permission } from "@/lib/rbac/permission";
 import { can } from "@/lib/rbac/can";
 import { useUserStore } from "@/stores/admin/useUserStore";
 
-/**
- * Props that can safely be disabled
- * (works for <button>, shadcn Button, etc.)
+/*
+ *this function handles 
+ 1. permission level check --> if the user has the permission to perform the action
+ 2. resource level check --> if user has permission for this rescource , for eg. owner/staff can only update their restaurant data 
+3. Fallback behavior → either hides or disables the component if access is denied.
+
  */
 type DisableableProps = {
   disabled?: boolean;

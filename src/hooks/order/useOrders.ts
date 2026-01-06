@@ -47,6 +47,7 @@ export const useOrders = () => {
   return useQuery<Order[]>({
     queryKey: ["orders-list", restaurantId],
     queryFn: () => getOrderListAPI(restaurantId),
+    enabled: !!restaurantId,
   });
 };
 
