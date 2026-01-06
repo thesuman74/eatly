@@ -29,6 +29,8 @@ import { ProductAddSheet } from "@/components/sheet/productAddSheet";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import HorizontalCategoryList from "../HorizontalCategoryList";
 import { useUpdateCategories } from "@/hooks/category/useUpdateCategory";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 interface CategoryListProps {
   initialCategories: ProductCategoryTypes[];
@@ -76,19 +78,20 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
       <div className=" w-auto mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
         {/* Buttons */}
         <div className="flex space-x-2 mb-4">
-          <Button
-            variant="outline"
-            onClick={() => addCategory.mutate()}
-            className="text-lg font-bold flex items-center"
-          >
-            {addCategory.isPending ? (
-              <LoaderCircle className="animate-spin" size={20} />
-            ) : (
-              <Plus size={20} />
-            )}
-            <span className="ml-2">Add New Category</span>
-          </Button>
-
+          <ActionGuard action={Permission.CREATE_CATEGORY}>
+            <Button
+              variant="outline"
+              onClick={() => addCategory.mutate()}
+              className="text-lg font-bold flex items-center"
+            >
+              {addCategory.isPending ? (
+                <LoaderCircle className="animate-spin" size={20} />
+              ) : (
+                <Plus size={20} />
+              )}
+              <span className="ml-2">Add New Category</span>
+            </Button>
+          </ActionGuard>
           <Button
             variant="outline"
             className="text-lg font-bold flex items-center"

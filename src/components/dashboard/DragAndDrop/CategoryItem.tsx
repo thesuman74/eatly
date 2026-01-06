@@ -14,6 +14,8 @@ import { useDeleteCategory } from "@/hooks/category/useDeleteCategory";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
 import { Button } from "@/components/ui/button";
 import { useUpdateCategories } from "@/hooks/category/useUpdateCategory";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 interface CategoryProps {
   category: ProductCategoryTypes;
@@ -87,15 +89,17 @@ const CategoryItem = ({ category }: CategoryProps) => {
           <div className="flex flex-col">
             <span className="text-sm text-gray-500">Category Name</span>
             <div className="flex space-x-2">
-              <input
-                type="text"
-                className="font-semibold w-[200px] outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
-                value={editCategory.name}
-                onChange={(e) =>
-                  setEditCategory({ ...editCategory, name: e.target.value })
-                }
-                onBlur={handleBlur}
-              />
+              <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
+                <input
+                  type="text"
+                  className="font-semibold w-[200px] outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
+                  value={editCategory.name}
+                  onChange={(e) =>
+                    setEditCategory({ ...editCategory, name: e.target.value })
+                  }
+                  onBlur={handleBlur}
+                />
+              </ActionGuard>
               {isEditing ? (
                 <span className="text-xs text-gray-500">saving....</span>
               ) : null}
@@ -104,13 +108,15 @@ const CategoryItem = ({ category }: CategoryProps) => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button
-            variant={"outline"}
-            onClick={() => openAddSheet(category.id)}
-            className="mx-8"
-          >
-            + Product
-          </Button>
+          <ActionGuard action={Permission.CREATE_PRODUCT}>
+            <Button
+              variant={"outline"}
+              onClick={() => openAddSheet(category.id)}
+              className="mx-8"
+            >
+              + Product
+            </Button>
+          </ActionGuard>
           <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
             {category.products?.length || 1}
           </Badge>
@@ -121,11 +127,13 @@ const CategoryItem = ({ category }: CategoryProps) => {
             </Badge>
           )}
 
-          <CategoryOptions
-            onToggleVisibility={() => handleToggleVisibility(category)}
-            onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
-            onDelete={() => deleteCategory.mutateAsync(category.id)}
-          />
+          <ActionGuard action={Permission.UPDATE_CATEGORY}>
+            <CategoryOptions
+              onToggleVisibility={() => handleToggleVisibility(category)}
+              onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
+              onDelete={() => deleteCategory.mutateAsync(category.id)}
+            />
+          </ActionGuard>
 
           <button
             onClick={() => setIsOpen(!isOpen)}

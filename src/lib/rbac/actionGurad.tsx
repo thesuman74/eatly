@@ -68,3 +68,13 @@ export const ActionGuard: React.FC<ActionGuardProps> = ({
 
   return null;
 };
+
+// usage sample
+//  <ActionGuard action={Permission.UPDATE_RESTAURANT} mode="disable">
+//                 <input
+//                   value={name}
+//                   onChange={(e) => setName(e.target.value)}
+//                   onBlur={handleNameBlur}
+//                   className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
+//                 />
+//               </ActionGuard>
