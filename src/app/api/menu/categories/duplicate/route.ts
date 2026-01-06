@@ -1,3 +1,5 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -21,6 +23,34 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
     if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.DUPLICATE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
+    }
 
     // Verify restaurant ownership once
     const { data: restaurant, error: restaurantError } = await supabase

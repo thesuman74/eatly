@@ -10,6 +10,7 @@ export enum Permission {
   READ_CATEGORY_INFO = "view_category_info",
   UPDATE_CATEGORY = "update_category",
   DELETE_CATEGORY = "delete_category",
+  DUPLICATE_CATEGORY = "duplicate_category",
 
   //products Management
   CREATE_PRODUCT = "create_product",
