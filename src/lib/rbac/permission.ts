@@ -1,8 +1,8 @@
 export enum Permission {
   // restaurant Management
   CREATE_RESTAURANT = "create_restaurant",
-  READ_RESTAURANT_INFO = "view_restaurant_info",
-  UPDATE_RESTAURANT = "update_restaurant",
+  READ_RESTAURANT_INFO = "view_restaurant_info", //done
+  UPDATE_RESTAURANT = "update_restaurant", //done
   DELETE_RESTAURANT = "delete_restaurant",
 
   // category Management
