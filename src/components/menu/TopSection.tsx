@@ -189,12 +189,15 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
           {/* Name & Share */}
           <div className="flex flex-grow flex-col p-2">
             <div className="flex flex-col sm:flex-row gap-2 sm:items-baseline text-xl font-bold space-x-6">
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={handleNameBlur}
-                className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
-              />
+              <ActionGuard action={Permission.UPDATE_RESTAURANT} mode="disable">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={handleNameBlur}
+                  className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
+                />
+              </ActionGuard>
+
               {isSaving && (
                 <span className="text-sm text-gray-500">Saving...</span>
               )}

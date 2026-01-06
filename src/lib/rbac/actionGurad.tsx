@@ -1,15 +1,27 @@
-// src/components/common/ActionGuard.tsx
 "use client";
-import React from "react";
+
+import React, { ReactElement } from "react";
 import { Permission } from "@/lib/rbac/permission";
 import { can } from "@/lib/rbac/can";
 import { useUserStore } from "@/stores/admin/useUserStore";
 
+/**
+ * Props that can safely be disabled
+ * (works for <button>, shadcn Button, etc.)
+ */
+type DisableableProps = {
+  disabled?: boolean;
+  readOnly?: boolean;
+  onClick?: React.MouseEventHandler;
+  className?: string;
+};
+
 interface ActionGuardProps {
   action: Permission;
-  children: React.ReactNode;
+  children: ReactElement<DisableableProps>; // 👈 critical
   fallback?: React.ReactNode;
   resourceOwnerId?: string;
+  mode?: "hide" | "disable";
 }
 
 export const ActionGuard: React.FC<ActionGuardProps> = ({
@@ -17,17 +29,42 @@ export const ActionGuard: React.FC<ActionGuardProps> = ({
   children,
   fallback = null,
   resourceOwnerId,
+  mode = "hide",
 }) => {
   const { user, loading } = useUserStore();
 
-  if (loading) return null; // optionally show spinner
+  if (loading) return null;
   if (!user) return <>{fallback}</>;
 
   const allowed = can({
     role: user.role,
     permission: action,
-    context: { currentUserId: user.id, resourceOwnerId, role: user.role },
+    context: {
+      currentUserId: user.id,
+      resourceOwnerId,
+      role: user.role,
+    },
   });
 
-  return allowed ? <>{children}</> : <>{fallback}</>;
+  if (allowed) {
+    return children;
+  }
+
+  if (mode === "hide") {
+    return <>{fallback}</>;
+  }
+
+  if (mode === "disable") {
+    return React.cloneElement(children, {
+      disabled: true,
+      readOnly: true,
+      onClick: undefined,
+      className: `
+        ${children.props.className ?? ""}
+        pointer-events-none  cursor-not-allowed
+      `,
+    });
+  }
+
+  return null;
 };
