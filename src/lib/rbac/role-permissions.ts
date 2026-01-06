@@ -11,12 +11,15 @@ export const ROLE_PERMISSIONS: Record<UserRoles, Permission[]> = {
     Permission.READ_CATEGORY_INFO,
     Permission.READ_PRODUCT_INFO,
     Permission.READ_ORDER_INFO,
+    Permission.UPDATE_ORDER_STATUS,
   ],
 
   [UserRoles.KITCHEN]: [
     Permission.READ_RESTAURANT_INFO,
+    Permission.READ_CATEGORY_INFO,
+    Permission.READ_PRODUCT_INFO,
     Permission.READ_ORDER_INFO,
-    Permission.UPDATE_ORDER,
+    Permission.UPDATE_ORDER_STATUS,
   ],
 
   [UserRoles.CUSTOMER]: [

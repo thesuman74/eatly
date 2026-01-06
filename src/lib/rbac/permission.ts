@@ -21,8 +21,9 @@ export enum Permission {
   //orders Management
   CREATE_ORDER = "create_order",
   READ_ORDER_INFO = "view_order_info",
-  UPDATE_ORDER = "update_order",
   DELETE_ORDER = "delete_order",
+  UPDATE_ORDER_STATUS = "update_order_status",
+  MODIFY_ORDER_ITEMS = "modify_order_items",
 
   //Employee Management
   CREATE_STAFF = "create_staff",
