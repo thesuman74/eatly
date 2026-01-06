@@ -21,20 +21,19 @@ export async function getCategoriesAPI(restaurantId: string) {
 }
 
 export async function addCategoryAPI(restaurantId: string) {
-  try {
-    const res = await clientAxiosInstance.post(
-      "/api/menu/categories",
-      { restaurantId }
-      // { requiresAuth: true }
-    );
-    return res.data;
-  } catch (error: any) {
-    console.error(
-      "Error adding categories:",
-      error.response?.data || error.message
-    );
-    throw new Error(error.response?.data?.error || "Failed to add categories");
+  const res = await fetch("/api/menu/categories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ restaurantId }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to add category");
   }
+
+  return data;
 }
 
 export interface CategoryUpdate {
