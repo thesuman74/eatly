@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 import { createClient } from "@/lib/supabase/server";
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const restaurantId = searchParams.get("restaurantId");
-
 
     if (!restaurantId) {
       return NextResponse.json(

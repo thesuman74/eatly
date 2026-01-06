@@ -1,43 +1,99 @@
 // app/api/menu/products/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
 
-export async function GET(req: Request) {
-  const supabase = await createClient();
+// used src\app\api\menu\structured\route.ts for get method
 
-  try {
-    const { searchParams } = new URL(req.url);
-    const categoryId = searchParams.get("categoryId");
+// export async function GET(req: Request) {
+//   const supabase = await createClient();
 
-    if (!categoryId) {
-      return NextResponse.json(
-        { error: "Missing required categoryId" },
-        { status: 400 }
-      );
-    }
+//   try {
+//     const { searchParams } = new URL(req.url);
+//     const categoryId = searchParams.get("categoryId");
+//     const restaurantId = searchParams.get("restaurantId");
 
-    const { data: products, error } = await supabase
-      .from("products")
-      .select("*, images:product_images(*)")
-      .eq("category_id", categoryId);
+//     if (!categoryId) {
+//       return NextResponse.json(
+//         { error: "Missing required categoryId" },
+//         { status: 400 }
+//       );
+//     }
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+//     // 1. Authenticate
+//     const {
+//       data: { user },
+//     } = await supabase.auth.getUser();
 
-    return NextResponse.json({ products });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error fetching products:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    console.error("Unknown error fetching products:", error);
-    return NextResponse.json(
-      { error: "An unknown error occurred" },
-      { status: 500 }
-    );
-  }
-}
+//     if (!user) {
+//       return NextResponse.json(
+//         { error: "Authentication required" },
+//         { status: 401 }
+//       );
+//     }
+
+//     // 2. Fetch role + assignment
+//     const { data: userData, error: userError } = await supabase
+//       .from("users")
+//       .select("role, restaurant_id")
+//       .eq("id", user.id)
+//       .maybeSingle();
+
+//     if (userError || !userData) {
+//       return NextResponse.json({ error: "Access denied" }, { status: 403 });
+//     }
+
+//     // 3. Permission check
+//     if (
+//       !can({
+//         role: userData.role,
+//         permission: Permission.READ_PRODUCT_INFO,
+//       })
+//     ) {
+//       return NextResponse.json(
+//         { error: "Insufficient permissions" },
+//         { status: 403 }
+//       );
+//     }
+
+//     // Verify ownership
+//     const { data: restaurant, error: restaurantError } = await supabase
+//       .from("restaurants")
+//       .select("id, owner_id")
+//       .eq("id", restaurantId)
+//       .eq("owner_id", user.id)
+//       .single();
+
+//     if (restaurantError || !restaurant) {
+//       return NextResponse.json(
+//         { error: "Not authorized for this restaurant" },
+//         { status: 403 }
+//       );
+//     }
+
+//     const { data: products, error } = await supabase
+//       .from("products")
+//       .select("*, images:product_images(*)")
+//       .eq("category_id", categoryId);
+
+//     if (error) {
+//       return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+
+//     return NextResponse.json({ products });
+//   } catch (error: unknown) {
+//     if (error instanceof Error) {
+//       console.error("Error fetching products:", error.message);
+//       return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+//     console.error("Unknown error fetching products:", error);
+//     return NextResponse.json(
+//       { error: "An unknown error occurred" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function POST(req: Request) {
   try {
@@ -66,6 +122,30 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.CREATE_PRODUCT,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
     }
 
     // Verify that restaurantId belongs to the user
@@ -169,6 +249,30 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.UPDATE_PRODUCT,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
     // Verify product exists and belongs to restaurant owned by user
     const { data: product, error: prodError } = await supabase
       .from("products")
@@ -261,6 +365,29 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.DELETE_PRODUCT,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
     // Verify restaurant ownership
     const { data: restaurant, error: restError } = await supabase
       .from("restaurants")
