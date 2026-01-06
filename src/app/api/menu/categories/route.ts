@@ -163,6 +163,34 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.UPDATE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
+    }
+
     // Verify ownership
     const { data: restaurant, error: restaurantError } = await supabase
       .from("restaurants")
@@ -251,6 +279,33 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.DELETE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
+    }
     // Verify ownership
     const { data: restaurant, error: restaurantError } = await supabase
       .from("restaurants")
