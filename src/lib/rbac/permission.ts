@@ -24,6 +24,7 @@ export enum Permission {
   DELETE_ORDER = "delete_order",
   UPDATE_ORDER_STATUS = "update_order_status",
   MODIFY_ORDER_ITEMS = "modify_order_items",
+  CANCEL_ORDER = "cancle_order",
 
   //Employee Management
   CREATE_STAFF = "create_staff",
