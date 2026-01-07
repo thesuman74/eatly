@@ -123,7 +123,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
           id: currentlyActiveOrderId,
           payload,
         });
-         setOpen(false);
+        setOpen(false);
         clearCart();
       } else {
         // Create new order
@@ -168,18 +168,12 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
       return;
     }
 
-    try {
-      // Call your mutation
-      await paymentRefundMutation.mutateAsync({
-        orderId: currentlyActiveOrderId,
-        restaurantId,
-      });
-      setOpen(false);
-
-      toast.success("Payment refunded successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to refund payment");
-    }
+    // Call your mutation
+    await paymentRefundMutation.mutateAsync({
+      orderId: currentlyActiveOrderId,
+      restaurantId,
+    });
+    setOpen(false);
   };
 
   const handleFinalizeOrder = async () => {

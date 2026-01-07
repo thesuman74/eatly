@@ -138,11 +138,13 @@ export async function GET(req: Request) {
         itemsTotal + (order.tax || 0) + (order.delivery_fee || 0);
 
       let payment_status = "unpaid";
+
       if (orderPayments.length > 0) {
-        if (orderPayments.some((p) => p.payment_status === "paid"))
-          payment_status = "paid";
-        else if (orderPayments.every((p) => p.payment_status === "refunded"))
+        if (orderPayments.some((p) => p.payment_status === "refunded")) {
           payment_status = "refunded";
+        } else if (orderPayments.some((p) => p.payment_status === "paid")) {
+          payment_status = "paid";
+        }
       }
 
       return {

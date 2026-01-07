@@ -25,6 +25,7 @@ export enum Permission {
   UPDATE_ORDER_STATUS = "update_order_status",
   MODIFY_ORDER_ITEMS = "modify_order_items",
   CANCEL_ORDER = "cancle_order",
+  REFUND_ORDER_PAYMENT = "refund_order_payment",
 
   //Employee Management
   CREATE_STAFF = "create_staff",
