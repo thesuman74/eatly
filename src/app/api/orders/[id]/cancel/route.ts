@@ -142,15 +142,21 @@ export async function POST(req: Request) {
       .select("*")
       .eq("order_id", orderId);
 
+    // Determine payment_status based on actual payment records
     let payment_status: "unpaid" | "paid" | "refunded" = "unpaid";
+
     if (paymentData && paymentData.length > 0) {
-      if (paymentData.some((p) => p.payment_status === "paid")) {
-        payment_status = "paid";
-      } else if (paymentData.every((p) => p.payment_status === "refunded")) {
-        payment_status = "refunded";
+      // check if any refund exists
+      if (
+        paymentData.some((p) => p.payment_status === PAYMENT_STATUS.REFUNDED)
+      ) {
+        payment_status = PAYMENT_STATUS.REFUNDED;
+      } else if (
+        paymentData.some((p) => p.payment_status === PAYMENT_STATUS.PAID)
+      ) {
+        payment_status = PAYMENT_STATUS.PAID;
       }
     }
-
     if (payment_status === PAYMENT_STATUS.PAID) {
       return NextResponse.json(
         { error: "Please refund before cancelling" },
@@ -164,7 +170,7 @@ export async function POST(req: Request) {
       .update({
         status: ORDER_STATUS.CANCELLED,
         cancelled_at: new Date().toISOString(),
-        cancelled_by_user_id: user.id,
+        cancelled_by: user.id,
         cancelled_by_role: userData.role,
         cancelled_reason,
         cancelled_note: cancel_note ?? null,
@@ -174,7 +180,7 @@ export async function POST(req: Request) {
 
     if (updateOrderError) {
       return NextResponse.json(
-        { error: "Failed to cancel order" },
+        { error: updateOrderError.message || "Failed to cancel order" },
         { status: 500 }
       );
     }
@@ -186,14 +192,12 @@ export async function POST(req: Request) {
         order_id: orderId,
         restaurant_id: restaurantId,
         status: ORDER_STATUS.CANCELLED,
-        cancelled_by_user_id: user.id,
-        cancelled_by_role: userData.role,
         created_at: new Date().toISOString(),
       });
 
     if (logError) {
       return NextResponse.json(
-        { error: "Failed to log order status" },
+        { error: logError.message || "Failed to log order status" },
         { status: 500 }
       );
     }
