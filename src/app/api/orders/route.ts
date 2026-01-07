@@ -66,13 +66,6 @@ export async function GET(req: Request) {
       }
     }
 
-    console.log(
-      "Staff restaurant_id:",
-      userData.restaurant_id,
-      "Query restaurantId:",
-      restaurantId
-    );
-
     const { data: restaurant, error } = await query.maybeSingle();
 
     if (error) {
@@ -149,6 +142,8 @@ export async function GET(req: Request) {
       };
     });
 
+    console.log("ordersWithTotals", ordersWithTotals);
+
     return NextResponse.json(ordersWithTotals);
   } catch (error: any) {
     console.error("Error fetching orders:", error.message || error);
@@ -160,22 +155,21 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const body: CreateOrderPayload = await req.json();
-  const { order, items, payment } = body;
-
-  console.log("body", body);
-
   try {
+    const supabase = await createClient();
+    const body: CreateOrderPayload = await req.json();
+    const { order, items, payment } = body;
+
     // 1️⃣ Authenticate user
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Verify restaurant ownership
+    // 2️⃣ Validate restaurant_id
     if (!order.restaurant_id) {
       return NextResponse.json(
         { error: "restaurant_id is required" },
@@ -183,12 +177,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data: restaurant, error: restError } = await supabase
+    // 3️⃣ Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 4️⃣ Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.CREATE_ORDER,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
+    // 5️⃣ Role-based restaurant scoping
+    let restaurantQuery = supabase
       .from("restaurants")
       .select("id")
-      .eq("id", order.restaurant_id)
-      .eq("owner_id", user.id)
-      .single();
+      .eq("id", order.restaurant_id);
+
+    if (userData.role === UserRoles.OWNER) {
+      restaurantQuery = restaurantQuery.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== order.restaurant_id) {
+        return NextResponse.json(
+          { error: "Not authorized for this restaurant" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error: restError } =
+      await restaurantQuery.single();
 
     if (restError || !restaurant) {
       return NextResponse.json(
@@ -197,17 +228,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3️⃣ Calculate amounts safely
-    const subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
+    // 6️⃣ Fetch product prices (DO NOT trust client)
+    const productIds = items.map((i) => i.product_id);
+
+    const { data: products, error: productError } = await supabase
+      .from("products")
+      .select("id, price")
+      .in("id", productIds)
+      .eq("restaurant_id", restaurant.id);
+
+    if (productError || !products || products.length !== productIds.length) {
+      return NextResponse.json(
+        { error: "Invalid product selection" },
+        { status: 400 }
+      );
+    }
+
+    const priceMap = new Map(products.map((p) => [p.id, p.price]));
+
+    const computedItems = items.map((item) => {
+      const unitPrice = priceMap.get(item.product_id);
+      if (unitPrice == null) {
+        throw new Error("Invalid product price");
+      }
+
+      return {
+        ...item,
+        unit_price: unitPrice,
+        total_price: unitPrice * item.quantity,
+      };
+    });
+
+    // 7️⃣ Calculate totals safely
+    const subtotal = computedItems.reduce((sum, i) => sum + i.total_price, 0);
+
     const tip = payment?.tip ?? 0;
     const total = subtotal + tip;
 
+    const amountPaid = payment?.amount_paid ?? 0;
     const paymentStatus =
-      payment?.amount_paid && payment.amount_paid > 0
-        ? PAYMENT_STATUS.PAID
-        : PAYMENT_STATUS.UNPAID;
+      amountPaid >= total ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.UNPAID;
 
-    // 4️⃣ Insert order with verified restaurant_id
+    const changeReturned = Math.max(0, amountPaid - total);
+
+    // 8️⃣ Insert order
     const { data: newOrder, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -216,7 +280,7 @@ export async function POST(req: NextRequest) {
         subtotal,
         total,
         notes: order.notes ?? null,
-        restaurant_id: restaurant.id, // ✅ must include
+        restaurant_id: restaurant.id,
         order_source: order.order_source ?? null,
       })
       .select()
@@ -226,15 +290,15 @@ export async function POST(req: NextRequest) {
       throw new Error(orderError?.message || "Order insertion failed");
     }
 
-    // 5️⃣ Insert order items
-    const itemsPayload = items.map((item) => ({
+    // 9️⃣ Insert order items
+    const itemsPayload = computedItems.map((item) => ({
       order_id: newOrder.id,
       product_id: item.product_id,
       quantity: item.quantity,
       unit_price: item.unit_price,
       total_price: item.total_price,
       notes: item.notes ?? null,
-      restaurant_id: order.restaurant_id,
+      restaurant_id: newOrder.restaurant_id,
     }));
 
     const { error: itemsError } = await supabase
@@ -245,17 +309,17 @@ export async function POST(req: NextRequest) {
       throw new Error(itemsError.message);
     }
 
-    // 6️⃣ Insert payment ONLY if paid
+    // 🔟 Insert payment (if present)
     if (payment) {
       const { error: paymentError } = await supabase
         .from("order_payments")
         .insert({
           order_id: newOrder.id,
           method: payment.method,
-          amount_paid: payment.amount_paid,
-          tip: payment.tip ?? 0,
-          change_returned: payment.change_returned ?? 0,
-          restaurant_id: order.restaurant_id,
+          amount_paid: amountPaid,
+          tip,
+          change_returned: changeReturned,
+          restaurant_id: newOrder.restaurant_id,
           payment_status: paymentStatus,
         });
 
