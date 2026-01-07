@@ -47,30 +47,48 @@ export default function CounterTableFilters({
             {value === "all" && <Check size={14} className="mr-1" />}
             All
           </Badge>
-
           {/* PENDING */}
-          <Badge
-            variant="outline"
-            className={`cursor-pointer ${isActive(ORDER_STATUS.DRAFT)}`}
-            onClick={() => onChange(ORDER_STATUS.DRAFT)}
-          >
-            Pending
-            <Badge className="bg-yellow-500 mx-1 text-xs text-white">
-              {count(ORDER_STATUS.DRAFT)}
+          {count(ORDER_STATUS.DRAFT) > 0 && (
+            <Badge
+              variant="outline"
+              className={`cursor-pointer ${isActive(ORDER_STATUS.DRAFT)}`}
+              onClick={() => onChange(ORDER_STATUS.DRAFT)}
+            >
+              Pending
+              <Badge className="bg-yellow-500 mx-1 text-xs text-white">
+                {count(ORDER_STATUS.DRAFT)}
+              </Badge>
             </Badge>
-          </Badge>
+          )}
 
           {/* ONGOING */}
-          <Badge
-            variant="outline"
-            className={`cursor-pointer ${isActive(ORDER_STATUS.PREPARING)}`}
-            onClick={() => onChange(ORDER_STATUS.PREPARING)}
-          >
-            PREPARING
-            <Badge className="bg-green-500 mx-1 text-xs text-white">
-              {count(ORDER_STATUS.PREPARING)}
+
+          {count(ORDER_STATUS.PREPARING) > 0 && (
+            <Badge
+              variant="outline"
+              className={`cursor-pointer ${isActive(ORDER_STATUS.PREPARING)}`}
+              onClick={() => onChange(ORDER_STATUS.PREPARING)}
+            >
+              PREPARING
+              <Badge className="bg-green-500 mx-1 text-xs text-white">
+                {count(ORDER_STATUS.PREPARING)}
+              </Badge>
             </Badge>
-          </Badge>
+          )}
+
+          {/* READY */}
+          {count(ORDER_STATUS.READY) > 0 && (
+            <Badge
+              variant="outline"
+              className={`cursor-pointer ${isActive(ORDER_STATUS.READY)}`}
+              onClick={() => onChange(ORDER_STATUS.READY)}
+            >
+              Ready
+              <Badge className="bg-green-500 mx-1 text-xs text-white">
+                {count(ORDER_STATUS.READY)}
+              </Badge>
+            </Badge>
+          )}
         </div>
       </div>
 

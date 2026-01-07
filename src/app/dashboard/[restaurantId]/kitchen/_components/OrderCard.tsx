@@ -23,7 +23,9 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
     // Hide COMPLETED or CANCELLED orders
     if (
       order.status === ORDER_STATUS.COMPLETED ||
-      order.status === ORDER_STATUS.CANCELLED
+      order.status === ORDER_STATUS.CANCELLED ||
+      order.status === ORDER_STATUS.DELIVERED ||
+      order.status === ORDER_STATUS.DRAFT
     ) {
       return false;
     }

@@ -2,6 +2,8 @@ import React from "react";
 import { Clock, User, Timer, Check, UtensilsCrossed } from "lucide-react";
 import { Order, OrderStatus } from "@/lib/types/order-types";
 import { OrderStatusActions } from "@/components/order/OrderStatusActions";
+import { timeAgo } from "@/utils/time";
+import clsx from "clsx";
 
 // Types based on your provided JSON
 interface OrderItem {
@@ -16,7 +18,14 @@ interface KitchenCardItemProps {
 }
 
 const KitchenCardItem = ({ order, onStatusChange }: KitchenCardItemProps) => {
+  const elapsed = (Date.now() - new Date(order.created_at).getTime()) / 1000;
   // Format the ISO timestamp to HH:mm
+  const timeColor = clsx(
+    "text-xs font-medium transition-colors",
+    elapsed < 300 && "text-green-600",
+    elapsed >= 300 && elapsed < 900 && "text-yellow-600",
+    elapsed >= 900 && "text-red-600 animate-pulse"
+  );
 
   return (
     <div
@@ -47,9 +56,8 @@ const KitchenCardItem = ({ order, onStatusChange }: KitchenCardItemProps) => {
             </span>
           </div>
 
-          <div className="bg-red-500 text-white flex-nowrap w px-2 py-0.5 rounded-full flex items-center gap-1 text-[12px] font-bold shadow-sm">
-            <Timer size={14} strokeWidth={3} />
-            <span>30:00</span>
+          <div className={`flex items-center text-xs gap-1 ${timeColor}`}>
+            <Clock size={14} /> {timeAgo(order.created_at)}
           </div>
         </div>
       </div>
@@ -77,6 +85,7 @@ const KitchenCardItem = ({ order, onStatusChange }: KitchenCardItemProps) => {
           <OrderStatusActions
             onStatusChange={(status) => onStatusChange(order.id, status)}
             loading={false}
+            currentStatus={order.status}
           />
           {/* Footer Action: Blue Outlined Button */}
           <button className="w-full py-2.5 border-2 border-[#2196F3] text-[#2196F3] rounded-lg font-semibold text-sm flex items-center justify-center gap-1.5 hover:bg-blue-50 transition-colors active:scale-[0.97]">
