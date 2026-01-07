@@ -107,7 +107,7 @@ export async function PATCH(
     .eq("id", orderId)
     .eq("restaurant_id", restaurantId)
     .select()
-    .single();
+    .maybeSingle();
 
   if (updateError || !updatedOrder) {
     return NextResponse.json(
