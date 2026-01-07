@@ -124,6 +124,7 @@ export const useUpdateOrderItem = () => {
 
 export const useUpdateOrder = () => {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation<
     any, // return type of API
@@ -142,8 +143,10 @@ export const useUpdateOrder = () => {
       return data;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["order-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", restaurantId],
+      });
       toast.success("Order updated successfully!");
     },
     onError: (err: any) => {
