@@ -1,44 +1,87 @@
+import {
+  Order,
+  ORDER_STATUS,
+  OrderActionState,
+  OrderActionType,
+  OrderStatus,
+} from "@/lib/types/order-types";
 import KitchenCardItem from "./KitchenItemCard";
+import CounterTableFilters, {
+  StatusFilter,
+} from "@/components/order/CounterTableFilters";
+import { useState } from "react";
+import { useUpdateOrderStatus } from "@/hooks/order/useOrders";
 
-export default function KitchenPage() {
-  const orderData = [
-    {
-      order_number: 1,
-      customer_name: "suman",
-      created_at: "2026-01-06T12:12:00.000Z",
-      items: [
-        {
-          id: "b2644791-7a10-47c0-a0c4-0b89bb3c7cdf",
-          product_id: "6d2e195-a6f3-456a-a0ca-1ec194cd93a9",
-          quantity: 1,
-        },
-        {
-          id: "b2644791-7a10-47dc0-a0c4-0b89bb3c7cdf",
-          product_id: "6de2se195-a6f3-456a-a0ca-1ec194cd93a9",
-          quantity: 1,
-        },
-      ],
-    },
-    {
-      order_number: 2,
-      customer_name: "suman",
-      created_at: "2026-01-06T12:12:00.000Z",
-      items: [
-        {
-          id: "b2644791-7a10-47c0-a0c4-0b89bb3c7cdf",
-          product_id: "6de2e195-a6f3-456a-a0ca-1ec194cd93a9",
-          quantity: 1,
-        },
-      ],
-    },
-  ];
+interface KitchenPageProps {
+  orderData: Order[];
+}
 
+export default function KitchenPage({ orderData }: KitchenPageProps) {
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const filteredData = orderData.filter((order) => {
+    // Hide COMPLETED or CANCELLED orders
+    if (
+      order.status === ORDER_STATUS.COMPLETED ||
+      order.status === ORDER_STATUS.CANCELLED
+    ) {
+      return false;
+    }
+
+    // Show all if "all" filter is selected
+    if (statusFilter === "all") return true;
+
+    // Otherwise, match the selected status
+    return order.status === statusFilter;
+  });
+
+  const updateOrderStatus = useUpdateOrderStatus();
+  const [actionState, setActionState] = useState<OrderActionState>({
+    orderId: null,
+    type: null,
+  });
+
+  const handleStatusChange = (
+    id: string,
+    status: OrderStatus,
+    type: OrderActionType
+  ) => {
+    setActionState({ orderId: id, type });
+
+    updateOrderStatus.mutate(
+      { id, status },
+      {
+        onSettled: () => {
+          setActionState({ orderId: null, type: null });
+        },
+      }
+    );
+  };
   return (
-    <div className="p-10 bg-gray-100 min-h-screen flex flex-wrap w-full  items-start justify-center space-x-8 ">
-      {orderData &&
-        orderData?.map((order, index) => (
-          <KitchenCardItem order={order} key={index} />
-        ))}
-    </div>
+    <>
+      <div className="bg-white min-h-screen p-4 flex flex-col">
+        <div className="mb-4">
+          <CounterTableFilters
+            value={statusFilter}
+            onChange={setStatusFilter}
+            orders={orderData}
+          />
+        </div>
+        {/* Filters row */}
+
+        {/* Cards container */}
+        <div className="flex flex-wrap justify-start gap-4">
+          {filteredData?.map((order, index) => (
+            <KitchenCardItem
+              order={order}
+              key={index}
+              onStatusChange={(id, status) =>
+                handleStatusChange(id, status, "status")
+              }
+            />
+          ))}
+        </div>
+      </div>
+    </>
   );
 }

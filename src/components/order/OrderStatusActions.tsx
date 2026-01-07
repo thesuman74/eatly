@@ -17,9 +17,9 @@ export function OrderStatusActions({
 }) {
   return (
     <>
-      <Button variant="outline">
+      {/* <Button variant="outline">
         <Printer size={14} />
-      </Button>
+      </Button> */}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
