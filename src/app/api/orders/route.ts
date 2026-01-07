@@ -86,11 +86,23 @@ export async function GET(req: Request) {
     // 6. Fetch order items
     const { data: items } = await supabase
       .from("order_items")
-      .select("*")
+      .select(
+        `
+    *,
+    product:products(id, name)
+  `
+      )
       .in("order_id", orderIds);
 
+    // Flatten product name
+    const itemsWithProductName =
+      items?.map((item) => ({
+        ...item,
+        product_name: item.product?.name ?? null,
+      })) || [];
+
     // 7. Fetch addons
-    const itemIds = items?.map((i) => i.id) || [];
+    const itemIds = itemsWithProductName.map((i) => i.id);
     const { data: addons } = await supabase
       .from("order_item_addons")
       .select("*")
@@ -104,7 +116,8 @@ export async function GET(req: Request) {
 
     // 9. Assemble orders
     const ordersWithTotals = orders.map((order) => {
-      const orderItems = items?.filter((i) => i.order_id === order.id) || [];
+      const orderItems =
+        itemsWithProductName?.filter((i) => i.order_id === order.id) || [];
 
       // Only include addons relevant to this order's items
       const orderAddons = orderItems.flatMap(
