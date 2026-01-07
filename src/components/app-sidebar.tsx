@@ -99,7 +99,7 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
 
       {
         title: "Kitchen",
-        url: "#",
+        url: `/dashboard/${restaurantName}/kitchen`,
         icon: CookingPot,
       },
       {
