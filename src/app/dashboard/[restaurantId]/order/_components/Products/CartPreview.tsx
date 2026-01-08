@@ -12,9 +12,9 @@ export default function CartPreview() {
 
   return (
     <>
-      <div className="w-full max-w-md  bg-white border rounded shadow-md ">
+      <div className="w-full max-w-md  bg-background border rounded shadow-md ">
         <div className="flex items-center justify-between border-b  ">
-          <span className="font-bold text-lg w-full text-white bg-blue-500 p-2">
+          <span className="font-bold text-lg w-full text-white bg-blue-500 dark:bg-muted p-2">
             + Products
           </span>
         </div>
@@ -74,6 +74,7 @@ export default function CartPreview() {
       </div>
 
       <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
+        <div></div>
         <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
           + Discount
         </button>

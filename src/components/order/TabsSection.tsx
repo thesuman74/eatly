@@ -24,14 +24,14 @@ const OrderTabsSection = () => {
     <Tabs defaultValue="Counter" className="w-full mt-2 px-4">
       <div className="flex justify-between">
         {/* Tab List */}
-        <TabsList className="grid grid-cols-3 p-0 gap-0 bg-none ">
+        <TabsList className="grid grid-cols-3 p-0 gap-0  ">
           {tablist.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.title}
               className="border-2  border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-500"
             >
-              <div className="flex items-center space-x-2 px-4 py-2 bg-white font-bold">
+              <div className="flex items-center space-x-2 px-4 py-2 bg-background font-bold">
                 <span className="text-2xl">{tab.icon}</span>
                 <span className="text-lg ">{tab.title}</span>
                 <span className="rounded-full bg-gray-300 px-2 py-1 text-xs">
@@ -44,10 +44,10 @@ const OrderTabsSection = () => {
 
         {/* Right Section */}
         <div className="flex gap-2">
-          <button className="rounded-sm bg-gray-200 px-6">
+          <button className="rounded-sm border px-6">
             <RefreshCcw size={14} />
           </button>
-          <button className="rounded-sm bg-gray-200 px-6">
+          <button className="rounded-sm border  px-6">
             <Search size={14} />
           </button>
           {/* <button className="flex items-center gap-2 rounded-sm bg-blue-500 px-4 py-2 text-white">

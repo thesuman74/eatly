@@ -6,7 +6,7 @@
    Base font & body
 -------------------------------- */
 body {
-  font-family: var(--font-quicksand),  Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* -------------------------------
@@ -66,7 +66,7 @@ body {
   --sidebar-primary: 224 76% 48%;         /* slightly brighter blue for active item */
   --sidebar-primary-foreground: 0 0% 100%;/* white text for active item */
 
-  --sidebar-accent: 240 4.8% 95.9%; 
+  --sidebar-accent: 224.3 76.3% 28%; 
   --sidebar-accent-foreground: 0 0% 100%; /* white text on hover/active */
 
   --sidebar-border: 224 76% 20%;          /* subtle darker divider */
@@ -136,8 +136,10 @@ body {
   }
 
   body {
-    @apply bg-background ;
-    font-weight: 500;
+    @apply bg-background text-foreground;
+    font-family: var(--font-quicksand), sans-serif;  
+    font-weight: 500; 
+    font-style: normal;
   }
 
   h1,

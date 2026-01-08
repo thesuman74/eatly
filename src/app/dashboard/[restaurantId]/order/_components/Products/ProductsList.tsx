@@ -58,9 +58,7 @@ const ProductsList = () => {
           <div className="flex-1 overflow-y-auto p-4">
             <div className="flex justify-between items-center mb-4">
               <ProductSearch />
-              <h2 className="text-gray-700 text-lg font-semibold mr-14">
-                PRODUCTS
-              </h2>
+              <h2 className=" text-lg font-semibold mr-14">PRODUCTS</h2>
             </div>
 
             {categories?.map((category) => (

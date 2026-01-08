@@ -3,7 +3,7 @@ import { OrderRowSkeleton } from "./OrderRowSkeleton";
 
 export function OrderTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
-    <div className="bg-white rounded-md shadow overflow-hidden">
+    <div className="bg-background rounded-md shadow overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <Skeleton className="h-6 w-24" />

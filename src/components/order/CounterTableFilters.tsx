@@ -16,7 +16,7 @@ export default function CounterTableFilters({
   orders,
 }: Props) {
   const isActive = (v: StatusFilter) =>
-    value === v ? "bg-blue-200 text-blue-600" : "hover:bg-gray-100";
+    value === v ? "bg-blue-200 text-blue-600" : "hover:border-accent";
 
   const totalOrders = orders.length;
 
@@ -31,7 +31,7 @@ export default function CounterTableFilters({
     .reduce((acc, o) => acc + o.total_amount, 0);
 
   return (
-    <div className="flex justify-between w-full items-center border-b bg-white mt-8 px-4">
+    <div className="flex justify-between w-full items-center border-b bg-secondary rounded-t-sm mt-8 px-4">
       {/* Left */}
       <div className="flex items-center gap-2 text-gray-500">
         <Filter size={18} />
@@ -93,9 +93,7 @@ export default function CounterTableFilters({
       </div>
 
       {/* Right */}
-      <div className="text-sm font-semibold text-gray-700">
-        Total: Rs {totalAmount}
-      </div>
+      <div className="text-sm font-semibold ">Total: Rs {totalAmount}</div>
     </div>
   );
 }

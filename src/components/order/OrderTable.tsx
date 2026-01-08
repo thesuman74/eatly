@@ -214,9 +214,9 @@ export default function OrdersTable({
     );
 
   return (
-    <div className="bg-white rounded-md shadow overflow-hidden">
+    <div className="bg-white  shadow overflow-hidden">
       {/* Header */}
-      <div className="grid grid-cols-12 gap-4 p-2 px-4 text-xs font-semibold text-gray-500 bg-gray-100">
+      <div className="grid grid-cols-12 gap-4 p-2 px-4 text-xs font-semibold text-gray-500 bg-background ">
         <div className="col-span-2">DATE</div>
         <div className="col-span-2">STATUS</div>
         <div className="col-span-2">TOTAL</div>
@@ -230,7 +230,7 @@ export default function OrdersTable({
         return (
           <div
             key={row.id}
-            className="relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer hover:bg-blue-50 border items-center bg-gray-50"
+            className="relative grid grid-cols-12 gap-4 p-4 hover:cursor-pointer hover:bg-secondary border items-center bg-card"
             onClick={(e) => {
               // Only trigger sheet when clicking on the left columns (DATE, STATUS, TOTAL, CLIENT)
               const target = e.target as HTMLElement;

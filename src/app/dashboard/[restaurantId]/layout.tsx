@@ -32,7 +32,7 @@ export default async function AdminLayout({
     <RestaurantProvider restaurants={restaurantData}>
       <SidebarProvider>
         <AppSidebar restaurants={restaurantData} />
-        <SidebarInset className="min-w-0 max-w-full overflow-x-hidden">
+        <SidebarInset className="min-w-0 max-w-full overflow-x-hidden bg-primary-foreground">
           <header className="flex h-16   sticky z-10 top-0 shrink-0 items-center gap-2 transition-[width,height] bg-sidebar-primary text-white ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex   w-full justify-between items-center gap-2 px-4">
               <div>
@@ -46,14 +46,6 @@ export default async function AdminLayout({
               </div>
             </div>
           </header>
-          {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="aspect-video rounded-xl bg-gray-300/50" />
-                <div className="aspect-video rounded-xl bg-gray-300/50" />
-                <div className="aspect-video rounded-xl bg-gray-300/50" />
-              </div>
-              <div className="min-h-[100vh] flex-1 rounded-xl bg-gray-300/50 md:min-h-min" />
-            </div> */}
 
           <ClientWrapper>{children}</ClientWrapper>
         </SidebarInset>
