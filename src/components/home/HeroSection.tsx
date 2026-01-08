@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function HeroSection() {
   const [scrollY, setScrollY] = useState(0);
@@ -14,7 +15,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center">
+    <section className="relative min-h-screen bg-custom-grid pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center">
       {/* Dynamic gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -105,7 +106,7 @@ export function HeroSection() {
                 <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />
 
                 {/* Content */}
-                <div className="relative h-full flex flex-col items-center justify-center gap-6 p-8">
+                {/* <div className="relative h-full flex flex-col items-center justify-center gap-6 p-8">
                   <div className="flex gap-3">
                     {["Upload", "Extract", "Manage"].map((text, i) => (
                       <div
@@ -120,7 +121,14 @@ export function HeroSection() {
                   <p className="text-center text-muted-foreground max-w-xs">
                     Smart automation for every aspect of your restaurant
                   </p>
-                </div>
+                </div> */}
+                <Image
+                  src="/images/login.avif"
+                  alt="Hero Image"
+                  width={500}
+                  height={500}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

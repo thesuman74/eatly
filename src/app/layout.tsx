@@ -30,9 +30,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="color-scheme: light">
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body
-        className={`${quicksand.className} antialiased max-w-full overflow-x-hidden`}
+        className={`${quicksand.className} antialiased max-w-full overflow-x-hidden `}
       >
         <Provider>{children}</Provider>
       </body>

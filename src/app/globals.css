@@ -185,6 +185,14 @@ body {
   .paragraph-text {
     @apply text-sm md:text-base text-muted-foreground;
   }
+  .bg-custom-grid {
+  background: linear-gradient(115deg, #0d0d0c, #54524a);
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(168, 120, 16, 0.12) 15px, rgba(168, 120, 16, 0.12) 16px),
+    repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(168, 120, 16, 0.12) 15px, rgba(168, 120, 16, 0.12) 16px);
+  background-size: 100% 100%, 100% 100%;
+}
+
 }
 
 /* -------------------------------

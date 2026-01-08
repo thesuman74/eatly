@@ -175,7 +175,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t border-border/20 bg-card/30">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
             <div>
               <h4 className="font-semibold text-foreground mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -193,14 +193,6 @@ export default function Home() {
                     className="hover:text-foreground transition-colors"
                   >
                     Pricing
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Security
                   </a>
                 </li>
               </ul>
@@ -221,78 +213,13 @@ export default function Home() {
                     href="#"
                     className="hover:text-foreground transition-colors"
                   >
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Careers
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    API
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Support
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
-                  >
                     Contact
                   </a>
                 </li>
               </ul>
             </div>
           </div>
+
           <div className="border-t border-border/20 pt-8 flex flex-col sm:flex-row items-center justify-between">
             <p className="text-sm text-muted-foreground">
               © 2025 Eatly. All rights reserved.
