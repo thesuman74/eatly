@@ -22,7 +22,7 @@ const CategoryOptions = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="p-2 rounded-full hover:bg-gray-200">
+        <button className="p-2 rounded-full hover:bg-secondary">
           <EllipsisVertical size={20} />
         </button>
       </DropdownMenuTrigger>

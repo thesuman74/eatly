@@ -28,7 +28,7 @@ const CartItem = ({ item }: CartItemProps) => {
         {/* Decrement Button */}
         <button
           onClick={() => decrementQuantity(item.id)}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition-colors text-lg font-bold"
+          className="w-8 h-8 flex items-center justify-center rounded-full border hover:bg-gray-300 transition-colors text-lg font-bold"
         >
           -
         </button>
@@ -44,7 +44,7 @@ const CartItem = ({ item }: CartItemProps) => {
         {/* Increment Button */}
         <button
           onClick={() => incrementQuantity(item.id)}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition-colors text-lg font-bold"
+          className="w-8 h-8 flex items-center justify-center rounded-full border hover:bg-gray-300 transition-colors text-lg font-bold"
         >
           +
         </button>

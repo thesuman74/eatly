@@ -32,7 +32,7 @@ const Top = ({ restaurant }: topProps) => {
 
         {/* <!-- heading  --> */}
         <div className="  -mt-6 z-10  w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-input pb-4">
-          <div className="flex size-16 sm:size-24 md:size-32 items-center bg-gray-200 rounded-xl p-1 min-w-16">
+          <div className="flex size-16 sm:size-24 md:size-32 items-center border bg-muted rounded-xl p-1 min-w-16">
             <img
               src={logoUrl}
               alt={nameText}

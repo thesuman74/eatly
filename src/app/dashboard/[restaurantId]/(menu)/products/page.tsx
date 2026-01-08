@@ -42,7 +42,7 @@ export default function Page() {
     : restaurantData; // fallback for staff
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
+    <div className="min-h-screen max-w-7xl mx-auto bg-backround">
       {isRestaurantLoading ? (
         <MenuPageSkeleton />
       ) : (

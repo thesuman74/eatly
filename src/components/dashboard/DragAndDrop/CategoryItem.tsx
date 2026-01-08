@@ -137,7 +137,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="bg-gray-200 rounded-full p-2"
+            className="bg-background rounded-full p-2"
           >
             {isOpen ? <ChevronDown /> : <ChevronRight />}
           </button>

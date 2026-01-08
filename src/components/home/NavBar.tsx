@@ -4,6 +4,7 @@ import { ChefHat, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
+import Link from "next/link";
 
 export function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -47,15 +48,20 @@ export function NavBar() {
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button size="sm" variant="ghost" className="hidden sm:flex">
-              Sign In
-            </Button>
-            <Button
-              size="sm"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20"
-            >
-              Get Started
-            </Button>
+            <Link href="/login">
+              <Button size="sm" variant="ghost" className="hidden sm:flex">
+                Sign In
+              </Button>
+            </Link>
+
+            <Link href="/register">
+              <Button
+                size="sm"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20"
+              >
+                Get Started
+              </Button>
+            </Link>
             <button
               className="md:hidden p-2"
               onClick={() => setMobileOpen(!mobileOpen)}

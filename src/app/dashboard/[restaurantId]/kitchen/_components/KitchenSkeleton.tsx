@@ -10,7 +10,7 @@ export default function KitchenPageSkeleton() {
         {[1, 2, 3].map((cardIndex) => (
           <div
             key={cardIndex}
-            className="border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-col space-y-5 bg-white"
+            className="border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-col space-y-5 bg-background"
           >
             {/* Card Header: Order # and Timer */}
             <div className="flex justify-between items-start">

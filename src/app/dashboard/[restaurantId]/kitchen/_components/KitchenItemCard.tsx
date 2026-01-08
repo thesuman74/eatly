@@ -34,7 +34,7 @@ const KitchenCardItem = ({ order, onStatusChange }: KitchenCardItemProps) => {
           ? "border-green-400 bg-green-50"
           : order.status === "preparing"
           ? "border-blue-400 bg-blue-50"
-          : "border-gray-200 bg-white"
+          : "border-gray-200 bg-card"
       }`}
     >
       {/* Header Section */}

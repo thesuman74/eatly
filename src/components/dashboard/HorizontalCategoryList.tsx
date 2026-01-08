@@ -35,12 +35,11 @@ export default function HorizontalCategoryList({ categories }: Props) {
               flex-shrink-0
               whitespace-nowrap
               rounded-md
-              bg-gray-100
+              bg-secondary
               px-3
               py-1
               text-sm
               font-medium
-              text-gray-700
               hover:bg-gray-200
             "
             >

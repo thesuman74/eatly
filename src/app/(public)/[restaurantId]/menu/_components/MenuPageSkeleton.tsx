@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MenuPageSkeleton() {
   return (
-    <div className="w-full bg-[#f8f8f8] min-h-screen pb-10">
+    <div className="w-full bg-secondary min-h-screen pb-10">
       {/* 1. Header/Banner Section */}
       <div className="relative h-48 w-full overflow-hidden">
         <Skeleton className="h-full w-full rounded-none" />
@@ -13,7 +13,7 @@ export default function MenuPageSkeleton() {
         {/* 2. Profile Info Section */}
         <div className="relative flex flex-col items-start -mt-12 mb-6">
           {/* Logo Avatar */}
-          <Skeleton className="h-24 w-24 rounded-2xl border-4 border-white shadow-md bg-white mb-4" />
+          <Skeleton className="h-24 w-24 rounded-2xl border-4 border-white shadow-md bg-background mb-4" />
 
           <div className="w-full flex justify-between items-center">
             <div className="space-y-2">

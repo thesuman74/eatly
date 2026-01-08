@@ -61,7 +61,7 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
   };
   return (
     <>
-      <div className="bg-white min-h-screen p-4 flex flex-col">
+      <div className="bg-background min-h-screen  flex flex-col">
         <div className="mb-4">
           <CounterTableFilters
             value={statusFilter}

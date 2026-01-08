@@ -194,7 +194,7 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={handleNameBlur}
-                  className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
+                  className="text-xl md:text-3xl sm:text-4xl font-bold border-b bg-background border-gray-300 focus:outline-none"
                 />
               </ActionGuard>
 

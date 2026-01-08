@@ -31,7 +31,7 @@ export default function CounterTableFilters({
     .reduce((acc, o) => acc + o.total_amount, 0);
 
   return (
-    <div className="flex justify-between w-full items-center border-b bg-secondary rounded-t-sm mt-8 px-4">
+    <div className="flex justify-between w-full items-center border-b bg-secondary rounded-t-sm  px-4">
       {/* Left */}
       <div className="flex items-center gap-2 text-gray-500">
         <Filter size={18} />
