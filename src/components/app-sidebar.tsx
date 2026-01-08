@@ -10,6 +10,7 @@ import {
   GalleryVerticalEnd,
   ListOrdered,
   NotebookPen,
+  SquareArrowOutUpRight,
   Store,
   Users,
   Utensils,
@@ -27,6 +28,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import Link from "next/link";
 
 // This is sample data.
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -38,7 +40,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
 };
 
 export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
-  // const restaurantId = useRestaurantStore((state) => state.restaurantId);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
   const restaurantName = useRestaurantStore((state) => state.restaurantName);
 
   const data = {
@@ -130,6 +132,11 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
+      <div className="mx-auto flex space-x-3 bg-white text-blue-500 py-2 px-4 rounded-sm hover:scale-125 duration-200 hover:cursor-pointer">
+        <Link href={`/${restaurantId}`} className="flex space-x-4">
+          <SquareArrowOutUpRight /> <span>Preview</span>
+        </Link>
+      </div>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>

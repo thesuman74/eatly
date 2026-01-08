@@ -21,7 +21,7 @@ const SidePreview = ({ src, showSidePreview = false }: SidePreviewProps) => {
   console.log("targetUrl", targetUrl);
 
   return (
-    <div className="z-10  md:w-96 bg-gray-200 flex flex-col shadow-xl">
+    <div className="z-10 relative  md:w-96 bg-gray-200 flex flex-col shadow-xl">
       {/* Close button */}
       <button
         onClick={() => setIsOpen(false)}
