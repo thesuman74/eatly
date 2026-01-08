@@ -8,7 +8,6 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const page = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const supabase = createBrowserSupabaseClient();
 

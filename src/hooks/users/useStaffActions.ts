@@ -2,14 +2,11 @@ import { StaffRole, StaffTypes } from "@/lib/types/staff-types";
 import { addStaffAPI, getStaffsAPI } from "@/services/staffServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { use } from "react";
 import { toast } from "react-toastify";
 
 export function useStaffActions() {
   const queryClient = useQueryClient();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
-
-  if (!restaurantId) throw new Error("Restaurant ID is required");
 
   const getStaffs = useQuery({
     queryKey: ["Staffs", restaurantId],

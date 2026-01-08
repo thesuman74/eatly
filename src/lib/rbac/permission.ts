@@ -32,4 +32,10 @@ export enum Permission {
   READ_STAFF_INFO = "view_staff_info",
   UPDATE_STAFF = "update_staff",
   DELETE_STAFF = "delete_staff",
+
+  //Staff Invites
+  CREATE_STAFF_INVITE = "create_staff_invite",
+  READ_STAFF_INVITE_INFO = "view_staff_invite_info",
+  UPDATE_STAFF_INVITE = "update_staff_invite",
+  DELETE_STAFF_INVITE = "delete_staff_invite",
 }

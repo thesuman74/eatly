@@ -215,10 +215,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { restaurantId: string } }
-) {
+export async function PATCH(req: Request) {
   try {
     const supabase = await createClient();
     const url = new URL(req.url);

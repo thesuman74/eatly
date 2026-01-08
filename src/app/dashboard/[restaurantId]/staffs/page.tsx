@@ -9,6 +9,8 @@ import { InviteStaffForm } from "./_components/InviteStaffForm";
 import { Pen } from "lucide-react";
 import PendingInvites from "./_components/InviteLists";
 import InviteLists from "./_components/InviteLists";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 const StaffPage = () => {
   const { getStaffs, inviteStaff, getStaffsInvite } = useStaffActions();
@@ -23,18 +25,28 @@ const StaffPage = () => {
     } catch (error: any) {}
   };
 
-  const staffData = getStaffs.data?.users || [];
+  const staffData = getStaffs?.data?.users || [];
   const staffInvites = getStaffsInvite?.data || [];
 
   console.log("staffInvites", staffInvites);
 
+  {
+    getStaffs.isError && (
+      <div className="text-red-500">
+        Error fetching staff list: {getStaffs.error?.message}
+      </div>
+    );
+  }
+
   return (
     <div className="container space-y-4 max-w-5xl mx-auto p-4">
       {/* Invite Section */}
-      <InviteStaffForm
-        onSubmit={handleInviteUser}
-        isLoading={inviteStaff.isPending}
-      />
+      <ActionGuard action={Permission.READ_STAFF_INVITE_INFO}>
+        <InviteStaffForm
+          onSubmit={handleInviteUser}
+          isLoading={inviteStaff.isPending}
+        />
+      </ActionGuard>
 
       {/* Staff List */}
       <div className="mt-6">
@@ -46,7 +58,9 @@ const StaffPage = () => {
           <StaffPageUI staffData={staffData} />
         )}
       </div>
-      <InviteLists invites={staffInvites} />
+      <ActionGuard action={Permission.READ_STAFF_INVITE_INFO}>
+        <InviteLists invites={staffInvites} />
+      </ActionGuard>
     </div>
   );
 };

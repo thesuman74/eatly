@@ -203,10 +203,7 @@ export async function POST(req: Request) {
     }
 
     // 1️⃣2️⃣ Return success
-    return NextResponse.json(
-      { success: true, order_id: orderId },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, id: orderId }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
