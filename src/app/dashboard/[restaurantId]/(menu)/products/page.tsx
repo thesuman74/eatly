@@ -4,7 +4,7 @@ import { DragAndDropProvider } from "@/components/dashboard/DragAndDrop/DragAndD
 import TopSection from "@/components/menu/TopSection";
 import { Restaurant } from "@/lib/types/resturant-types";
 import { getCategoriesAPI } from "@/services/categoryServices";
-import { getUserRestaurantsAPI } from "@/services/resturantServices";
+import { getUserRestaurantsAPI } from "@/services/restaurantServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -36,9 +36,10 @@ export default function Page() {
     return <div>No restaurant found</div>;
   }
 
-  const activeRestaurant = restaurantData?.find(
-    (r: Restaurant) => r.id === restaurantId
-  );
+  const activeRestaurant = Array.isArray(restaurantData)
+    ? restaurantData.find((r: Restaurant) => r.id === restaurantId) ||
+      restaurantData[0]
+    : restaurantData; // fallback for staff
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">

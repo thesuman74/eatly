@@ -23,6 +23,7 @@ const page = async ({
 
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
   if (!restaurantDetails) return notFound();
+  console.log("restaurantDetails", restaurantDetails);
 
   // const restaurantId = restaurantDetails.restaurantId;
 
@@ -35,7 +36,6 @@ const page = async ({
         restaurantId={restaurantId}
         restaurantDetails={restaurantDetails}
       />
-      <h1>{"restaurantId"}</h1>
     </Suspense>
   );
 };

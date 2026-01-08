@@ -1,4 +1,7 @@
 // app/api/orders/[id]/route.ts
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { UserRoles } from "@/lib/rbac/roles";
 import { createClient } from "@/lib/supabase/server";
 import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextResponse } from "next/server";
@@ -7,22 +10,27 @@ export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id: orderId } = await context.params;
-
-  if (!orderId) {
-    return NextResponse.json(
-      { error: "Order ID is required" },
-      { status: 400 }
-    );
-  }
-
-  const url = new URL(req.url);
-  const restaurantId = url.searchParams.get("restaurantId");
-
-  const supabase = await createClient();
-
-
   try {
+    const { id: orderId } = await context.params;
+
+    if (!orderId) {
+      return NextResponse.json(
+        { error: "Order ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const url = new URL(req.url);
+    const restaurantId = url.searchParams.get("restaurantId");
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "restaurantId is required" },
+        { status: 400 }
+      );
+    }
+    const supabase = await createClient();
+
     //Authenticate use
 
     const {
@@ -32,26 +40,48 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //Verify ownership
-    if (!restaurantId) {
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.READ_ORDER_INFO,
+      })
+    ) {
       return NextResponse.json(
-        { error: "restaurantId is required" },
-        { status: 400 }
+        { error: "Insufficient permissions" },
+        { status: 403 }
       );
     }
 
-    const { data: restaurant, error: restError } = await supabase
-      .from("restaurants")
-      .select("id")
-      .eq("id", restaurantId)
-      .eq("owner_id", user.id)
-      .single();
+    // 4. Role-based scoping
+    let query = supabase.from("restaurants").select("*").eq("id", restaurantId);
 
-    if (restError || !restaurant) {
-      return NextResponse.json(
-        { error: "Not authroized for this restaurant" },
-        { status: 403 }
-      );
+    if (userData.role === UserRoles.OWNER) {
+      query = query.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== restaurantId) {
+        return NextResponse.json(
+          { error: "Resource access denied" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error } = await query.maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
     }
 
     // 1️⃣ Fetch order metadata
@@ -69,7 +99,6 @@ export async function GET(
       .eq("restaurant_id", restaurantId)
       .single();
 
-
     if (orderError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
@@ -80,7 +109,6 @@ export async function GET(
       .select("*")
       .eq("order_id", orderId)
       .eq("restaurant_id", restaurantId);
-
 
     // 2️⃣ Get product IDs
     const productIds = items?.map((i) => i.product_id) || [];
@@ -104,7 +132,6 @@ export async function GET(
       ...item,
       product: products.find((p) => p.id === item.product_id) || null, // fallback to null
     }));
-
 
     // 3️⃣ Fetch addons for each item
     const itemIds = items?.map((i) => i.id) || [];
@@ -176,42 +203,99 @@ export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
-  const { id: orderId } = await context.params;
-
-  if (!orderId) {
-    return NextResponse.json(
-      { error: "Order ID is required" },
-      { status: 400 }
-    );
-  }
-
-  const body: CreateOrderPayload = await req.json();
-  const { order, items, payment } = body;
-
   try {
-    // 1️⃣ Authenticate user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const supabase = await createClient();
+    const { id: orderId } = await context.params;
+
+    if (!orderId) {
+      return NextResponse.json(
+        { error: "Order ID is required" },
+        { status: 400 }
+      );
     }
 
-    // 2️⃣ Verify restaurant ownership once
-    if (!order.restaurant_id) {
+    const body: CreateOrderPayload = await req.json();
+    const { order, items, payment } = body;
+
+    const clientRestaurantId = order?.restaurant_id;
+    if (!clientRestaurantId) {
       return NextResponse.json(
         { error: "restaurant_id is required" },
         { status: 400 }
       );
     }
 
-    const { data: restaurant, error: restError } = await supabase
+    // 1️⃣ Authenticate
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3️⃣ Permission check (correct one)
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.MODIFY_ORDER_ITEMS,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
+    // 4️⃣ Fetch existing order (server truth)
+    const { data: existingOrder, error: orderFetchError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+
+    if (orderFetchError || !existingOrder) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // 5️⃣ Verify client restaurant_id matches order
+    if (existingOrder.restaurant_id !== clientRestaurantId) {
+      return NextResponse.json(
+        { error: "Restaurant mismatch" },
+        { status: 403 }
+      );
+    }
+
+    // 6️⃣ Role-based restaurant access (multi-restaurant safe)
+    let restaurantQuery = supabase
       .from("restaurants")
       .select("id")
-      .eq("id", order.restaurant_id)
-      .eq("owner_id", user.id)
-      .single();
+      .eq("id", clientRestaurantId);
+
+    if (userData.role === UserRoles.OWNER) {
+      restaurantQuery = restaurantQuery.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== clientRestaurantId) {
+        return NextResponse.json(
+          { error: "Not authorized for this restaurant" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error: restError } =
+      await restaurantQuery.single();
 
     if (restError || !restaurant) {
       return NextResponse.json(
@@ -220,29 +304,14 @@ export async function PATCH(
       );
     }
 
-    // 3️⃣ Fetch existing order (exclude payment_status)
-    const { data: existingOrder, error: existingError } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", orderId)
-      .single();
-
-    if (existingError || !existingOrder) {
-      throw new Error("Order not found");
-    }
-
-    // 3a️⃣ Fetch payment to enforce single source of truth
-    const { data: existingPayment, error: paymentFetchError } = await supabase
+    // 7️⃣ Fetch existing payment
+    const { data: existingPayment } = await supabase
       .from("order_payments")
       .select("*")
       .eq("order_id", orderId)
-      .single();
+      .maybeSingle();
 
-    if (paymentFetchError && paymentFetchError.code !== "PGRST116") {
-      throw new Error(paymentFetchError.message);
-    }
-
-    // 3b️⃣ Block updates if order is already paid
+    // Block paid orders
     if (existingPayment?.payment_status === PAYMENT_STATUS.PAID) {
       return NextResponse.json(
         { error: "Paid orders cannot be updated" },
@@ -250,18 +319,51 @@ export async function PATCH(
       );
     }
 
-    // 4️⃣ Calculate updated order totals if items exist
-    const hasItemsUpdate = Array.isArray(items) && items.length > 0;
+    // 8️⃣ Recompute prices if items are updated
     let subtotal = existingOrder.subtotal;
     let total = existingOrder.total;
 
-    if (hasItemsUpdate) {
-      subtotal = items.reduce((sum, i) => sum + i.total_price, 0);
+    let computedItems: any[] | null = null;
+
+    if (Array.isArray(items) && items.length > 0) {
+      const productIds = items.map((i) => i.product_id);
+
+      const { data: products, error: productError } = await supabase
+        .from("products")
+        .select("id, price")
+        .in("id", productIds)
+        .eq("restaurant_id", clientRestaurantId);
+
+      if (productError || !products || products.length !== productIds.length) {
+        return NextResponse.json(
+          { error: "Invalid product selection" },
+          { status: 400 }
+        );
+      }
+
+      const priceMap = new Map(products.map((p) => [p.id, p.price]));
+
+      computedItems = items.map((item) => {
+        const unitPrice = priceMap.get(item.product_id);
+        if (unitPrice == null) {
+          throw new Error("Invalid product price");
+        }
+
+        return {
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: unitPrice,
+          total_price: unitPrice * item.quantity,
+          notes: item.notes ?? null,
+        };
+      });
+
+      subtotal = computedItems.reduce((sum, i) => sum + i.total_price, 0);
       total = subtotal + (payment?.tip ?? 0);
     }
 
-    // 5️⃣ Update order metadata (excluding payment_status)
-    const { data: updatedOrder, error: orderError } = await supabase
+    // 9️⃣ Update order (no restaurant_id mutation)
+    const { data: updatedOrder, error: updateError } = await supabase
       .from("orders")
       .update({
         customer_name: order.customer_name ?? null,
@@ -271,87 +373,70 @@ export async function PATCH(
         total,
       })
       .eq("id", orderId)
+      .eq("restaurant_id", clientRestaurantId)
       .select()
       .single();
 
-    if (orderError || !updatedOrder) {
-      throw new Error(orderError?.message || "Order update failed");
+    if (updateError || !updatedOrder) {
+      throw new Error(updateError?.message || "Order update failed");
     }
 
-    // 6️⃣ Update order items if provided
-    if (hasItemsUpdate) {
-      const itemsPayload = items.map((i) => ({
-        order_id: orderId,
-        product_id: i.product_id,
-        quantity: i.quantity,
-        unit_price: i.unit_price,
-        total_price: i.total_price,
-        notes: i.notes ?? null,
-        restaurant_id: order.restaurant_id ?? null,
-      }));
-
-      const { error: deleteItemsError } = await supabase
+    // 🔟 Replace order items if provided
+    if (computedItems) {
+      await supabase
         .from("order_items")
         .delete()
         .eq("order_id", orderId)
-        .eq("restaurant_id", order.restaurant_id);
+        .eq("restaurant_id", clientRestaurantId);
 
-      if (deleteItemsError) throw new Error(deleteItemsError.message);
+      const itemsPayload = computedItems.map((item) => ({
+        ...item,
+        order_id: orderId,
+        restaurant_id: clientRestaurantId,
+      }));
 
-      const { error: insertItemsError } = await supabase
+      const { error: itemsInsertError } = await supabase
         .from("order_items")
         .insert(itemsPayload);
 
-      if (insertItemsError) throw new Error(insertItemsError.message);
+      if (itemsInsertError) {
+        throw new Error(itemsInsertError.message);
+      }
     }
 
-    // 7️⃣ Handle payment as single source of truth
+    // 1️⃣1️⃣ Payment update
     let finalPaymentStatus: string = PAYMENT_STATUS.UNPAID;
 
     if (payment) {
+      const amountPaid = payment.amount_paid ?? 0;
+      finalPaymentStatus =
+        amountPaid >= total ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.UNPAID;
+
       const paymentPayload = {
         order_id: orderId,
         method: payment.method ?? null,
-        amount_paid: payment.amount_paid ?? 0,
+        amount_paid: amountPaid,
         tip: payment.tip ?? 0,
-        change_returned: payment.change_returned ?? 0,
-        restaurant_id: order.restaurant_id ?? null,
-        payment_status:
-          payment.amount_paid && payment.amount_paid > 0
-            ? PAYMENT_STATUS.PAID
-            : PAYMENT_STATUS.UNPAID,
+        change_returned: Math.max(0, amountPaid - total),
+        restaurant_id: clientRestaurantId,
+        payment_status: finalPaymentStatus,
       };
 
       if (existingPayment) {
-        const { error: paymentError } = await supabase
+        await supabase
           .from("order_payments")
           .update(paymentPayload)
           .eq("order_id", orderId);
-
-        if (paymentError) throw new Error(paymentError.message);
       } else {
-        const { error: paymentError } = await supabase
-          .from("order_payments")
-          .insert(paymentPayload);
-
-        if (paymentError) throw new Error(paymentError.message);
+        await supabase.from("order_payments").insert(paymentPayload);
       }
-
-      finalPaymentStatus = paymentPayload.payment_status;
     }
-
-    // 8️⃣ Fetch payment_status from order_payments for response
-    const { data: paymentData } = await supabase
-      .from("order_payments")
-      .select("payment_status")
-      .eq("order_id", orderId)
-      .single();
 
     return NextResponse.json({
       success: true,
       order: {
         ...updatedOrder,
-        payment_status: paymentData?.payment_status || finalPaymentStatus,
+        payment_status: finalPaymentStatus,
       },
     });
   } catch (err: any) {

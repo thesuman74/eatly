@@ -20,7 +20,7 @@ export function useDeleteCategory() {
     },
     onSuccess: () => {
       toast.success("Category deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories", restaurantId] });
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to delete category");

@@ -8,6 +8,8 @@ import ProductOptions from "./ProductOptions";
 
 import { Badge } from "@/components/ui/badge";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 interface SubItemProps {
   item: ProductTypes;
@@ -60,19 +62,27 @@ const SubItem = ({
       />
 
       <span className="flex-1 text-sm">{item.name}</span>
+
+      <span>
+        <span className="text-sm font-semibold text-gray-600 mr-6">
+          Rs {item.price}
+        </span>
+      </span>
       {!item.isVisible && (
         <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
           Hidden
         </Badge>
       )}
 
-      <ProductOptions
-        onToggleVisibility={() => onToggleVisibility(item.id)}
-        onDuplicate={() => onDuplicate(item.id)}
-        onDelete={() => onDelete(item.id)}
-        productId={item.id}
-        categoryId={categoryID}
-      />
+      <ActionGuard action={Permission.UPDATE_PRODUCT}>
+        <ProductOptions
+          onToggleVisibility={() => onToggleVisibility(item.id)}
+          onDuplicate={() => onDuplicate(item.id)}
+          onDelete={() => onDelete(item.id)}
+          productId={item.id}
+          categoryId={categoryID}
+        />
+      </ActionGuard>
     </motion.div>
   );
 };

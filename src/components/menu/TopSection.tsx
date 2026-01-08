@@ -8,14 +8,15 @@ import ShareButton from "../ui/sharebutton";
 import { Restaurant } from "@/lib/types/resturant-types";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { toast } from "react-toastify";
+import { UserRoles } from "@/lib/rbac/roles";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 
 interface TopSectionProps {
   restaurant: Restaurant;
 }
 
 const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
-  const [isSaving, setIsSaving] = useState(false);
-
   const [logoUrl, setLogoUrl] = useState(
     restaurant?.logo_url || "/Images/logo.png"
   );
@@ -23,12 +24,53 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
     restaurant?.banner_url || "https://picsum.photos/1200/300"
   );
   const [name, setName] = useState(restaurant?.name);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setLogoUrl(restaurant?.logo_url || "/Images/logo.png");
     setBannerUrl(restaurant?.banner_url || "https://picsum.photos/1200/300");
     setName(restaurant?.name);
   }, [restaurant]);
+
+  // Generic API update function
+  const updateRestaurantField = async (
+    field: "name" | "logo_url" | "banner_url",
+    value: string
+  ) => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/restaurant?restaurantId=${restaurant.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to update");
+      }
+
+      // Update local state
+      if (field === "name") setName(value);
+      if (field === "logo_url") setLogoUrl(value);
+      if (field === "banner_url") setBannerUrl(value);
+
+      toast.success(
+        `${field.replace("_", " ").toUpperCase()} updated successfully`
+      );
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Update failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleNameBlur = () => {
+    if (name !== restaurant?.name) {
+      updateRestaurantField("name", name!);
+    }
+  };
 
   const uploadImage = async (file: File, type: "logo" | "banner") => {
     if (!file) return;
@@ -94,30 +136,6 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
     }
   };
 
-  const handleNameBlur = async () => {
-    if (name === restaurant?.name) return; // No change
-    setIsSaving(true);
-
-    try {
-      const supabase = createBrowserSupabaseClient();
-
-      const { error } = await supabase
-        .from("restaurants")
-        .update({ name })
-        .eq("id", restaurant.id);
-
-      if (error) {
-        toast.error(error.message || "Failed to update name");
-      } else {
-        toast.success("Name updated successfully");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update name");
-    } finally {
-      setIsSaving(false);
-    }
-  };
   return (
     <section className="flex flex-col">
       {/* Banner */}
@@ -127,17 +145,19 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
           alt="Banner"
           className="h-full w-full rounded-b-sm object-cover"
         />
-        <label className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
-          <ImageUp className="text-blue-600" />
-          <input
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) =>
-              e.target.files && uploadImage(e.target.files[0], "banner")
-            }
-          />
-        </label>
+        <ActionGuard action={Permission.UPDATE_RESTAURANT}>
+          <label className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
+            <ImageUp className="text-blue-600" />
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && uploadImage(e.target.files[0], "banner")
+              }
+            />
+          </label>
+        </ActionGuard>
       </div>
 
       {/* Heading Section */}
@@ -149,17 +169,19 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
             alt="Logo"
             className="rounded-xl object-cover w-16 h-16 sm:w-24 sm:h-24"
           />
-          <label className="absolute left-1/2 bottom-0 -translate-x-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
-            <ImageUp className="text-blue-600" />
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={(e) =>
-                e.target.files && uploadImage(e.target.files[0], "logo")
-              }
-            />
-          </label>
+          <ActionGuard action={Permission.UPDATE_RESTAURANT}>
+            <label className="absolute left-1/2 bottom-0 -translate-x-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-white cursor-pointer hover:scale-125 transition-transform">
+              <ImageUp className="text-blue-600" />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) =>
+                  e.target.files && uploadImage(e.target.files[0], "logo")
+                }
+              />
+            </label>
+          </ActionGuard>
         </div>
 
         {/* Content */}
@@ -167,12 +189,15 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
           {/* Name & Share */}
           <div className="flex flex-grow flex-col p-2">
             <div className="flex flex-col sm:flex-row gap-2 sm:items-baseline text-xl font-bold space-x-6">
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={handleNameBlur}
-                className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
-              />
+              <ActionGuard action={Permission.UPDATE_RESTAURANT} mode="disable">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={handleNameBlur}
+                  className="text-xl md:text-3xl sm:text-4xl font-bold border-b border-gray-300 focus:outline-none"
+                />
+              </ActionGuard>
+
               {isSaving && (
                 <span className="text-sm text-gray-500">Saving...</span>
               )}

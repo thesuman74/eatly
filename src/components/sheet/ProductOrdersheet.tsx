@@ -108,7 +108,7 @@ const ProductOrdersheet = () => {
                 <div className="shrink-0 ">
                   <div
                     className={`flex items-center px-4 py-2 text-white ${
-                      data.payment_status === PAYMENT_STATUS.PAID
+                      data?.payment_status === PAYMENT_STATUS.PAID
                         ? "bg-green-600"
                         : "bg-yellow-400"
                     }`}
@@ -121,10 +121,10 @@ const ProductOrdersheet = () => {
                     <div className="flex space-x-4 items-center px-1">
                       <Utensils size={20} />
                       <span className="px-1">
-                        {data.orderType?.toUpperCase() || "On site"}
+                        {data?.orderType?.toUpperCase() || "On site"}
                       </span>
                       <span>|</span>
-                      <span>{data.status.toUpperCase()}</span>
+                      <span>{data?.status.toUpperCase()}</span>
                     </div>
 
                     <button
@@ -205,12 +205,12 @@ const ProductOrdersheet = () => {
                     <div className="flex justify-between w-full items-center px-1">
                       <span
                         className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-                          data.payment_status === PAYMENT_STATUS.PAID
+                          data?.payment_status === PAYMENT_STATUS.PAID
                             ? "bg-green-600"
                             : "bg-yellow-400"
                         }`}
                       >
-                        {data.payment_status.toUpperCase()}
+                        {data?.payment_status.toUpperCase()}
                       </span>
                       <div className="space-x-2">
                         <span>Total:</span>
@@ -236,7 +236,7 @@ const ProductOrdersheet = () => {
                           <span>Cancel</span>
                         </Button>
 
-                        {data.paymentStatus !== PAYMENT_STATUS.PAID && (
+                        {data?.paymentStatus !== PAYMENT_STATUS.PAID && (
                           <Button
                             variant={"outline"}
                             onClick={() => openpaymentPanelStore(data.id)}
@@ -247,7 +247,7 @@ const ProductOrdersheet = () => {
                           </Button>
                         )}
 
-                        {data.paymentStatus !== "Paid" && (
+                        {data?.paymentStatus !== "Paid" && (
                           <Button
                             variant={"default"}
                             className="text-white bg-green-500 w-full"

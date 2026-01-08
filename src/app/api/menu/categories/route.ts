@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
 
 export async function POST(req: Request) {
   //   Category Insert Flow with RLS:
@@ -7,6 +9,8 @@ export async function POST(req: Request) {
   // Client sends request with restaurant_id.
 
   // Authenticate user → get user.id.
+  //fetch roles and assign
+  // verify permissions -> only owner can create categories
 
   // Verify ownership → ensure restaurant_id belongs to owner_id = user.id.
 
@@ -35,6 +39,34 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.CREATE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
     }
 
     // Verify ownership
@@ -131,6 +163,34 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.UPDATE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
+    }
+
     // Verify ownership
     const { data: restaurant, error: restaurantError } = await supabase
       .from("restaurants")
@@ -192,7 +252,6 @@ export async function DELETE(req: Request) {
   const url = new URL(req.url);
   const categoryId = url.searchParams.get("categoryId");
 
-
   if (!categoryId) {
     return NextResponse.json(
       { error: "Missing required categoryId" },
@@ -220,6 +279,33 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id, max_restaurant")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return new NextResponse(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+      });
+    }
+
+    // . Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.DELETE_CATEGORY,
+      })
+    ) {
+      return new NextResponse(
+        JSON.stringify({ error: "Insufficient permissions" }),
+        {
+          status: 403,
+        }
+      );
+    }
     // Verify ownership
     const { data: restaurant, error: restaurantError } = await supabase
       .from("restaurants")

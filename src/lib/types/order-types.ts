@@ -25,7 +25,7 @@ export interface OrderItem {
   product_id: string;
   product?: ProductTypes; // optional, for UI/cart purposes
 
-  name: string;
+  product_name?: string;
 
   quantity: number;
   unit_price: number;

@@ -1,3 +1,6 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { UserRoles } from "@/lib/rbac/roles";
 import { createClient } from "@/lib/supabase/server";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,19 +28,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Verify ownership
-    const { data: restaurant, error: restaurantError } = await supabase
-      .from("restaurants")
-      .select("id")
-      .eq("id", restaurantId)
-      .eq("owner_id", user.id)
-      .single();
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    if (restaurantError || !restaurant) {
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.REFUND_ORDER_PAYMENT,
+      })
+    ) {
       return NextResponse.json(
-        { error: "Not authorized for this restaurant" },
+        { error: "Insufficient permissions" },
         { status: 403 }
       );
+    }
+
+    // 4. Role-based scoping
+    let query = supabase.from("restaurants").select("*").eq("id", restaurantId);
+
+    if (userData.role === UserRoles.OWNER) {
+      query = query.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== restaurantId) {
+        return NextResponse.json(
+          { error: "Resource access denied" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error } = await query.maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
     }
 
     // 3️⃣ Fetch all payments for the order

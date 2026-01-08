@@ -42,5 +42,5 @@ export const useRealtimeNotifications = (
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [restaurantId, onNewNotification]);
+  }, [restaurantId]);
 };

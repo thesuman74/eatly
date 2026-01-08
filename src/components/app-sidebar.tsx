@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
-
 // This is sample data.
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   restaurants: Array<{
@@ -100,7 +99,7 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
 
       {
         title: "Kitchen",
-        url: "#",
+        url: `/dashboard/${restaurantName}/kitchen`,
         icon: CookingPot,
       },
       {
@@ -112,7 +111,7 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
     projects: [
       {
         name: "Employees",
-        url: "#",
+        url: `/dashboard/${restaurantName}/staffs`,
         icon: Bot,
       },
       {

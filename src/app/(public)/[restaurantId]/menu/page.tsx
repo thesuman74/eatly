@@ -8,8 +8,11 @@ import { getPublicRestaurantDetails } from "@/services/server/serverRestaurantSe
 const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
   const { restaurantId } = await context.params;
 
+  console.log("restaurantId", restaurantId);
   // Fetch restaurant details
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
+
+  console.log("restaurantDetails", restaurantDetails);
 
   // If restaurant not found, show 404 page
   if (!restaurantDetails) {

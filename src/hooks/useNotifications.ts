@@ -5,11 +5,10 @@ import {
 } from "@/services/notificationServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
 
 export const useNotifications = () => {
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: ["notifications", restaurantId],
     queryFn: async () => {

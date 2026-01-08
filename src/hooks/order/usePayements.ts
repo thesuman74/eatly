@@ -1,10 +1,11 @@
 import { paymentRefundAPI } from "@/services/paymentServices";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { on } from "events";
 import { toast } from "react-toastify";
 
 export const usePaymentRefund = () => {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation({
     mutationFn: ({
@@ -18,12 +19,16 @@ export const usePaymentRefund = () => {
       return paymentRefundAPI(orderId, restaurantId);
     },
     onSuccess: ({ orderId }) => {
-      toast.success("Order refunded successfully!");
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["order-details", orderId] });
+      toast.success("Payment refunded successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["orders-list", restaurantId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", orderId],
+      });
     },
-    onError: () => {
-      toast.error("Failed to refund order");
+    onError: (error) => {
+      toast.error(error.message || "Failed to refund order");
     },
   });
 };

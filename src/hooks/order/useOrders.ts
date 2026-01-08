@@ -22,6 +22,8 @@ export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   const cart = useCartStore();
 
+  const restauratId = useRestaurantStore((state) => state.restaurantId);
+
   return useMutation({
     // Accept payload as argument
     mutationFn: addOrderAPI,
@@ -29,7 +31,7 @@ export const useCreateOrder = () => {
       cart.clearCart();
       toast.success("Order registered successfully");
 
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["orders", restauratId] });
     },
   });
 };
@@ -47,6 +49,7 @@ export const useOrders = () => {
   return useQuery<Order[]>({
     queryKey: ["orders-list", restaurantId],
     queryFn: () => getOrderListAPI(restaurantId),
+    enabled: !!restaurantId,
   });
 };
 
@@ -69,22 +72,30 @@ export const useUpdateOrderStatus = () => {
     },
     onSuccess: (_, { id }) => {
       toast.success("Order status updated");
-      queryClient.invalidateQueries({ queryKey: ["order", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", id],
+      });
       queryClient.invalidateQueries({
         queryKey: ["orders-list", restaurantId],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update order status");
     },
   });
 };
 
 export const useUpdateOrderItem = () => {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation({
     mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
       updateOrderItemAPI(itemId, quantity),
     onMutate: async ({ itemId, quantity }) => {
-      await queryClient.cancelQueries({ queryKey: ["order-details"] });
+      await queryClient.cancelQueries({
+        queryKey: ["order-details", restaurantId],
+      });
 
       const previousOrder = queryClient.getQueryData<any>(["order-details"]);
 
@@ -118,6 +129,7 @@ export const useUpdateOrderItem = () => {
 
 export const useUpdateOrder = () => {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation<
     any, // return type of API
@@ -136,8 +148,10 @@ export const useUpdateOrder = () => {
       return data;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["order-details", id] });
+      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", restaurantId],
+      });
       toast.success("Order updated successfully!");
     },
     onError: (err: any) => {
@@ -219,7 +233,7 @@ export const useCancelOrder = () => {
     onSuccess: (_, { orderId }) => {
       toast.success("Order cancelled successfully");
       queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to cancel order");
