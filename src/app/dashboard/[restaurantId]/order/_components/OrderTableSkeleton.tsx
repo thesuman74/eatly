@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderRowSkeleton } from "./OrderRowSkeleton";
 
-export function OrderTableSkeleton({ rows = 3 }: { rows?: number }) {
+export function OrderTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
     <div className="bg-white rounded-md shadow overflow-hidden">
       {/* Header */}

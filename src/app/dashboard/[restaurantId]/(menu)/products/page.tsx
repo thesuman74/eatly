@@ -8,11 +8,15 @@ import { getUserRestaurantsAPI } from "@/services/restaurantServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
+import {
+  CategoriesSkeleton,
+  MenuPageSkeleton,
+} from "./_components/MenuPageSkeleton";
 
 export default function Page() {
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ["categories", restaurantId],
     queryFn: () => getCategoriesAPI(restaurantId),
     enabled: !!restaurantId,
@@ -20,7 +24,7 @@ export default function Page() {
 
   const {
     data: restaurantData,
-    isLoading,
+    isLoading: isRestaurantLoading,
     isError,
   } = useQuery({
     queryKey: ["restaurants", restaurantId],
@@ -28,13 +32,9 @@ export default function Page() {
     enabled: !!restaurantId,
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError || !restaurantData || restaurantData.length === 0) {
-    return <div>No restaurant found</div>;
-  }
+  // if (isError || !restaurantData || restaurantData.length === 0) {
+  //   return <div>No restaurant found</div>;
+  // }
 
   const activeRestaurant = Array.isArray(restaurantData)
     ? restaurantData.find((r: Restaurant) => r.id === restaurantId) ||
@@ -43,15 +43,19 @@ export default function Page() {
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
-      <TopSection restaurant={activeRestaurant} />
+      {isRestaurantLoading ? (
+        <MenuPageSkeleton />
+      ) : (
+        <TopSection restaurant={activeRestaurant} />
+      )}
 
-      <div>
-        <Suspense fallback={<div>Loading...</div>}>
-          <DragAndDropProvider initialCategories={categoriesData || []}>
-            <CategoryList initialCategories={categoriesData} />
-          </DragAndDropProvider>
-        </Suspense>
-      </div>
+      {isCategoriesLoading ? (
+        <CategoriesSkeleton />
+      ) : (
+        <DragAndDropProvider initialCategories={categoriesData || []}>
+          <CategoryList initialCategories={categoriesData} />
+        </DragAndDropProvider>
+      )}
     </div>
   );
 }
