@@ -20,7 +20,7 @@ const features = [
   },
   {
     icon: Zap,
-    title: "Auto Photo Extraction",
+    title: "Auto Menu Extraction",
     description:
       "Intelligent image recognition extracts high-quality photos from your menus.",
     span: "col-span-1 row-span-1",

@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export function HeroSection() {
   const [scrollY, setScrollY] = useState(0);
@@ -15,7 +16,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-custom-grid pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center">
+    <section className="relative min-h-screen bg-custom-grid pt-32 pb-20 px-4  sm:px-6 lg:px-8 overflow-hidden flex items-center">
       {/* Dynamic gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -48,7 +49,7 @@ export function HeroSection() {
               <h1 className="text-6xl  sm:text-7xl lg:text-7xl font-display font-bold tracking-tighter text-balance leading-tight">
                 Manage Your
                 <span className="block bg-gradient-to-r from-accent via-accent/80 to-accent/60 bg-clip-text text-transparent">
-                  Restaurant Like a Pro
+                  Restaurant With Ease
                 </span>
               </h1>
 
@@ -60,27 +61,29 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button
-                size="lg"
-                className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/30 group"
-              >
-                Get Started Free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
+              <Link href="/register">
+                <Button
+                  size="lg"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/30 group"
+                >
+                  Get Started Free
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              {/* <Button
                 size="lg"
                 variant="outline"
                 className="border-border/40 hover:bg-card/50 bg-transparent"
               >
                 Watch Demo
-              </Button>
+              </Button> */}
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8">
               {[
-                { value: "2,500+", label: "Restaurants" },
-                { value: "50K+", label: "Menus" },
+                { value: "500+", label: "Restaurants" },
+                { value: "5K+", label: "Menus" },
                 { value: "99.9%", label: "Uptime" },
               ].map((stat, i) => (
                 <div
@@ -118,19 +121,21 @@ export function HeroSection() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-center text-muted-foreground max-w-xs">
-                    Smart automation for every aspect of your restaurant
-                  </p>
-                </div> */}
+                 
+                  </div> */}
+
                 <Image
                   src="/images/login.avif"
                   alt="Hero Image"
                   width={500}
                   height={500}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover animate-fade-in-up"
                 />
               </div>
             </div>
+            <p className="text-center text-muted-foreground max-w-md mt-3">
+              Smart automation for every aspect of your restaurant
+            </p>
           </div>
         </div>
       </div>

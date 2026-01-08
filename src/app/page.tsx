@@ -7,6 +7,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { BentoFeatures } from "@/components/home/BentoFeatures";
 import { Testimonials } from "@/components/home/Testimonials";
 import { FAQSection } from "@/components/home/FaqSection";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -39,7 +40,7 @@ export default function Home() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-card/30 border-y border-border/20">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-card/30 border-y border-border/20  ">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
@@ -77,10 +78,10 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 ">
               {[
-                { label: "Restaurants Using", value: "2,500+" },
-                { label: "Menus Processed", value: "50K+" },
+                { label: "Restaurants Using", value: ",500+" },
+                { label: "Menus Processed", value: "5K+" },
                 { label: "Time Saved (hrs)", value: "125K+" },
                 { label: "Uptime", value: "99.9%" },
               ].map((stat, i) => (
@@ -102,7 +103,10 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 px-4 sm:px-6 lg:px-8">
+      <section
+        id="testimonials"
+        className="py-24 px-4 sm:px-6 lg:px-8 bg-custom-grid "
+      >
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-20">
             <h2 className="text-5xl sm:text-6xl font-display font-bold text-balance mb-6">
@@ -134,7 +138,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-custom-grid ">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-accent/30 to-accent/5 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
@@ -151,13 +155,15 @@ export default function Home() {
             with Eatly
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/30 group"
-            >
-              Start Your Free Trial
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <Link href="/register">
+              <Button
+                size="lg"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/30 group"
+              >
+                Start Your Free Trial
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
             <Button
               size="lg"
               variant="outline"
@@ -175,7 +181,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t border-border/20 bg-card/30">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
             <div>
               <h4 className="font-semibold text-foreground mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -218,7 +224,7 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-          </div>
+          </div> */}
 
           <div className="border-t border-border/20 pt-8 flex flex-col sm:flex-row items-center justify-between">
             <p className="text-sm text-muted-foreground">
