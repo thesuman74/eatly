@@ -5,9 +5,10 @@ import OrderCard from "./_components/OrderCard";
 import { useOrders } from "@/hooks/order/useOrders";
 import { CookingPot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import KitchenPageSkeleton from "./_components/KitchenSkeleton";
 
 const KitchenPage = () => {
-  const { data: orders = [] } = useOrders();
+  const { data: orders = [], isLoading } = useOrders();
   console.log("orders", orders);
 
   return (
@@ -21,7 +22,7 @@ const KitchenPage = () => {
           </Badge>
         </span>
       </h3>
-      <OrderCard orderData={orders} />
+      {isLoading ? <KitchenPageSkeleton /> : <OrderCard orderData={orders} />}
     </div>
   );
 };
