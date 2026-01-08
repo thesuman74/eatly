@@ -4,6 +4,7 @@ import MenuPage from "./_components/MenuPage";
 import { getPublicCategoriesFromDB } from "@/services/server/ServerCategoryServices";
 import { notFound } from "next/navigation";
 import { getPublicRestaurantDetails } from "@/services/server/serverRestaurantServices";
+import MenuPageSkeleton from "./_components/MenuPageSkeleton";
 
 const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
   const { restaurantId } = await context.params;
@@ -23,7 +24,7 @@ const page = async (context: { params: Promise<{ restaurantId: string }> }) => {
   const categories = await getPublicCategoriesFromDB(restaurantId);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<MenuPageSkeleton />}>
       <MenuPage
         initialCategories={categories || []}
         restaurantDetails={restaurantDetails}
