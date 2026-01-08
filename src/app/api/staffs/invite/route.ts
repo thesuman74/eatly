@@ -1,3 +1,6 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { UserRoles } from "@/lib/rbac/roles";
 import { createClient } from "@/lib/supabase/server";
 import { serverService } from "@/lib/supabase/serverService";
 import { NextResponse } from "next/server";
@@ -109,22 +112,50 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //check if owner
+    // 2. Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    const { data: restaurant } = await supabase
-      .from("restaurants")
-      .select("id")
-      .eq("id", restaurantId)
-      .eq("owner_id", user.id)
-      .single();
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
 
-    if (!restaurant) {
+    // 3. Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.READ_STAFF_INVITE_INFO,
+      })
+    ) {
       return NextResponse.json(
-        { error: "You are not authorized for this restaurant" },
+        { error: "Insufficient permissions" },
         { status: 403 }
       );
     }
 
+    // 4. Role-based scoping
+    let query = supabase.from("restaurants").select("*").eq("id", restaurantId);
+
+    if (userData.role === UserRoles.OWNER) {
+      query = query.eq("owner_id", user.id);
+    } else {
+      if (userData.restaurant_id !== restaurantId) {
+        return NextResponse.json(
+          { error: "Resource access denied" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const { data: restaurant, error: restaurantError } =
+      await query.maybeSingle();
+
+    if (restaurantError) {
+      throw new Error(restaurantError.message);
+    }
     const { data, error } = await supabase
       .from("staff_invites")
       .select("*")

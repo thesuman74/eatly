@@ -1,5 +1,9 @@
 import { StaffRole, StaffTypes } from "@/lib/types/staff-types";
-import { addStaffAPI, getStaffsAPI } from "@/services/staffServices";
+import {
+  addStaffAPI,
+  getStaffsAPI,
+  getStaffsInviteAPI,
+} from "@/services/staffServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -17,12 +21,7 @@ export function useStaffActions() {
 
   const getStaffsInvite = useQuery({
     queryKey: ["StaffsInvite", restaurantId],
-    queryFn: async () => {
-      const res = await fetch(
-        `/api/staffs/invite?restaurantId=${restaurantId}&inviteStatus=pending`
-      );
-      return await res.json();
-    },
+    queryFn: () => getStaffsInviteAPI(restaurantId),
     enabled: !!restaurantId,
   });
 

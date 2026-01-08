@@ -44,7 +44,7 @@ interface StaffPageUIProps {
 export default function StaffPageUI({ staffData }: StaffPageUIProps) {
   return (
     <div className="p-4 bg-white">
-      <h2 className="text-2xl font-bold mb-4">Manage My Team</h2>
+      <h2 className="text-2xl font-bold mb-4"> My Team</h2>
       <StaffTable users={staffData} />
     </div>
   );

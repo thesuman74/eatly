@@ -47,3 +47,17 @@ export async function updateStaffAPI(StaffId: string, StaffData: StaffTypes) {
 
   return data;
 }
+
+export async function getStaffsInviteAPI(restaurantId: string) {
+  const res = await fetch(`/api/staffs/invite?restaurantId=${restaurantId}`);
+  const data = await res.json();
+  if (res.status === 403) {
+    return []; // behave like "no invites"
+  }
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch Staffs");
+  }
+
+  return data;
+}

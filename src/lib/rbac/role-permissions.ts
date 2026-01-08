@@ -17,7 +17,7 @@ export const ROLE_PERMISSIONS: Record<UserRoles, Permission[]> = {
     Permission.CANCEL_ORDER,
     // Permission.REFUND_ORDER_PAYMENT,
 
-    Permission.READ_STAFF_INVITE_INFO,
+    // Permission.READ_STAFF_INVITE_INFO,
   ],
 
   [UserRoles.KITCHEN]: [
