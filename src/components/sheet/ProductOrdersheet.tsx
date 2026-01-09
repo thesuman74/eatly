@@ -5,24 +5,47 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
 import {
+  useCreateOrder,
   useDeleteOrderItem,
   useOrder,
+  useUpdateOrder,
   useUpdateOrderItem,
+  useUpdateOrderStatus,
 } from "@/hooks/order/useOrders";
 import { getElapsedSeconds, timeAgo } from "@/utils/time";
 import { formatCreatedDate } from "@/utils/date";
 import PaymentSummary from "@/app/dashboard/[restaurantId]/order/_components/payments/PaymentSummary";
 import { useOrderWorkspace } from "@/stores/workspace/useOrderWorkspace";
 import { useCartStore } from "@/stores/admin/useCartStore";
-import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/types/order-types";
+import {
+  ORDER_STATUS,
+  OrderActionState,
+  OrderPayment,
+  PAYMENT_STATUS,
+  PaymentStatus,
+} from "@/lib/types/order-types";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { Spinner } from "../Spinner";
 import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import EditableOrderItemsList from "@/app/dashboard/[restaurantId]/order/_components/Products/EditableOrderItemsList";
+import { PAYMENT_UI } from "@/lib/paymentUi";
+import { can } from "@/lib/rbac/can";
+import { OrderActionButtons } from "../order/OrderRowAction/OrderActionButton";
+import { usePaymentRefund } from "@/hooks/order/usePayements";
+import { buildOrderPayload } from "@/utils/buildOrderPayload";
+import { toast } from "react-toastify";
+
+type OrderActionType =
+  | "accept"
+  | "finalize"
+  | "register"
+  | "refund"
+  | "registerAndAccept";
 
 const ProductOrdersheet = () => {
+  // Store hooks
   const { orderId } = useOrderWorkspace();
   const { isProductOrderSheetOpen, closeProductOrderSheet } =
     useOrderWorkspace();
@@ -32,14 +55,44 @@ const ProductOrdersheet = () => {
     openpaymentPanelStore,
     closepaymentPanelStore,
   } = paymentPanelStore();
-
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
+  // Order data
   const { data, isLoading, error } = useOrder(orderId, restaurantId);
 
-  // useSecondTicker(); // 👈 this enables live updates
-  const elapsed = getElapsedSeconds(data?.created_at);
+  // Mutations
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
+  const updateOrderStatusMutation = useUpdateOrderStatus();
+  const paymentRefundMutation = usePaymentRefund();
 
+  // Cart store
+  const {
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
+    customerName,
+    orderTitle,
+    cartItems,
+    clearCart,
+    setCartItems,
+    setCustomerName,
+    setOrderTitle,
+  } = useCartStore();
+  const cartTotal = useCartStore((state) => state.cartTotal());
+
+  // Loading state for order actions
+  const [loadingActionState, setLoadingActionState] = useState<
+    Record<OrderActionType, boolean>
+  >({
+    accept: false,
+    finalize: false,
+    register: false,
+    refund: false,
+    registerAndAccept: false,
+  });
+
+  // Compute derived values
+  const elapsed = getElapsedSeconds(data?.created_at);
   const timeColor = clsx(
     "text-xs font-medium transition-colors",
     elapsed < 300 && "text-green-600", // < 5 min
@@ -47,24 +100,28 @@ const ProductOrdersheet = () => {
     elapsed >= 900 && "text-red-600" // > 15 min
   );
 
-  // Check if the panel should be shown for this order
+  const payments: OrderPayment[] = data?.payments || [];
+
+  // If `payments` is an array of payment objects with payment_status
+  const paymentStatus: PaymentStatus = (() => {
+    if (!payments || payments.length === 0) return PAYMENT_STATUS.UNPAID;
+
+    if (payments.some((p) => p.payment_status === PAYMENT_STATUS.REFUNDED)) {
+      return PAYMENT_STATUS.REFUNDED;
+    }
+
+    if (payments.some((p) => p.payment_status === PAYMENT_STATUS.PAID)) {
+      return PAYMENT_STATUS.PAID;
+    }
+
+    return PAYMENT_STATUS.UNPAID;
+  })();
+  const paymentUI = PAYMENT_UI[paymentStatus];
+
   const showPaymentPanelForThisOrder =
     isPaymentSheetOpen && currentOrderId === data?.id;
 
-  // const [showPaymentPanel, setShowPaymentPanel] = useState(false);
-  const cartTotal = useCartStore((state) => state.cartTotal());
-
-  const {
-    setCurrentlyActiveOrderId,
-    customerName,
-    orderTitle,
-    cartItems,
-    setCartItems,
-    setCustomerName,
-    setOrderTitle,
-  } = useCartStore();
-
-  // ✅ Initialize cart store when order data changes
+  // Initialize cart when order changes
   useEffect(() => {
     if (!data || !orderId) return;
 
@@ -74,7 +131,81 @@ const ProductOrdersheet = () => {
     setOrderTitle(data.order_title || "");
   }, [data, orderId]);
 
-  // const paymentStatus = useCartStore((state) => state.paymentStatus);
+  // Handlers
+  const handleRegisterAndAcceptOrder = async () => {
+    if (!currentlyActiveOrderId) return;
+
+    const payload = buildOrderPayload(restaurantId);
+    setLoadingActionState((prev) => ({ ...prev, registerAndAccept: true }));
+
+    try {
+      if (currentlyActiveOrderId) {
+        await updateOrderMutation.mutateAsync({
+          id: currentlyActiveOrderId,
+          payload,
+        });
+      } else {
+        await createOrderMutation.mutateAsync(payload);
+      }
+      setCurrentlyActiveOrderId("");
+      toast.success("Payment registered and order accepted");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to register order");
+    } finally {
+      setLoadingActionState((prev) => ({ ...prev, registerAndAccept: false }));
+    }
+  };
+
+  const handleRefundPayment = async () => {
+    if (!currentlyActiveOrderId) {
+      toast.error("No active order to refund");
+      return;
+    }
+    await paymentRefundMutation.mutateAsync({
+      orderId: currentlyActiveOrderId,
+      restaurantId,
+    });
+    closepaymentPanelStore();
+  };
+
+  const handleFinalizeOrder = async () => {
+    try {
+      await updateOrderStatusMutation.mutateAsync({
+        id: currentlyActiveOrderId,
+        status: ORDER_STATUS.COMPLETED,
+      });
+      closepaymentPanelStore();
+      closeProductOrderSheet();
+      clearCart();
+      setCurrentlyActiveOrderId("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to finalize order");
+    }
+  };
+
+  const handleSaveAsPending = () => {
+    // Clear or reset cart/order related state in the parent if needed
+    setCurrentlyActiveOrderId("");
+    setCustomerName("");
+    setOrderTitle("");
+
+    toast.success("Order saved as pending");
+  };
+
+  const handleAccept = async () => {
+    setLoadingActionState((prev) => ({ ...prev, accept: true }));
+    try {
+      await updateOrderStatusMutation.mutateAsync({
+        id: currentlyActiveOrderId,
+        status: ORDER_STATUS.ACCEPTED,
+      });
+      closepaymentPanelStore();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to accept order");
+    } finally {
+      setLoadingActionState((prev) => ({ ...prev, accept: false }));
+    }
+  };
 
   if (!isProductOrderSheetOpen) return null;
 
@@ -96,25 +227,27 @@ const ProductOrdersheet = () => {
       <section>
         {isProductOrderSheetOpen && (
           <aside
-            className="    h-[calc(100vh-4rem)]
- fixed top-16 right-0  max-w-sm w-full flex flex-col border bg-secondary "
+            className="h-[calc(100vh-4rem)]
+ fixed top-16 right-0  max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
           >
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary
                 open={showPaymentPanelForThisOrder}
                 setOpen={closepaymentPanelStore}
                 payments={data.payments}
+                onRegisterAndAccept={handleRegisterAndAcceptOrder}
+                onRefund={handleRefundPayment}
+                onSaveAsPending={handleSaveAsPending}
+                onFinalize={handleFinalizeOrder}
+                loading={loadingActionState}
+                payment_status={paymentStatus}
               />
             ) : (
               <>
                 {/* Top Section */}
                 <div className="shrink-0 ">
                   <div
-                    className={`flex items-center px-4 py-2 text-white ${
-                      data?.payment_status === PAYMENT_STATUS.PAID
-                        ? "bg-green-600"
-                        : "bg-yellow-400"
-                    }`}
+                    className={`flex items-center  px-4 py-2 ${paymentUI.headerBg}`}
                   >
                     <div className="flex space-x-2 items-center">
                       <Hash />
@@ -207,13 +340,10 @@ const ProductOrdersheet = () => {
 
                     <div className="flex justify-between w-full items-center px-1">
                       <span
-                        className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-                          data?.payment_status === PAYMENT_STATUS.PAID
-                            ? "bg-green-600"
-                            : "bg-yellow-400"
-                        }`}
+                        className={`px-4 py-1 rounded-full text-sm font-semibold
+  ${paymentUI.headerBg} ${paymentUI.badgeText}`}
                       >
-                        {data?.payment_status.toUpperCase()}
+                        {paymentUI.label}
                       </span>
                       <div className="space-x-2">
                         <span>Total:</span>
@@ -226,44 +356,16 @@ const ProductOrdersheet = () => {
                   </div>
                 </div>
                 {/* Bottom Section */}
-                <div className="shrink-0 pb-4 ">
-                  <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
-                    <div className="flex justify-center w-full gap-4 px-2 py-2 ">
-                      <Button
-                        variant={"outline"}
-                        className="text-red-500 border-red-500 w-full"
-                      >
-                        <span className="cursor-pointer">
-                          <X />
-                        </span>
-                        <span>Cancel</span>
-                      </Button>
-
-                      {data?.paymentStatus !== PAYMENT_STATUS.PAID && (
-                        <Button
-                          variant={"outline"}
-                          onClick={() => openpaymentPanelStore(data.id)}
-                          className="text-blue-500 border-blue-500 w-full"
-                        >
-                          <span className="cursor-pointer">$</span>
-                          <span>Pay</span>
-                        </Button>
-                      )}
-
-                      {data?.paymentStatus !== "Paid" && (
-                        <Button
-                          variant={"default"}
-                          className="text-white bg-green-500 w-full"
-                          onClick={() => openpaymentPanelStore(data.id)}
-                        >
-                          <span className="cursor-pointer">
-                            <Check />
-                          </span>
-                          <span>Confirm</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                <div className="flex flex-wrap pb-4 items-center space-y-2 space-x-2 text-sm text-nowrap px-2">
+                  <OrderActionButtons
+                    order={data}
+                    onPay={() => openpaymentPanelStore(data.id)}
+                    onAccept={() => handleAccept()}
+                    onFinalize={() => handleFinalizeOrder()}
+                    onClose={() => closeProductOrderSheet()}
+                    onOpenPaymentSummary={() => openpaymentPanelStore(data.id)}
+                    loading={loadingActionState}
+                  />
                 </div>
               </>
             )}

@@ -9,15 +9,28 @@ import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import PaymentSummary from "../payments/PaymentSummary";
+import { buildOrderPayload } from "@/utils/buildOrderPayload";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { useCreateOrder, useUpdateOrder } from "@/hooks/order/useOrders";
 
 const ProductOrderSideBar = () => {
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
+
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   const searchParams = useSearchParams();
   const orderType = searchParams.get("type");
 
-  const { cartItems, setCustomerName, setOrderTitle } = useCartStore();
+  const {
+    cartItems,
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
+    setCustomerName,
+    setOrderTitle,
+  } = useCartStore();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const handlePayment = () => {
     if (cartItems.length === 0) {
@@ -41,6 +54,35 @@ const ProductOrderSideBar = () => {
     }
   };
 
+  const handleRegisterAndAcceptOrder = async () => {
+    const payload = buildOrderPayload(restaurantId);
+
+    try {
+      if (currentlyActiveOrderId) {
+        await updateOrderMutation.mutateAsync({
+          id: currentlyActiveOrderId,
+          payload,
+        });
+      } else {
+        await createOrderMutation.mutateAsync(payload);
+      }
+      setCurrentlyActiveOrderId("");
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setShowPaymentPanel(false);
+    }
+  };
+
+  const handleSaveAsPending = () => {
+    // Clear or reset cart/order related state in the parent if needed
+    setCurrentlyActiveOrderId("");
+    setCustomerName("");
+    setOrderTitle("");
+
+    toast.success("Order saved as pending");
+  };
+
   return (
     <>
       <aside
@@ -51,6 +93,9 @@ const ProductOrderSideBar = () => {
           <PaymentSummary
             open={showPaymentPanel}
             setOpen={setShowPaymentPanel}
+            // onRegister={handleRegisterOrder}
+            onSaveAsPending={handleSaveAsPending}
+            onRegisterAndAccept={handleRegisterAndAcceptOrder}
           />
         ) : (
           <>

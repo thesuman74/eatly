@@ -29,7 +29,7 @@ export default function CartPreview() {
             return (
               <div
                 key={item.product?.id}
-                className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
+                className="flex items-center gap-4 mb-4 bg-card border rounded-lg p-1"
               >
                 <img
                   src={itemImage}

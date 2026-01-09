@@ -15,6 +15,7 @@ import {
   CreditCard,
   DollarSign,
   Icon,
+  Loader2,
   MoreHorizontal,
   MoveLeft,
   Wallet,
@@ -33,6 +34,7 @@ import {
   PAYMENT_METHOD,
   PAYMENT_STATUS,
   PaymentMethod,
+  PaymentStatus,
 } from "@/lib/types/order-types";
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
@@ -40,28 +42,53 @@ import { FaPaypal } from "react-icons/fa6";
 import { usePaymentRefund } from "@/hooks/order/usePayements";
 import { set } from "zod";
 import { PaymentList } from "./PaymentList";
+import { PAYMENT_UI } from "@/lib/paymentUi";
 
 interface PaymentSummaryProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   payments?: OrderPayment[];
+
+  //Actions
+  onSaveAsPending: () => void;
+  onRegisterAndAccept: () => void;
+  onRegister?: () => void;
+  onRefund?: () => void;
+  onFinalize?: () => void;
+
+  // Loading states
+  loading?: {
+    pay?: boolean;
+    finalize?: boolean;
+    refund?: boolean;
+    registerAndAccept?: boolean;
+  };
+
+  payment_status?: PaymentStatus;
 }
 
-const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
+const PaymentSummary = ({
+  open,
+  setOpen,
+  payments,
+  onSaveAsPending,
+  onRegisterAndAccept,
+  onRegister,
+  onRefund,
+  onFinalize,
+  loading,
+  payment_status,
+}: PaymentSummaryProps) => {
   const [isPending, setIsPending] = useState(false);
   const cartTotal = useCartStore((state) => state.cartTotal());
-  const cartItems = useCartStore((state) => state.cartItems);
   const {
     amountReceived,
     tips,
     paymentMethod,
-    currentlyActiveOrderId,
-    setCurrentlyActiveOrderId,
-    setPaymentStatus,
+
     setPaymentMethod,
     setAmountReceived,
     setTips,
-    clearCart,
   } = useCartStore();
 
   const [localTips, setLocalTips] = useState(tips?.toString() || "");
@@ -69,19 +96,32 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     amountReceived?.toString() || ""
   );
 
+  console.log("payments", payments);
+
   const tipsAmount = parseFloat(localTips);
   const received = parseFloat(localAmountReceived);
   const totalToPay = cartTotal + tipsAmount;
   const change = received - totalToPay;
 
-  const createOrderMutation = useCreateOrder();
-  const updateOrderMutation = useUpdateOrder();
-  const paymentRefundMutation = usePaymentRefund();
+  const canRegisterAndAccept = isPending || received >= totalToPay;
+
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const isPaid = Boolean(
     payments?.find((p) => p.payment_status === PAYMENT_STATUS.PAID)
   );
+
+  const paymentStatus: PaymentStatus = payment_status ?? PAYMENT_STATUS.UNPAID;
+  const paymentUI = PAYMENT_UI[paymentStatus];
+
+  const handleRegisterAndAcceptClick = () => {
+    if (!canRegisterAndAccept) {
+      toast.error("Save as pending or provide enough amount");
+      return;
+    }
+    // Call parent handler
+    onRegisterAndAccept?.();
+  };
 
   // const handleRegisterPayment = () => {
   //   setPaymentStatus(PAYMENT_STATUS.PAID);
@@ -89,66 +129,25 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
   //   toast.success("Simulating Payment Success ");
   // };
 
-  const handleSaveAsPending = async () => {
-    // clear payment-related local state
-    setPaymentMethod(null);
-    setAmountReceived(0);
+  const handleSaveAsPending = () => {
+    // Clear all payment info in cart store
     setTips(0);
+    setAmountReceived(0);
+    setPaymentMethod(null);
 
-    setPaymentStatus(PAYMENT_STATUS.UNPAID);
-    // setOpen(false);
-
-    // toast.success("Order saved as pending");
+    setIsPending(true); // Mark as pending locally
   };
 
-  const handleRegisterAndAcceptOrder = async () => {
-    if (!paymentMethod && isPending !== true) {
-      toast.error("Please select a payment method");
-      return;
-    }
-    if (amountReceived && amountReceived < totalToPay) {
-      toast.error("Amount received is less than total to pay");
-      return;
-    }
-    const saveTips = () => setTips(parseFloat(localTips) || 0);
-    const saveAmountReceived = () =>
-      setAmountReceived(parseFloat(localAmountReceived) || 0);
-
-    const payload = buildOrderPayload(restaurantId);
-
-    try {
-      if (currentlyActiveOrderId) {
-        // Update existing order
-        await updateOrderMutation.mutateAsync({
-          id: currentlyActiveOrderId,
-          payload,
-        });
-        setOpen(false);
-        clearCart();
-      } else {
-        // Create new order
-        await createOrderMutation.mutateAsync(payload);
-        setOpen(false);
-        clearCart();
+  const togglePending = () => {
+    setIsPending((prev) => {
+      const newPendingState = !prev;
+      if (newPendingState) {
+        // Only clear payment info when toggled to pending
+        handleSaveAsPending();
       }
-
-      setPaymentStatus(PAYMENT_STATUS.PAID);
-      setOpen(false);
-      clearCart();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to register order");
-    } finally {
-      setOpen(false);
-      clearCart();
-      setCurrentlyActiveOrderId("");
-    }
+      return newPendingState;
+    });
   };
-
-  const updateOrderStatusMutation = useUpdateOrderStatus();
-
-  const isRegisteringPayment = Boolean(
-    updateOrderMutation.isPending || createOrderMutation.isPending
-  );
 
   const PAYMENT_METHODS: {
     value: PaymentMethod;
@@ -162,40 +161,6 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
     { value: "khalti", label: "Khalti", Icon: Wallet },
   ];
 
-  const handleRefundPayment = async () => {
-    if (!currentlyActiveOrderId) {
-      toast.error("No active order to refund");
-      return;
-    }
-
-    // Call your mutation
-    await paymentRefundMutation.mutateAsync({
-      orderId: currentlyActiveOrderId,
-      restaurantId,
-    });
-    setOpen(false);
-  };
-
-  const handleFinalizeOrder = async () => {
-    if (!currentlyActiveOrderId) {
-      toast.error("No active order to finalize");
-      return;
-    }
-
-    try {
-      await updateOrderStatusMutation.mutateAsync({
-        id: currentlyActiveOrderId,
-        status: ORDER_STATUS.COMPLETED, // or your enum value
-      });
-
-      setOpen(false);
-      clearCart(); // ✅ correct place
-      setCurrentlyActiveOrderId("");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to finalize order");
-    }
-  };
-
   return (
     <>
       <div className=" flex flex-col h-screen">
@@ -203,24 +168,27 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
         <div className="flex border-b p-2 space-x-4 items-center">
           <MoveLeft className="cursor-pointer" onClick={() => setOpen(false)} />
           <span className="text-xl font-bold">Register Payment</span>
-          <span
-            className={`text-lg font-semibold rounded-full px-4 py-1 mx-1  text-white ${
-              isPaid ? "bg-green-600" : "bg-yellow-400"
-            }`}
-          >
-            {payments?.map((p) => p.payment_status)}
-          </span>
-        </div>
 
-        <PaymentList
-          payments={payments && payments.length > 0 ? payments : []}
-          handleRefundPayment={handleRefundPayment}
-        />
+          {payment_status && (
+            <span
+              className={`px-4 py-1 rounded-full text-sm font-semibold
+    ${paymentUI.badgeBg} ${paymentUI.badgeText}`}
+            >
+              {payment_status?.toUpperCase()}
+            </span>
+          )}
+        </div>
+        {isPaid && (
+          <PaymentList
+            payments={payments && payments.length > 0 ? payments : []}
+            handleRefundPayment={onRefund || (() => {})}
+          />
+        )}
 
         {!isPaid && (
           <>
             {/* Payment Inputs */}
-            <div className="px-4 bg-white space-y-4 py-4">
+            <div className="px-4  space-y-4 py-4">
               {/* Payment Method */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700">
@@ -344,29 +312,19 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             </div>
 
             {/* Actions */}
-            <div className="bg-white mt-auto mb-20 border-t p-4 space-y-3">
+            <div className=" mt-auto mb-20 border-t p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Input
                   type="checkbox"
                   className="w-4 h-4"
                   checked={isPending}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setIsPending(checked);
-
-                    if (checked) {
-                      handleSaveAsPending();
-                    }
-                  }}
+                  onChange={togglePending}
                 />
 
                 <Badge
                   variant="outline"
                   className="text-sm text-gray-600 border-dashed cursor-pointer"
-                  onClick={() => {
-                    setIsPending(true);
-                    handleSaveAsPending();
-                  }}
+                  onClick={togglePending}
                 >
                   Save as Unpaid
                 </Badge>
@@ -383,10 +341,12 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
               <Button
                 variant="outline"
                 className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
-                disabled={isRegisteringPayment}
-                // disabled={true}
-                onClick={handleRegisterAndAcceptOrder}
+                disabled={loading?.registerAndAccept || !canRegisterAndAccept}
+                onClick={handleRegisterAndAcceptClick}
               >
+                {loading?.registerAndAccept && (
+                  <Loader2 className="animate-spin" />
+                )}
                 Register and Accept Order
               </Button>
             </div>
@@ -398,3 +358,13 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
 };
 
 export default PaymentSummary;
+
+/*
+enable
+1. amount should be enough 
+
+disable 
+2. amount not enought and not pending 
+
+
+*/
