@@ -211,6 +211,7 @@ const PaymentSummary = ({ open, setOpen, payments }: PaymentSummaryProps) => {
             {payments?.map((p) => p.payment_status)}
           </span>
         </div>
+
         <PaymentList
           payments={payments && payments.length > 0 ? payments : []}
           handleRefundPayment={handleRefundPayment}

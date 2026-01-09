@@ -148,7 +148,7 @@ export function ProductAddSheet() {
   return (
     <Sheet open={isOpen} onOpenChange={closeSheet}>
       <SheetTitle></SheetTitle>
-      <SheetContent className="h-full overflow-y-auto p-0">
+      <SheetContent className=" overflow-y-auto p-0">
         <form onSubmit={handleSubmit}>
           <aside className=" max-w-sm min-w-[300px] bg-gray-100">
             <div className="flex justify-between px-4 py-2">

@@ -200,15 +200,16 @@ export default function OrdersTable({
         <CookingPot size={84} className="animate-bounce text-blue-600" />
         <div className="flex flex-col w-auto space-y-4">
           <span className="text-sm text-gray-500">Create New Orders</span>
-          <Button className="flex items-center justify-center space-x-4 py-8">
-            <Link
-              href="order/new?type=onSite"
-              className="flex items-center justify-center space-x-4"
-            >
+          <span className=" text-gray-500">You don't have any orders</span>
+          <Link
+            href="order/new?type=onSite"
+            className="flex items-center justify-center space-x-4"
+          >
+            <Button className="flex items-center justify-center space-x-4 py-8">
               <Plus size={60} />
               <span className="text-xl">New Order</span>
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     );

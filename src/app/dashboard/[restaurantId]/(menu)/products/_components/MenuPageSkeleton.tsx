@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function MenuPageSkeleton() {
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white ">
+    <div className="w-full max-w-5xl mx-auto  ">
       {/* 1. Header/Banner Section */}
       <div className="relative h-48 w-full overflow-hidden rounded-b-lg">
         <Skeleton className="h-full w-full" />

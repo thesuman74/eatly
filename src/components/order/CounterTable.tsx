@@ -91,7 +91,7 @@ export default function CounterTable() {
   };
 
   return (
-    <div>
+    <div className="mt-6">
       <CounterTableFilters
         value={statusFilter}
         onChange={setStatusFilter}

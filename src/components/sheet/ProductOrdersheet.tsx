@@ -95,7 +95,10 @@ const ProductOrdersheet = () => {
     <>
       <section>
         {isProductOrderSheetOpen && (
-          <aside className="h-screen fixed top-16 right-0  max-w-sm w-full flex flex-col bg-gray-100 overflow-y-auto">
+          <aside
+            className="    h-[calc(100vh-4rem)]
+ fixed top-16 right-0  max-w-sm w-full flex flex-col border bg-secondary "
+          >
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary
                 open={showPaymentPanelForThisOrder}
@@ -103,7 +106,7 @@ const ProductOrdersheet = () => {
                 payments={data.payments}
               />
             ) : (
-              <div className="">
+              <>
                 {/* Top Section */}
                 <div className="shrink-0 ">
                   <div
@@ -135,9 +138,9 @@ const ProductOrdersheet = () => {
                     </button>
                   </div>
 
-                  <div className="flex justify-between items-center bg-yellow-50/80 px-2">
+                  <div className="flex justify-between items-center dark:bg-secondary bg-yellow-50/80 px-2">
                     <div className="flex justify-between py-2">
-                      <span className="font-semibold bg-gray-200 px-4 py-1 mx-1 rounded-full text-xs">
+                      <span className="font-semibold bg-background px-4 py-1 mx-1 rounded-full text-xs">
                         POS
                       </span>
                       <div className="flex items-center">
@@ -163,7 +166,7 @@ const ProductOrdersheet = () => {
                   </div>
                   <hr className="border-gray-400" />
 
-                  <div className="space-y-2 py-2">
+                  <div className="space-y-2 py-2 bg-background">
                     <Input
                       type="text"
                       name="product_title"
@@ -185,7 +188,7 @@ const ProductOrdersheet = () => {
                 </div>
 
                 {/* Middle (scrollable) */}
-                <div className="flex-1 overflow-y-auto ">
+                <div className="flex-1 overflow-y-auto min-h-0">
                   <EditableOrderItemsList itemsWithDetails={cartItems} />
 
                   {/* total and discount section  */}
@@ -200,7 +203,7 @@ const ProductOrdersheet = () => {
                     <button className="rounded-md bg-gray-200 px-3 py-1 text-gray-700">
                       + Packaging
                     </button>
-                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 dark:border-gray-600 p-1"></div>
 
                     <div className="flex justify-between w-full items-center px-1">
                       <span
@@ -219,51 +222,50 @@ const ProductOrdersheet = () => {
                       </div>
                     </div>
 
-                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 p-1"></div>
+                    <div className="my-2 w-full border-b-2 border-dashed border-gray-300 dark:border-gray-600 p-1"></div>
                   </div>
+                </div>
+                {/* Bottom Section */}
+                <div className="shrink-0 pb-4 ">
+                  <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
+                    <div className="flex justify-center w-full gap-4 px-2 py-2 ">
+                      <Button
+                        variant={"outline"}
+                        className="text-red-500 border-red-500 w-full"
+                      >
+                        <span className="cursor-pointer">
+                          <X />
+                        </span>
+                        <span>Cancel</span>
+                      </Button>
 
-                  {/* Bottom Section */}
-                  <div className="shrink-0  mt-auto  ">
-                    <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
-                      <div className="flex justify-center w-full gap-4 px-2 py-2 ">
+                      {data?.paymentStatus !== PAYMENT_STATUS.PAID && (
                         <Button
                           variant={"outline"}
-                          className="text-red-500 border-red-500 w-full"
+                          onClick={() => openpaymentPanelStore(data.id)}
+                          className="text-blue-500 border-blue-500 w-full"
+                        >
+                          <span className="cursor-pointer">$</span>
+                          <span>Pay</span>
+                        </Button>
+                      )}
+
+                      {data?.paymentStatus !== "Paid" && (
+                        <Button
+                          variant={"default"}
+                          className="text-white bg-green-500 w-full"
+                          onClick={() => openpaymentPanelStore(data.id)}
                         >
                           <span className="cursor-pointer">
-                            <X />
+                            <Check />
                           </span>
-                          <span>Cancel</span>
+                          <span>Confirm</span>
                         </Button>
-
-                        {data?.paymentStatus !== PAYMENT_STATUS.PAID && (
-                          <Button
-                            variant={"outline"}
-                            onClick={() => openpaymentPanelStore(data.id)}
-                            className="text-blue-500 border-blue-500 w-full"
-                          >
-                            <span className="cursor-pointer">$</span>
-                            <span>Pay</span>
-                          </Button>
-                        )}
-
-                        {data?.paymentStatus !== "Paid" && (
-                          <Button
-                            variant={"default"}
-                            className="text-white bg-green-500 w-full"
-                            onClick={() => openpaymentPanelStore(data.id)}
-                          >
-                            <span className="cursor-pointer">
-                              <Check />
-                            </span>
-                            <span>Confirm</span>
-                          </Button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </aside>
         )}

@@ -34,9 +34,9 @@ export default function EditableOrderItemsList({
 
   return (
     <>
-      <div className="w-full max-w-md bg-white border rounded shadow-md flex flex-col">
+      <div className="w-full max-w-md bg-background border rounded shadow-md flex flex-col">
         {/* Fixed Header */}
-        <div className="flex items-center justify-between border-b bg-blue-500 p-2 text-white">
+        <div className="flex items-center justify-between border-b dark:bg-muted bg-blue-500 p-2 text-white">
           <span
             className="font-bold text-lg hover:cursor-pointer"
             onClick={openProductList}
@@ -46,11 +46,11 @@ export default function EditableOrderItemsList({
         </div>
 
         {/* Scrollable Items List */}
-        <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[250px] max-h-[250px]">
+        <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[300px] max-h-[350px]">
           {cartItems?.map((item, index) => (
             <div
               key={item.id + index}
-              className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
+              className="flex items-center gap-4 mb-4 bg-card border rounded-lg p-1"
             >
               <img
                 src={item.product?.images?.[0]?.url || "/Images/coffee.png"}

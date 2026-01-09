@@ -58,7 +58,7 @@ export default function MenuPageSkeleton() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-white p-3 rounded-2xl shadow-sm flex gap-4 items-center border border-transparent"
+              className="bg-background p-3 rounded-2xl shadow-sm flex gap-4 items-center border border-transparent"
             >
               {/* Product Image */}
               <Skeleton className="h-24 w-24 rounded-xl flex-shrink-0" />

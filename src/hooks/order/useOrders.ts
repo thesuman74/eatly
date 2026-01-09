@@ -148,9 +148,11 @@ export const useUpdateOrder = () => {
       return data;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
       queryClient.invalidateQueries({
-        queryKey: ["order-details", restaurantId],
+        queryKey: ["orders-list", restaurantId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", id],
       });
       toast.success("Order updated successfully!");
     },
