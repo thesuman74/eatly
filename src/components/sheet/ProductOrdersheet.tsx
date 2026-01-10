@@ -30,7 +30,7 @@ import { useSecondTicker } from "@/hooks/useSecondTicker";
 import clsx from "clsx";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import EditableOrderItemsList from "@/app/dashboard/[restaurantId]/order/_components/Products/EditableOrderItemsList";
-import { PAYMENT_UI } from "@/lib/paymentUi";
+import { PAYMENT_UI } from "@/lib/order/paymentUi";
 import { can } from "@/lib/rbac/can";
 import { OrderActionButtons } from "../order/OrderRowAction/OrderActionButton";
 import { usePaymentRefund } from "@/hooks/order/usePayements";

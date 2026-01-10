@@ -20,10 +20,16 @@ import {
   PAYMENT_STATUS,
   OrderStatus,
   OrderActionState,
+  Order,
+  OrderPayment,
+  PaymentStatus,
 } from "@/lib/types/order-types";
+import { PAYMENT_UI } from "@/lib/order/paymentUi";
+import { getEffectivePaymentStatus } from "@/lib/order/paymentStautsHelper";
+import { ORDER_STATUS_UI } from "@/lib/order/OrderStatusUI";
 
 export type OrdersTableProps = {
-  orders: any[];
+  orders: Order[];
   onAccept: (id: string) => void;
   onFinish: (order: any) => void;
   onPay: (id: string) => void;
@@ -45,7 +51,7 @@ export default function OrdersTable({
   openProductOrderSheet,
   actionState,
 }: OrdersTableProps) {
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<Order>[] = [
     {
       header: "DATE",
       accessorFn: (row) => row.created_at,
@@ -97,17 +103,16 @@ export default function OrdersTable({
       accessorFn: (row) => row.status,
       cell: ({ row }) => {
         const order = row.original;
+        const statusUI = ORDER_STATUS_UI[order.status];
+
         return (
           <div className="space-y-2">
-            <div
-              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                [ORDER_STATUS.DRAFT, "Preparing"].includes(order.status)
-                  ? "bg-green-300 text-black/60"
-                  : "bg-blue-300 text-black/60"
-              }`}
+            <span
+              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold
+            ${statusUI.badgeBg} ${statusUI.badgeText}`}
             >
               {order.status.toUpperCase()}
-            </div>
+            </span>
             <div className="text-xs ml-4 text-gray-500">
               {order.order_source.toUpperCase()}
             </div>
@@ -120,17 +125,17 @@ export default function OrdersTable({
       accessorFn: (row) => row.total_amount,
       cell: ({ row }) => {
         const order = row.original;
+
+        const paymentStatus = getEffectivePaymentStatus(order.payments);
+        const paymentUI = PAYMENT_UI[paymentStatus];
         return (
           <div className="space-y-2 font-semibold text-sm">
-            <div
-              className={`inline-block px-2 py-1 ${
-                order.payment_status === PAYMENT_STATUS.PAID
-                  ? "bg-green-500"
-                  : "bg-orange-400"
-              } capitalize text-white rounded-full text-xs font-bold`}
+            <span
+              className={`inline-block px-2 py-1 rounded-full text-xs font-bold
+            ${paymentUI.badgeBg} ${paymentUI.badgeText}`}
             >
-              {order.payment_status}
-            </div>
+              {paymentStatus.toUpperCase()}
+            </span>
             <div>Rs {order.total_amount}</div>
           </div>
         );
@@ -228,6 +233,7 @@ export default function OrdersTable({
       {/* Rows */}
       {table.getRowModel().rows.map((row) => {
         const cells = row.getVisibleCells();
+
         return (
           <div
             key={row.id}

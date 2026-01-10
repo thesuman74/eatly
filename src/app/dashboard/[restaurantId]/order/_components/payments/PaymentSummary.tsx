@@ -42,7 +42,7 @@ import { FaPaypal } from "react-icons/fa6";
 import { usePaymentRefund } from "@/hooks/order/usePayements";
 import { set } from "zod";
 import { PaymentList } from "./PaymentList";
-import { PAYMENT_UI } from "@/lib/paymentUi";
+import { PAYMENT_UI } from "@/lib/order/paymentUi";
 
 interface PaymentSummaryProps {
   open: boolean;

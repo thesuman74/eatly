@@ -1,4 +1,4 @@
-import { PaymentStatus } from "./types/order-types";
+import { PaymentStatus } from "../types/order-types";
 
 type PaymentUIConfig = {
   label: string;
@@ -25,7 +25,7 @@ export const PAYMENT_UI: Record<PaymentStatus, PaymentUIConfig> = {
   refunded: {
     label: "REFUNDED",
     headerBg: "bg-red-500 text-white",
-    badgeBg: "bg-red-300",
+    badgeBg: "bg-red-500 text-white",
     badgeText: "text-red-800",
   },
 
