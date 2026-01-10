@@ -21,8 +21,8 @@ export const ORDER_STATUS_UI: Record<OrderStatus, OrderStatusUIConfig> = {
   },
 
   preparing: {
-    headerBg: "bg-green-400 text-white",
-    badgeBg: "bg-green-300",
+    headerBg: "bg-green-300 text-white",
+    badgeBg: "bg-green-500",
     badgeText: "text-white",
   },
 
