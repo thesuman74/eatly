@@ -10,7 +10,7 @@ const ClientWrapper: React.FC<{ children: React.ReactNode }> = ({
   const fetchUser = useUserStore((state) => state.fetchUser);
 
   useEffect(() => {
-    fetchUser(); // fetch user info on client
+    fetchUser();
   }, [fetchUser]);
 
   return <>{children}</>;

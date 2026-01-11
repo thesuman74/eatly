@@ -88,7 +88,7 @@ export default function UploadForm() {
           setReviewMenuData={setReviewMenuData}
         />
       ) : (
-        <Card className="max-w-6xl mx-auto mt-10 p-6 border rounded-lg shadow bg-white relative">
+        <Card className="max-w-6xl mx-auto mt-10 p-6 border rounded-lg shadow bg-background relative">
           <CardHeader className="text-center mb-6">
             <h1 className="text-3xl font-bold">Upload Menu Image</h1>
             <p className="text-gray-600 mt-1">

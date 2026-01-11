@@ -11,9 +11,9 @@ interface StaffTableProps {
 
 export const StaffTable = ({ users }: StaffTableProps) => {
   return (
-    <table className="w-full border-collapse border  border-gray-300">
+    <table className="w-full border-collapse border  ">
       <thead>
-        <tr className="bg-gray-100">
+        <tr className="bg-secondary">
           <th className="border p-2 text-left">Name</th>
           <th className="border p-2 text-left">Email</th>
           <th className="border p-2 text-left">Phone</th>

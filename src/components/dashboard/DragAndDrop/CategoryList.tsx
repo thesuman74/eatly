@@ -75,7 +75,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   return (
     <>
-      <div className=" w-auto mx-auto mt-2 p-4 bg-white shadow-md rounded-md">
+      <div className=" w-auto mx-auto mt-2 p-4 bg-background shadow-md rounded-md">
         {/* Buttons */}
         <div className="flex space-x-2 mb-4">
           <ActionGuard action={Permission.CREATE_CATEGORY}>
@@ -136,7 +136,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         {/* Scan Menu Modal */}
         {scanMenu && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-            <div className="bg-white w-full max-w-5xl rounded-md shadow-lg p-6 relative">
+            <div className="bg-background w-full max-w-5xl rounded-md shadow-lg p-6 relative">
               <button
                 className="absolute top-4 right-4 text-gray-600 hover:text-black"
                 onClick={() => setScanMenu(false)}

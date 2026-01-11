@@ -13,12 +13,12 @@ const InviteLists = ({ invites }: pendingInvitesProps) => {
     <div>
       {/* Pending Invites */}
       {invites.length > 0 && (
-        <>
+        <div className="bg-background border rounded-sm p-4">
           <h2 className="text-2xl font-bold mb-4">Invites</h2>
-          <div className="bg-white p-2">
+          <div className=" p-2">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-secondary">
                   <th className="border p-2 text-left">Email</th>
                   <th className="border p-2 text-left">Role</th>
                   <th className="border p-2 text-left">Status</th>
@@ -35,7 +35,7 @@ const InviteLists = ({ invites }: pendingInvitesProps) => {
               </tbody>
             </table>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

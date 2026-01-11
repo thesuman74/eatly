@@ -40,7 +40,7 @@ const SubItem = ({
           : undefined,
         transition,
       }}
-      className={`p-2 border bg-white rounded-lg mb-2 flex items-center shadow-md ${
+      className={`p-2 border bg-background rounded-lg mb-2 flex items-center shadow-md ${
         item.isVisible ? "bg-gray-100/10" : "bg-gray-100 opacity-80 shadow-none"
       }`}
     >
@@ -64,9 +64,7 @@ const SubItem = ({
       <span className="flex-1 text-sm">{item.name}</span>
 
       <span>
-        <span className="text-sm font-semibold text-gray-600 mr-6">
-          Rs {item.price}
-        </span>
+        <span className="text-sm font-semibold mr-6">Rs {item.price}</span>
       </span>
       {!item.isVisible && (
         <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">

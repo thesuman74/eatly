@@ -52,8 +52,6 @@ const StaffPage = () => {
       <div className="mt-6">
         {getStaffs.isLoading ? (
           <div>Loading staff list...</div>
-        ) : getStaffs.isError ? (
-          <div className="text-red-500">Error: {getStaffs.error?.message}</div>
         ) : (
           <StaffPageUI staffData={staffData} />
         )}

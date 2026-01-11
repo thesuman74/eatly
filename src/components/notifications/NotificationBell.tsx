@@ -85,8 +85,8 @@ export default function NotificationBell() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 bg-popover border border-border rounded-lg shadow-lg z-50">
-          <div className="px-4 py-3 border-b border-border font-semibold">
+        <div className="absolute right-0 mt-2 w-96 bg-popover border  rounded-lg shadow-lg z-50">
+          <div className="px-4 py-3 border-b text-black dark:text-white font-semibold">
             Notifications
           </div>
           <Button onClick={handleTestNotification} className="w-full" size="lg">

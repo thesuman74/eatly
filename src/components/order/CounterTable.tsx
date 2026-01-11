@@ -15,11 +15,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import OrdersTable from "./OrderTable";
 import { paymentPanelStore } from "@/stores/ui/paymentPanelStore";
 import { requiresPayment } from "@/lib/actions/orderActions";
+import { OrderTableSkeleton } from "@/app/dashboard/[restaurantId]/order/_components/OrderTableSkeleton";
 
 export default function CounterTable() {
   const { openProductOrderSheet } = useOrderWorkspace();
   const queryClient = useQueryClient();
-  const { data: orders = [] } = useOrders();
+  const { data: orders = [], isLoading: isLoadingOrders } = useOrders();
   const updateOrderStatus = useUpdateOrderStatus();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { openpaymentPanelStore } = paymentPanelStore();
@@ -90,28 +91,32 @@ export default function CounterTable() {
   };
 
   return (
-    <div>
+    <div className="mt-6">
       <CounterTableFilters
         value={statusFilter}
         onChange={setStatusFilter}
         orders={orders}
       />
-      <OrdersTable
-        orders={filteredData}
-        onAccept={acceptOrder}
-        onFinish={finishOrder}
-        onPay={(orderId: string) => {
-          openProductOrderSheet(orderId);
-          openpaymentPanelStore(orderId);
-        }}
-        onStatusChange={(id, status) =>
-          handleStatusChange(id, status, "status")
-        }
-        actionState={actionState}
-        onCancel={cancelOrder}
-        onDelete={deleteOrder}
-        openProductOrderSheet={openProductOrderSheet}
-      />
+      {isLoadingOrders ? (
+        <OrderTableSkeleton />
+      ) : (
+        <OrdersTable
+          orders={filteredData}
+          onAccept={acceptOrder}
+          onFinish={finishOrder}
+          onPay={(orderId: string) => {
+            openProductOrderSheet(orderId);
+            openpaymentPanelStore(orderId);
+          }}
+          onStatusChange={(id, status) =>
+            handleStatusChange(id, status, "status")
+          }
+          actionState={actionState}
+          onCancel={cancelOrder}
+          onDelete={deleteOrder}
+          openProductOrderSheet={openProductOrderSheet}
+        />
+      )}
     </div>
   );
 }

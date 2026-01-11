@@ -71,6 +71,10 @@ export const useUpdateOrderStatus = () => {
       });
     },
     onSuccess: (_, { id }) => {
+      console.log("Invalidating with:", {
+        orderId: id,
+        restaurantId,
+      });
       toast.success("Order status updated");
       queryClient.invalidateQueries({
         queryKey: ["order-details", id],
@@ -148,9 +152,11 @@ export const useUpdateOrder = () => {
       return data;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
       queryClient.invalidateQueries({
-        queryKey: ["order-details", restaurantId],
+        queryKey: ["orders-list", restaurantId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order-details", id],
       });
       toast.success("Order updated successfully!");
     },
@@ -232,8 +238,14 @@ export const useCancelOrder = () => {
     },
     onSuccess: (_, { orderId }) => {
       toast.success("Order cancelled successfully");
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["orders", restaurantId] });
+      console.log("Invalidating with cancel:", {
+        orderId: orderId,
+        restaurantId,
+      });
+      queryClient.invalidateQueries({ queryKey: ["order-details", orderId] });
+      queryClient.invalidateQueries({
+        queryKey: ["orders-list", restaurantId],
+      });
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to cancel order");

@@ -12,14 +12,14 @@ export default function CartPreview() {
 
   return (
     <>
-      <div className="w-full max-w-md  bg-white border rounded shadow-md ">
+      <div className="w-full max-w-md  bg-background border rounded shadow-md ">
         <div className="flex items-center justify-between border-b  ">
-          <span className="font-bold text-lg w-full text-white bg-blue-500 p-2">
+          <span className="font-bold text-lg w-full text-white bg-blue-500 dark:bg-muted p-2">
             + Products
           </span>
         </div>
 
-        <div className="mt-2 min-h-[250px] max-h-[250px] overflow-y-auto px-2 ">
+        <div className="mt-2 min-h-[300px] max-h-[250px] overflow-y-auto px-2 ">
           {cartItems.map((item) => {
             const itemImage =
               item.product?.images?.find((img) => img.is_primary)?.url ||
@@ -29,7 +29,7 @@ export default function CartPreview() {
             return (
               <div
                 key={item.product?.id}
-                className="flex items-center gap-4 mb-4 bg-gray-100 rounded-lg p-1"
+                className="flex items-center gap-4 mb-4 bg-card border rounded-lg p-1"
               >
                 <img
                   src={itemImage}
@@ -74,6 +74,7 @@ export default function CartPreview() {
       </div>
 
       <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 py-2">
+        <div></div>
         <button className="rounded-md bg-green-500 px-4 py-1 text-gray-700">
           + Discount
         </button>

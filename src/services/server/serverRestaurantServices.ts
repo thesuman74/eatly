@@ -93,7 +93,5 @@ export async function getPublicRestaurantDetails(restaurantId: string) {
   if (error) throw new Error(error.message);
   if (!restaurants) throw new Error("Restaurant not found");
 
-  console.log("restaurants from supabase", restaurants);
-
   return restaurants;
 }

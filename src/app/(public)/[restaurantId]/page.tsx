@@ -6,6 +6,7 @@ import MenuPage from "./menu/_components/MenuPage";
 import RestaurantHome from "./RestaurantHome";
 import { getPublicRestaurantDetails } from "@/services/server/serverRestaurantServices";
 import { getRestaurantBySubdomain, getSubdomainData } from "@/lib/redis";
+import MenuPageSkeleton from "./menu/_components/MenuPageSkeleton";
 
 const page = async ({
   params,
@@ -23,15 +24,9 @@ const page = async ({
 
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
   if (!restaurantDetails) return notFound();
-  console.log("restaurantDetails", restaurantDetails);
-
-  // const restaurantId = restaurantDetails.restaurantId;
-
-  // Fetch categories
-  const categories = await getPublicCategoriesFromDB(restaurantId);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<MenuPageSkeleton />}>
       <RestaurantHome
         restaurantId={restaurantId}
         restaurantDetails={restaurantDetails}

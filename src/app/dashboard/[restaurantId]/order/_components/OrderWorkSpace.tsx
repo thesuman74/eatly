@@ -32,7 +32,7 @@ export default function OrderWorkspace() {
         )}
 
         {/* RIGHT: Order Sheet */}
-        <div className="w-[380px] border-l bg-white">
+        <div className="w-[380px] border-l bg-primary">
           <ProductOrdersheet />
         </div>
       </div>

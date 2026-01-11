@@ -21,11 +21,11 @@ const SidePreview = ({ src, showSidePreview = false }: SidePreviewProps) => {
   console.log("targetUrl", targetUrl);
 
   return (
-    <div className="z-10  md:w-96 bg-gray-200 flex flex-col shadow-xl">
+    <div className=" relative  md:w-96 bg-background flex flex-col shadow-xl">
       {/* Close button */}
       <button
         onClick={() => setIsOpen(false)}
-        className="absolute top-4 right-4 rounded-full bg-white p-2 shadow hover:bg-gray-100"
+        className="absolute top-4 right-4 rounded-full bg-secondary p-2 shadow hover:bg-gray-100"
         aria-label="Close preview"
       >
         <X size={18} />

@@ -11,7 +11,7 @@ type ProductCardProps = {
 const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
     <div className="relative">
-      <div className="w-full bg-white rounded shadow p-2 flex flex-col items-center">
+      <div className="w-full bg-card border rounded shadow p-2 flex flex-col items-center">
         <div className="w-full h-28 bg-gray-100 rounded mb-2 overflow-hidden relative group">
           {product ? (
             <img
@@ -34,7 +34,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
         </div>
 
         <span className="text-sm font-semibold">{product.name}</span>
-        <div className="flex items-center gap-1 text-xs text-gray-700 mt-1">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
           <span>Rs {product.price.toFixed(2)}</span>
           <Info size={12} />
         </div>

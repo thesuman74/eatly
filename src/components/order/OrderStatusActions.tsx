@@ -5,6 +5,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ActionGuard } from "@/lib/rbac/actionGurad";
+import { Permission } from "@/lib/rbac/permission";
 import { ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
 import { Loader2, Printer } from "lucide-react";
 
@@ -47,6 +49,7 @@ export function OrderStatusActions({
           >
             Preparing
           </DropdownMenuItem>
+
           <DropdownMenuItem
             onClick={(e) => {
               onStatusChange(ORDER_STATUS.READY);
@@ -54,6 +57,8 @@ export function OrderStatusActions({
           >
             Ready
           </DropdownMenuItem>
+
+          {/* <ActionGuard action={Permission.UPDATE_ORDER_STATUS}> */}
           <DropdownMenuItem
             onClick={(e) => {
               onStatusChange(ORDER_STATUS.DELIVERED);
@@ -61,6 +66,7 @@ export function OrderStatusActions({
           >
             Delivered
           </DropdownMenuItem>
+          {/* </ActionGuard> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

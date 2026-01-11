@@ -9,15 +9,28 @@ import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { PAYMENT_STATUS } from "@/lib/types/order-types";
 import PaymentSummary from "../payments/PaymentSummary";
+import { buildOrderPayload } from "@/utils/buildOrderPayload";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { useCreateOrder, useUpdateOrder } from "@/hooks/order/useOrders";
 
 const ProductOrderSideBar = () => {
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
+
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   const searchParams = useSearchParams();
   const orderType = searchParams.get("type");
 
-  const { cartItems, setCustomerName, setOrderTitle } = useCartStore();
+  const {
+    cartItems,
+    currentlyActiveOrderId,
+    setCurrentlyActiveOrderId,
+    setCustomerName,
+    setOrderTitle,
+  } = useCartStore();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const handlePayment = () => {
     if (cartItems.length === 0) {
@@ -41,16 +54,51 @@ const ProductOrderSideBar = () => {
     }
   };
 
+  const handleRegisterAndAcceptOrder = async () => {
+    const payload = buildOrderPayload(restaurantId);
+
+    try {
+      if (currentlyActiveOrderId) {
+        await updateOrderMutation.mutateAsync({
+          id: currentlyActiveOrderId,
+          payload,
+        });
+      } else {
+        await createOrderMutation.mutateAsync(payload);
+      }
+      setCurrentlyActiveOrderId("");
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setShowPaymentPanel(false);
+    }
+  };
+
+  const handleSaveAsPending = () => {
+    // Clear or reset cart/order related state in the parent if needed
+    setCurrentlyActiveOrderId("");
+    setCustomerName("");
+    setOrderTitle("");
+
+    toast.success("Order saved as pending");
+  };
+
   return (
     <>
-      <aside className="h-screen  max-w-sm w-full flex flex-col bg-gray-100 overflow-y-auto">
+      <aside
+        className="    h-[calc(100vh-4rem)]
+  max-w-sm w-full flex flex-col border "
+      >
         {showPaymentPanel ? (
           <PaymentSummary
             open={showPaymentPanel}
             setOpen={setShowPaymentPanel}
+            // onRegister={handleRegisterOrder}
+            onSaveAsPending={handleSaveAsPending}
+            onRegisterAndAccept={handleRegisterAndAcceptOrder}
           />
         ) : (
-          <div className="">
+          <>
             {/* Top Section */}
             <div className="shrink-0 ">
               <div
@@ -76,9 +124,9 @@ const ProductOrderSideBar = () => {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-yellow-50/80 px-2">
+              <div className="flex justify-between items-center bg-yellow-50/80  dark:bg-muted px-2">
                 <div className="flex justify-between py-2">
-                  <span className="font-semibold bg-gray-200 px-4 py-1 mx-1 rounded-full text-xs">
+                  <span className="font-semibold bg-background px-4 py-1 mx-1 rounded-full text-xs">
                     POS
                   </span>
                   <div className="flex items-center">
@@ -120,47 +168,46 @@ const ProductOrderSideBar = () => {
             </div>
 
             {/* Middle (scrollable) */}
-            <div className="flex-1 overflow-y-auto ">
+            <div className="flex-1 overflow-y-auto min-h-0">
               <CartPreview />
+            </div>
+            {/* Bottom Section */}
+            <div className="shrink-0 pb-4  ">
+              <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
+                <div className="flex justify-center w-full gap-4 px-2 py-2 ">
+                  <Button
+                    variant={"outline"}
+                    className="text-red-500 border-red-500 w-full"
+                  >
+                    <span className="cursor-pointer">
+                      <X />
+                    </span>
+                    <span>Cancel</span>
+                  </Button>
 
-              {/* Bottom Section */}
-              <div className="shrink-0  mt-auto  ">
-                <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
-                  <div className="flex justify-center w-full gap-4 px-2 py-2 ">
-                    <Button
-                      variant={"outline"}
-                      className="text-red-500 border-red-500 w-full"
-                    >
-                      <span className="cursor-pointer">
-                        <X />
-                      </span>
-                      <span>Cancel</span>
-                    </Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => handlePayment()}
+                    className="text-blue-500 border-blue-500 w-full"
+                  >
+                    <span className="cursor-pointer">$</span>
+                    <span>Pay</span>
+                  </Button>
 
-                    <Button
-                      variant={"outline"}
-                      onClick={() => handlePayment()}
-                      className="text-blue-500 border-blue-500 w-full"
-                    >
-                      <span className="cursor-pointer">$</span>
-                      <span>Pay</span>
-                    </Button>
-
-                    <Button
-                      variant={"default"}
-                      className="text-white bg-green-500 w-full"
-                      onClick={() => handleConfirm()}
-                    >
-                      <span className="cursor-pointer">
-                        <Check />
-                      </span>
-                      <span>Confirm</span>
-                    </Button>
-                  </div>
+                  <Button
+                    variant={"default"}
+                    className="text-white bg-green-500 w-full"
+                    onClick={() => handleConfirm()}
+                  >
+                    <span className="cursor-pointer">
+                      <Check />
+                    </span>
+                    <span>Confirm</span>
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </aside>
     </>

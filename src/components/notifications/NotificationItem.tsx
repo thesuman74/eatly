@@ -22,25 +22,19 @@ export default function NotificationItem({
     transition-colors
     ${
       isUnread
-        ? "bg-blue-100 border-l-4 border-blue-600 hover:bg-blue-200"
-        : "bg-gray-50 hover:bg-gray-100"
+        ? "bg-secondary/90 border-l-4 text-black dark:text-white border-blue-600 hover:bg-blue-200"
+        : "bg-secondary hover:bg-gray-100 text-black/40 dark:text-white/60"
     }
   `}
     >
       <div className="flex-1">
         <div
-          className={`text-sm ${
-            isUnread
-              ? "font-semibold text-gray-900"
-              : "font-normal text-gray-700"
-          }`}
+          className={`text-sm ${isUnread ? "font-semibold " : "font-normal "}`}
         >
           {notification.title}
         </div>
 
-        <div className="text-xs text-gray-600 mt-1 leading-snug">
-          {notification.message}
-        </div>
+        <div className="text-xs  mt-1 leading-snug">{notification.message}</div>
       </div>
 
       {/* Mark as read button */}
@@ -53,7 +47,7 @@ export default function NotificationItem({
           className="
         ml-2 rounded-full p-1.5
         text-blue-700
-        bg-white border border-blue-300
+         border border-blue-300
         hover:bg-blue-50
         transition
       "

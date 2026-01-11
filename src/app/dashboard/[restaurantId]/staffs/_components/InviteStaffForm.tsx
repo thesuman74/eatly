@@ -36,7 +36,7 @@ export const InviteStaffForm = ({
   };
 
   return (
-    <div className="mb-6 p-4 border rounded-md bg-white max-w-xl">
+    <div className="mb-6 p-4 border rounded-md bg-background max-w-xl">
       <h2 className="text-2xl font-bold mb-4">Invite staffs</h2>
 
       <div>

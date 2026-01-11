@@ -157,8 +157,6 @@ export async function GET(req: Request) {
       };
     });
 
-    console.log("ordersWithTotals", ordersWithTotals);
-
     return NextResponse.json(ordersWithTotals);
   } catch (error: any) {
     console.error("Error fetching orders:", error.message || error);
