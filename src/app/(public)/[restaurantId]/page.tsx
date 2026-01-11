@@ -24,7 +24,6 @@ const page = async ({
 
   const restaurantDetails = await getPublicRestaurantDetails(restaurantId);
   if (!restaurantDetails) return notFound();
-  console.log("restaurantDetails", restaurantDetails);
 
   return (
     <Suspense fallback={<MenuPageSkeleton />}>

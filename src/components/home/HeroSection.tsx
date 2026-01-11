@@ -125,7 +125,7 @@ export function HeroSection() {
                   </div> */}
 
                 <Image
-                  src="/images/login.avif"
+                  src="/Images/login.avif"
                   alt="Hero Image"
                   width={500}
                   height={500}
