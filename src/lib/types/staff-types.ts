@@ -1,6 +1,7 @@
 // Define roles as a constant object
 export const STAFFROLES = {
-  OWNER: "owner",
+  // OWNER: "owner",
+  MANAGER: "manager",
   STAFF: "staff",
   KITCHEN: "kitchen",
   CUSTOMER: "customer",

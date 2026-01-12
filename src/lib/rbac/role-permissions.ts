@@ -1,9 +1,23 @@
 import { Permission } from "./permission";
-import { UserRoles } from "./roles";
+import { UserRoles, UserRoleTypes } from "./roles";
 
-export const ROLE_PERMISSIONS: Record<UserRoles, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<UserRoleTypes, Permission[]> = {
   [UserRoles.OWNER]: [
     ...Object.values(Permission), // owner can do everything
+  ],
+  [UserRoles.MANAGER]: [
+    Permission.READ_RESTAURANT_INFO,
+    Permission.READ_CATEGORY_INFO,
+    Permission.READ_PRODUCT_INFO,
+
+    Permission.READ_ORDER_INFO,
+    Permission.CREATE_ORDER,
+    Permission.UPDATE_ORDER_STATUS,
+    Permission.CANCEL_ORDER,
+    Permission.REFUND_ORDER_PAYMENT,
+
+    Permission.CREATE_STAFF_INVITE,
+    Permission.READ_STAFF_INVITE_INFO,
   ],
 
   [UserRoles.STAFF]: [
