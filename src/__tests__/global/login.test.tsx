@@ -1,16 +1,27 @@
-// Mock the login function
-jest.mock("@/lib/actions/login", () => ({
-  login: jest.fn().mockResolvedValue({}),
-}));
-import { LoginForm } from "@/app/(auth)/login/_components/loginForm";
+import { LoginFormView } from "@/app/(auth)/login/_components/LoginFormView";
+
 import { render, screen } from "@testing-library/react";
 
-describe("login form test", () => {
-  it("renders a login from", () => {
-    render(<LoginForm />);
+// Mock remains the same
+jest.mock("lucide-react", () => ({
+  ChefHat: () => <div data-testid="chef-hat-icon" />,
+}));
 
-    const email = screen.getByPlaceholderText("email");
+describe("LoginFormView", () => {
+  const mockProps = {
+    onSubmit: jest.fn((e) => e.preventDefault()),
+    onGoogleLogin: jest.fn(),
+    loading: false,
+    error: null,
+  };
 
-    expect(email).toBeInTheDocument();
+  it("renders the email input correctly", () => {
+    render(<LoginFormView {...mockProps} />);
+
+    // This looks for the <Label> that is linked to your email <Input>
+    const emailInput = screen.getByLabelText(/email/i);
+
+    expect(emailInput).toBeInTheDocument();
+    expect(emailInput).toHaveAttribute("type", "email");
   });
 });

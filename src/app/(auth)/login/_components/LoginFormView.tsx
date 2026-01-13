@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SubmitButton from "@/components/ui/SubmitButton";
+import { Loader2 } from "lucide-react";
 
 interface LoginFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -76,12 +77,12 @@ export function LoginFormView({
                       required
                     />
                   </div>
-                  <SubmitButton
-                    isLoading={loading}
-                    className="w-full text-white"
-                  >
+                  <Button className="w-full text-white">
+                    {loading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Login
-                  </SubmitButton>
+                  </Button>
                 </div>
                 <div className="flex flex-col gap-4">
                   <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
