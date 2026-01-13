@@ -77,7 +77,7 @@ export function LoginFormView({
                       required
                     />
                   </div>
-                  <Button className="w-full text-white">
+                  <Button className="w-full text-white" disabled={loading}>
                     {loading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
