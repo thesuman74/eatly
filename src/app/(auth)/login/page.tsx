@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/login-form";
-import { ChefHat, GalleryVerticalEnd } from "lucide-react";
+import { LoginForm } from "@/app/(auth)/login/_components/loginForm";
+import { ChefHat } from "lucide-react";
 
 export default function LoginPage() {
   return (
