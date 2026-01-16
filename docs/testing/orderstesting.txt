@@ -1,3 +1,22 @@
+
+
+useOrders
+  ✓ success
+  ✓ disabled
+  ✓ error
+
+useUpdateOrderStatus
+  ✓ success
+  ✓ loading
+  ✓ error
+  ✓ guard
+
+Order Lifecycle
+  ✓ create
+  ✓ update
+  ✓ cancel
+
+
 1. Fetch Orders (Read Flow)
 Success
 
@@ -68,20 +87,3 @@ API is not called when guard fails
 
 
 
-
-
-useOrders
-  ✓ success
-  ✓ disabled
-  ✓ error
-
-useUpdateOrderStatus
-  ✓ success
-  ✓ loading
-  ✓ error
-  ✓ guard
-
-Order Lifecycle
-  ✓ create
-  ✓ update
-  ✓ cancel
