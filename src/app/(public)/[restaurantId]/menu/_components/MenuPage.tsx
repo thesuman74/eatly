@@ -55,7 +55,7 @@ export default function MenuPage({
       const filteredProducts = category.products.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchQuery.toLowerCase())
+          product.description.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
       if (filteredProducts.length > 0) {
@@ -67,7 +67,7 @@ export default function MenuPage({
 
       return acc;
     },
-    [] as ProductCategoryTypes[]
+    [] as ProductCategoryTypes[],
   );
 
   return (
@@ -109,7 +109,7 @@ export default function MenuPage({
                 onClick={() => {
                   if (navigator.share) {
                     navigator.share({
-                      title: "Kaji CHiya Menu",
+                      title: "Eatly Menu",
                       url: window.location.href,
                     });
                   }
