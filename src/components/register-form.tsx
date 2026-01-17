@@ -8,6 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
@@ -19,6 +28,7 @@ import { signup } from "@/lib/actions/login";
 import { set } from "zod";
 import { Loader2 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export function RegisterForm({
   className,
@@ -26,6 +36,10 @@ export function RegisterForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -39,23 +53,17 @@ export function RegisterForm({
       setError(result.error);
       toast.error(result.error);
     } else {
-      toast.success("Registration successful! Check your email.");
+      setOpenDialog(true);
     }
 
     setLoading(false);
   };
 
-  const supabase = createBrowserSupabaseClient();
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+    router.push("/login");
+  };
 
-  async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-        skipBrowserRedirect: false,
-      },
-    });
-  }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -92,7 +100,7 @@ export function RegisterForm({
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
-                    type="name"
+                    type="text"
                     name="name"
                     placeholder="John Doe / Business Name"
                     required
@@ -109,7 +117,11 @@ export function RegisterForm({
                     required
                   />
                 </div>
-                <Button className="w-full" formAction={signup}>
+                <Button
+                  className="w-full"
+                  formAction={signup}
+                  disabled={loading}
+                >
                   {loading ? <Loader2 className="animate-spin" /> : ""} Sign Up
                 </Button>
               </div>
@@ -123,13 +135,13 @@ export function RegisterForm({
             </div>
           </form>
           <div className="flex flex-col gap-4 py-4">
-            <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+            {/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
               <span className="relative z-10 bg-background px-2 text-muted-foreground">
                 Or continue with
               </span>
-            </div>
+            </div> */}
 
-            <Button
+            {/* <Button
               className="w-full"
               variant="outline"
               onClick={handleGoogleLogin}
@@ -141,7 +153,7 @@ export function RegisterForm({
                 />
               </svg>
               Sign up with Google
-            </Button>
+            </Button> */}
           </div>
         </CardContent>
       </Card>
@@ -149,6 +161,20 @@ export function RegisterForm({
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </div>
+      <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Registration Successful</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your account has been created. Please check your email to verify
+              your account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={handleDialogClose}>Continue</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
