@@ -36,15 +36,16 @@ export async function doRegister(formData: FormData) {
     return { error: "Email and password are required" };
   }
 
+  const redirectUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          name,
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-        },
+        emailRedirectTo: `${redirectUrl}/onboarding`,
+        data: { name },
       },
     });
 
