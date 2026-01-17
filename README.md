@@ -141,7 +141,7 @@ All transitions are **role-aware** and **tenant-scoped** to ensure operational i
 
 Orders follow a structured lifecycle:
 
-```mermaid
+```code
   Draft --> Accepted
   Accepted --> Preparing
   Preparing --> Ready
