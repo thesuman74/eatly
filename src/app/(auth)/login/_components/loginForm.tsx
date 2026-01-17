@@ -3,6 +3,7 @@ import { useState } from "react";
 import { login } from "@/lib/actions/login";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { LoginFormView } from "@/app/(auth)/login/_components/LoginFormView";
+import { toast } from "react-toastify";
 
 export function LoginForm({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
@@ -34,10 +35,32 @@ export function LoginForm({ className }: { className?: string }) {
     });
   }
 
+  const handleForgotPassword = async (email: string) => {
+    if (!email) {
+      toast.error("Please enter your email first");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`, // where user lands after reset
+    });
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Password reset email sent! Check your inbox.");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <LoginFormView
       onSubmit={handleSubmit}
       onGoogleLogin={handleGoogleLogin}
+      onForgotPassword={handleForgotPassword}
       loading={loading}
       error={error}
       className={className}

@@ -17,6 +17,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 interface LoginFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onGoogleLogin: () => void;
+  onForgotPassword: (email: string) => void;
   loading: boolean;
   error: string | null;
   className?: string;
@@ -64,7 +65,7 @@ export function LoginFormView({
                     <div className="flex items-center">
                       <Label htmlFor="password">Password</Label>
                       <a
-                        href="#"
+                        href="/forgot-password"
                         className="ml-auto text-sm underline-offset-4 hover:underline"
                       >
                         Forgot your password?
