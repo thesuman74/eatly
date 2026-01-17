@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SubmitButton from "@/components/ui/SubmitButton";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -29,6 +29,7 @@ export function LoginFormView({
   error,
   className,
 }: LoginFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <>
       <div className={cn("flex flex-col gap-6", className)}>
@@ -69,13 +70,26 @@ export function LoginFormView({
                         Forgot your password?
                       </a>
                     </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      name="password"
-                      placeholder="**********"
-                      required
-                    />
+                    <div className="relative ">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        placeholder="**********"
+                        required
+                      />
+                      {showPassword ? (
+                        <Eye
+                          className="absolute  size-4 right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      ) : (
+                        <EyeOff
+                          className="absolute size-4 right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      )}
+                    </div>
                   </div>
                   <Button className="w-full text-white" disabled={loading}>
                     {loading && (

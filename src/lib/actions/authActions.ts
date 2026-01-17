@@ -44,7 +44,7 @@ export async function doRegister(formData: FormData) {
       email,
       password,
       options: {
-        emailRedirectTo: `${redirectUrl}/login`,
+        emailRedirectTo: `${redirectUrl}/onboarding`,
         data: { name },
       },
     });

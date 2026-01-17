@@ -26,7 +26,7 @@ import SubmitButton from "./ui/SubmitButton";
 import Link from "next/link";
 import { signup } from "@/lib/actions/login";
 import { set } from "zod";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -37,6 +37,7 @@ export function RegisterForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -110,12 +111,26 @@ export function RegisterForm({
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    required
-                  />
+                  <div className="relative ">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="**********"
+                      required
+                    />
+                    {showPassword ? (
+                      <Eye
+                        className="absolute  size-4 right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    ) : (
+                      <EyeOff
+                        className="absolute size-4 right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    )}
+                  </div>
                 </div>
                 <Button
                   className="w-full"
