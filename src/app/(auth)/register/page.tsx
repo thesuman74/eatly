@@ -28,7 +28,13 @@ const Page = () => {
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="/" className="flex items-center gap-2 font-medium">
             <div className="w-9 h-9 bg-gradient-to-br from-accent via-accent/80 to-accent/60 rounded-xl flex items-center justify-center shadow-lg shadow-accent/20 group-hover:shadow-accent/40 transition-all duration-300">
-              <ChefHat className="w-5 h-5 text-background" />
+              <img
+                src={"/Images/logo2.png"}
+                alt="Logo"
+                width={30}
+                height={30}
+                className="bg-transparent"
+              />
             </div>
             <span className="text-2xl font-display font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Eatly
