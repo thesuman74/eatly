@@ -61,3 +61,14 @@ export async function getStaffsInviteAPI(restaurantId: string) {
 
   return data;
 }
+
+export async function getAvailableRolesAPI(restaurantId: string) {
+  const res = await fetch(`/api/staffs/roles?restaurantId=${restaurantId}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch Staffs");
+  }
+
+  return data;
+}

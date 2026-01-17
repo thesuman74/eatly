@@ -24,14 +24,12 @@ export function MainNav() {
         <Link href="/" className="flex items-center space-x-2 size-20">
           <Image
             src="/Images/logo.png"
-            alt="Kaji CHiya Logo"
+            alt="Eatly Logo"
             width={40}
             height={40}
             className="rounded-full"
           />
-          <span className="font-bold text-xl text-black w-full ">
-            KajiChiya
-          </span>
+          <span className="font-bold text-xl text-black w-full ">Eatly</span>
         </Link>
 
         <div className="flex items-center space-x-4">

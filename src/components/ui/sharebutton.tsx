@@ -13,7 +13,7 @@ export default function ShareButton() {
         if (navigator.share) {
           try {
             await navigator.share({
-              title: "Kaji Chiya Menu",
+              title: "Eatly Menu",
               url: window.location.href,
             });
           } catch (error) {

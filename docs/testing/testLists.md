@@ -1,0 +1,8 @@
+- **Auth & Access:** Signup, login, role-based access
+- **Tenant Isolation:** Data separation between restaurants
+- **Menu Management:** CRUD for categories, items, images
+- **Order Flow:** Create, update, cancel orders
+- **Payments:** Cash & online payment handling
+- **Notifications:** Order status updates, order placed notification
+- **API Responses:** Error handling & status codes
+- **Frontend Rendering:** Key pages load & display correct data

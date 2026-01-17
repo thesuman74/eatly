@@ -1,6 +1,7 @@
 import { StaffRole, StaffTypes } from "@/lib/types/staff-types";
 import {
   addStaffAPI,
+  getAvailableRolesAPI,
   getStaffsAPI,
   getStaffsInviteAPI,
 } from "@/services/staffServices";
@@ -22,6 +23,12 @@ export function useStaffActions() {
   const getStaffsInvite = useQuery({
     queryKey: ["StaffsInvite", restaurantId],
     queryFn: () => getStaffsInviteAPI(restaurantId),
+    enabled: !!restaurantId,
+  });
+
+  const getAvailableRoles = useQuery({
+    queryKey: ["AvailableRoles", restaurantId],
+    queryFn: () => getAvailableRolesAPI(restaurantId),
     enabled: !!restaurantId,
   });
 

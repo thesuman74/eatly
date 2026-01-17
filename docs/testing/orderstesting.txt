@@ -1,0 +1,89 @@
+
+
+useOrders
+  ✓ success
+  ✓ disabled
+  ✓ error
+
+useUpdateOrderStatus
+  ✓ success
+  ✓ loading
+  ✓ error
+  ✓ guard
+
+Order Lifecycle
+  ✓ create
+  ✓ update
+  ✓ cancel
+
+
+1. Fetch Orders (Read Flow)
+Success
+
+Fetches orders when restaurantId exists
+
+Calls API with correct restaurantId
+
+Returns an array of orders
+
+Query status becomes success
+
+Disabled / Guard
+
+Does not fetch when restaurantId is null or undefined
+
+Query remains idle
+
+API is not called
+
+Error
+
+Throws error when API fails
+
+Query status becomes error
+
+Error message is available
+
+2. Update Order Status (Mutation Flow)
+Success
+
+Calls updateOrderStatusAPI with:
+
+order id
+
+new status
+
+restaurantId
+
+Shows success toast
+
+Invalidates:
+
+["order-details", orderId]
+
+["orders-list", restaurantId]
+
+Mutation status becomes success
+
+Loading
+
+Mutation status becomes loading
+
+Prevents duplicate submissions
+
+Error
+
+Shows error toast when API fails
+
+Mutation status becomes error
+
+Cache is not invalidated on failure
+
+Guard / Validation
+
+Throws error if restaurantId is missing
+
+API is not called when guard fails
+
+
+
