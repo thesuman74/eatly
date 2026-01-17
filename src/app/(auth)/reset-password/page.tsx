@@ -7,11 +7,31 @@ import { ResetPasswordView } from "./ResetPassworView";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const supabase = createBrowserSupabaseClient();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userValid, setUserValid] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      console.log("user", user);
+      if (error || !user) {
+        // User not logged in → redirect to login
+        router.replace("/login");
+      } else {
+        setUserValid(true);
+      }
+      setLoading(false);
+    };
+
+    checkUser();
+  }, [router, supabase]);
 
   const handleResetPassword = async (password: string) => {
     setLoading(true);
@@ -31,13 +51,24 @@ export default function ResetPasswordPage() {
     return { success: true, message: "Password updated successfully!" };
   };
 
+  if (loading)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <p className="text-muted-foreground text-lg animate-pulse">
+          Loading...
+        </p>
+      </div>
+    );
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <ResetPasswordView
-        onSubmit={handleResetPassword}
-        loading={loading}
-        error={error}
-      />
+      {userValid && (
+        <ResetPasswordView
+          onSubmit={handleResetPassword}
+          loading={loading}
+          error={error}
+        />
+      )}
     </div>
   );
 }
