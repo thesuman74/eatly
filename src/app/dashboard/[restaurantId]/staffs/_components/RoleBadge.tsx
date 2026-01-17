@@ -9,10 +9,10 @@ interface RoleBadgeProps {
 export const RoleBadge = ({ role }: RoleBadgeProps) => {
   let bgColor = "";
   switch (role) {
-    case "owner":
-      bgColor =
-        "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100";
-      break;
+    // case "owner":
+    //   bgColor =
+    //     "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100";
+    //   break;
     case "staff":
       bgColor = "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100";
       break;

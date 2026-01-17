@@ -1,9 +1,9 @@
 import { Permission } from "./permission";
-import { UserRoles } from "./roles";
+import { UserRoles, UserRoleTypes } from "./roles";
 import { ROLE_PERMISSIONS } from "./role-permissions";
 
 interface CanParams {
-  role: UserRoles | null | undefined;
+  role: UserRoleTypes | null | undefined;
   permission: Permission;
   context?: {
     currentUserId: string;

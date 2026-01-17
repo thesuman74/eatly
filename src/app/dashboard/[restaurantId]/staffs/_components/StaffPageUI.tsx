@@ -9,14 +9,14 @@ import { StaffTable } from "./StaffTable";
 
 // Sample constant data
 const staffData = [
-  {
-    id: "1",
-    full_name: "Suman Adhikari",
-    email: "suman@example.com",
-    phone: "9800000000",
-    role: STAFFROLES.OWNER,
-    status: "active",
-  },
+  // {
+  //   id: "1",
+  //   full_name: "Suman Adhikari",
+  //   email: "suman@example.com",
+  //   phone: "9800000000",
+  //   role: STAFFROLES.OWNER,
+  //   status: "active",
+  // },
   {
     id: "2",
     full_name: "John Doe",
