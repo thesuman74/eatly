@@ -18,7 +18,7 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: "Eatly - Restaurant Management Made Simple",
   description:
-    "Automate menu management, extract photos intelligently, and manage your entire restaurant from one powerful dashboard.",
+    "Automate menu management, order tracking, and manage your entire restaurant from one powerful dashboard.",
   icons: {
     icon: "/favicon.ico",
   },
