@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   },
 };
 
+<link rel="icon" href="/favicon.ico" sizes="any" />;
 export default async function RootLayout({
   children,
 }: Readonly<{
