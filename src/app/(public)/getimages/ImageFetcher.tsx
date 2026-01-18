@@ -23,7 +23,7 @@ const ImageFetcher: React.FC = () => {
     console.log("data", data);
 
     if (response.ok) {
-      setImageUrl(data.image);
+      setImageUrl(data.data?.image);
     } else {
       setError(data.error || "Something went wrong");
     }

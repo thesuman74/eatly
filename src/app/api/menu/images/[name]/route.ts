@@ -1,21 +1,19 @@
-// app/api/menu/images/route.ts
+// src/app/api/menu/images/[name]/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(
-  req: Request,
-  context: { params: { name: string } }, // params comes directly
-) {
-  console.log("context", context);
+// Type for your RPC result
+type KeywordImagesRow = {
+  image_urls: string[];
+};
 
+export async function GET(req: Request, context: { params: { name: string } }) {
   const { name } = await context.params;
 
   const productName = name?.trim().toLowerCase();
-  console.log("productName", productName);
-
   if (!productName) {
     return NextResponse.json(
-      { error: "Product name is required" },
+      { status: "error", error: "Product name is required" },
       { status: 400 },
     );
   }
@@ -27,22 +25,37 @@ export async function GET(
     p: productName,
   });
 
-  console.log("data", data);
-
-  if (error || !data) {
-    return NextResponse.json({ error: "No images found" }, { status: 404 });
+  if (error || !data || data.length === 0) {
+    return NextResponse.json(
+      { status: "error", error: "No images found" },
+      { status: 404 },
+    );
   }
 
-  // Step 1: get the first object (your RPC returns array with one row)
-  const row = data[0];
+  // Step 1: get the first object (RPC returns array with one row)
+  const row: KeywordImagesRow = data[0];
 
-  // Step 2: pick a random index from image_urls
+  // Step 2: robustness check for empty image_urls
+  if (!Array.isArray(row.image_urls) || row.image_urls.length === 0) {
+    return NextResponse.json(
+      { status: "error", error: "No images found" },
+      { status: 404 },
+    );
+  }
+
+  // Step 3: pick a random image
   const randomIndex = Math.floor(Math.random() * row.image_urls.length);
-
-  // Step 3: get the random URL
   const randomImage = row.image_urls[randomIndex];
 
-  console.log(randomImage);
+  // NOTE: Ensure the keywords column is indexed in DB for faster lookups
+  // CREATE INDEX idx_keywords ON keyword_images USING gin (string_to_array(lower(keywords), ',') gin_trgm_ops);
 
-  return NextResponse.json({ image: randomImage });
+  // Step 4: consistent response format
+  return NextResponse.json({
+    status: "success",
+    data: {
+      image: randomImage, // random single image
+      images: row.image_urls, // all images for flexibility
+    },
+  });
 }
