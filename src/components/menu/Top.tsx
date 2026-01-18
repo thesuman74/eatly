@@ -27,7 +27,6 @@ const Top = ({ restaurant }: topProps) => {
           <Image
             width={1000}
             height={1000}
-            quality={100}
             src={banner}
             alt={nameText + "banner"}
             className="h-full w-full rounded-b-sm object-cover"
