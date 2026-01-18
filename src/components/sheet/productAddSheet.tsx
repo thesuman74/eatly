@@ -19,7 +19,7 @@ import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
-import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ProductCategoryTypes,
   ProductImageTypes,
@@ -28,7 +28,11 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import SubmitButton from "../ui/SubmitButton";
 import { set } from "react-hook-form";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import ImageFetcherButton from "../ImageFetcher";
 
+type ProductImageItem =
+  | { type: "file"; file: File }
+  | { type: "url"; url: string };
 export function ProductAddSheet() {
   const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
     useProductSheet();
@@ -52,7 +56,7 @@ export function ProductAddSheet() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<ProductImageItem[]>([]);
   const [existingImages, setExistingImages] = useState<ProductImageTypes[]>([]);
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
@@ -81,17 +85,19 @@ export function ProductAddSheet() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!categoryId) return;
-    if (!name || !description || !price || !categoryId) {
-      toast.error("All fields are required");
-      return;
-    }
 
+    // if (!name || !description || !price || !categoryId) {
+    //   toast.error("All fields are required");
+    //   return;
+    // }
+
+    // Prepare payload
     const payload = {
       name,
-      description,
+      description: description?.trim() || "",
       price: Number(price),
       category_id: categoryId,
-      images,
+      images: images, // only uploaded files
     };
 
     if (mode === "edit" && productId) {
@@ -99,18 +105,18 @@ export function ProductAddSheet() {
         { ...payload, product_id: productId },
         {
           onSuccess: () => {
-            setImages([]); // Clear images only if update succeeds
+            setImages([]); // Clear uploaded images
             closeSheet(); // Close sheet
           },
           onError: (err: any) => {
             toast.error(err.message || "Failed to update product");
           },
-        }
+        },
       );
     } else {
       addProduct.mutate(payload, {
         onSuccess: () => {
-          setImages([]); // Clear images only if add succeeds
+          setImages([]); // Clear uploaded images
           closeSheet(); // Close sheet
         },
         onError: (err: any) => {
@@ -123,14 +129,14 @@ export function ProductAddSheet() {
   const handleDeleteImage = async (image_id: string) => {
     setDeletingImages((prev) => ({ ...prev, [image_id]: true }));
     try {
-      const res = await fetch("/api/menu/products/images/delete", {
+      const res = await fetch("/api/menu/products/images", {
         method: "DELETE",
         body: JSON.stringify({ image_id }),
       });
 
       if (res.ok) {
         setExistingImages((prev) => prev.filter((img) => img.id !== image_id));
-        queryClient.invalidateQueries({ queryKey: ["categories"] });
+        queryClient.invalidateQueries({ queryKey: ["categories", categoryId] });
         toast.success("Image deleted");
         setImages([]);
       } else {
@@ -142,6 +148,13 @@ export function ProductAddSheet() {
       setDeletingImages((prev) => ({ ...prev, [image_id]: false }));
     }
   };
+
+  const handleImageFetch = (url: string) => {
+    if (!url) return;
+    setImages([{ type: "url", url }]); // replace current image, single-image setup
+  };
+
+  console.log("images", images);
 
   // ✅ Add conditional rendering
   if (!isOpen) return null;
@@ -178,10 +191,44 @@ export function ProductAddSheet() {
                 />
                 <div className="flex space-x-2 items-center">
                   <FileUploader
-                    files={images}
-                    onChange={setImages}
+                    files={images
+                      .filter(
+                        (img): img is { type: "file"; file: File } =>
+                          img.type === "file",
+                      )
+                      .map((img) => img.file)}
+                    onChange={(files) =>
+                      setImages(files.map((file) => ({ type: "file", file })))
+                    }
                     multiple={false}
                   />
+
+                  {images.map((img, idx) => {
+                    const src =
+                      img.type === "file"
+                        ? URL.createObjectURL(img.file)
+                        : img.url;
+                    return (
+                      <div key={idx} className="relative w-24 h-24">
+                        <img
+                          src={src}
+                          className="w-full h-full object-cover rounded-md border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== idx),
+                            )
+                          }
+                          className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
+
                   {mode === "edit" && existingImages.length > 0 && (
                     <>
                       <div className="space-y-2">
@@ -220,6 +267,17 @@ export function ProductAddSheet() {
                         </div>
                       </div>
                     </>
+                  )}
+                </div>
+                <div className="flex">
+                  {/* Button to fetch random image */}
+                  {name && (
+                    <ImageFetcherButton
+                      productName={name}
+                      buttonText="Fetch Random Image"
+                      onImageFetched={handleImageFetch}
+                      className="ml-2"
+                    />
                   )}
                 </div>
               </div>
