@@ -47,7 +47,7 @@ type OrderActionType =
 const ProductOrdersheet = () => {
   // Store hooks
   const { orderId } = useOrderWorkspace();
-  const { isProductOrderSheetOpen, closeProductOrderSheet } =
+  const { isProductOrderSheetOpen, closeProductOrderSheet, closeProductList } =
     useOrderWorkspace();
   const {
     orderId: currentOrderId,
@@ -65,6 +65,7 @@ const ProductOrdersheet = () => {
   const updateOrderMutation = useUpdateOrder();
   const updateOrderStatusMutation = useUpdateOrderStatus();
   const paymentRefundMutation = usePaymentRefund();
+  const updateOrderItemMutation = useUpdateOrderItem();
 
   // Cart store
   const {
@@ -196,11 +197,11 @@ const ProductOrdersheet = () => {
   const handleAccept = async () => {
     setLoadingActionState((prev) => ({ ...prev, accept: true }));
     try {
-      await updateOrderStatusMutation.mutateAsync({
-        id: currentlyActiveOrderId,
-        status: ORDER_STATUS.ACCEPTED,
-      });
+      const payload = buildOrderPayload(restaurantId);
+      await updateOrderItemMutation.mutateAsync(payload);
       closepaymentPanelStore();
+      closeProductOrderSheet();
+      closeProductList();
     } catch (error: any) {
       toast.error(error.message || "Failed to accept order");
     } finally {
