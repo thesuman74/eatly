@@ -7,7 +7,10 @@ type KeywordImagesRow = {
   image_urls: string[];
 };
 
-export async function GET(req: Request, context: { params: { name: string } }) {
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ name: string }> },
+) {
   const { name } = await context.params;
 
   const productName = name?.trim().toLowerCase();
