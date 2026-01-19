@@ -82,7 +82,7 @@ export function OrderActionButtons({
       )}
 
       {/* Accept */}
-      {!isAccepted && !isFinalPayment && (
+      {isAccepted && !isFinalPayment && (
         <Button
           className="w-full bg-green-500 text-white flex items-center justify-center gap-1"
           onClick={onAccept}
