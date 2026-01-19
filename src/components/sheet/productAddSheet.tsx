@@ -8,6 +8,8 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetOverlay,
+  SheetPortal,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -19,7 +21,7 @@ import { useProductActions } from "@/hooks/products/useProductActions";
 import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { FileUploader } from "../file-uploader";
 import { useProductSheet } from "@/stores/ui/productSheetStore";
-import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ Import
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ProductCategoryTypes,
   ProductImageTypes,
@@ -28,16 +30,20 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import SubmitButton from "../ui/SubmitButton";
 import { set } from "react-hook-form";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import ImageFetcherButton from "../ImageFetcher";
 
+type ProductImageItem =
+  | { type: "file"; file: File }
+  | { type: "url"; url: string };
 export function ProductAddSheet() {
   const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
     useProductSheet();
 
-  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const { data: categories } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
-    queryFn: () => getCategoriesAPI(restaurandId),
+    queryFn: () => getCategoriesAPI(restaurantId),
   });
 
   const queryClient = useQueryClient();
@@ -52,7 +58,7 @@ export function ProductAddSheet() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<ProductImageItem[]>([]);
   const [existingImages, setExistingImages] = useState<ProductImageTypes[]>([]);
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
@@ -81,17 +87,19 @@ export function ProductAddSheet() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!categoryId) return;
-    if (!name || !description || !price || !categoryId) {
-      toast.error("All fields are required");
-      return;
-    }
 
+    // if (!name || !description || !price || !categoryId) {
+    //   toast.error("All fields are required");
+    //   return;
+    // }
+
+    // Prepare payload
     const payload = {
       name,
-      description,
+      description: description?.trim() || "",
       price: Number(price),
       category_id: categoryId,
-      images,
+      images: images, // only uploaded files
     };
 
     if (mode === "edit" && productId) {
@@ -99,18 +107,18 @@ export function ProductAddSheet() {
         { ...payload, product_id: productId },
         {
           onSuccess: () => {
-            setImages([]); // Clear images only if update succeeds
+            setImages([]); // Clear uploaded images
             closeSheet(); // Close sheet
           },
           onError: (err: any) => {
             toast.error(err.message || "Failed to update product");
           },
-        }
+        },
       );
     } else {
       addProduct.mutate(payload, {
         onSuccess: () => {
-          setImages([]); // Clear images only if add succeeds
+          setImages([]); // Clear uploaded images
           closeSheet(); // Close sheet
         },
         onError: (err: any) => {
@@ -120,34 +128,50 @@ export function ProductAddSheet() {
     }
   };
 
-  const handleDeleteImage = async (image_id: string) => {
-    setDeletingImages((prev) => ({ ...prev, [image_id]: true }));
+  const handleDeleteImage = async (imageId: string) => {
+    setDeletingImages((prev) => ({ ...prev, [imageId]: true }));
+
     try {
-      const res = await fetch("/api/menu/products/images/delete", {
-        method: "DELETE",
-        body: JSON.stringify({ image_id }),
-      });
+      const res = await fetch(
+        `/api/menu/products/images?imageId=${imageId}&restaurantId=${restaurantId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (res.ok) {
-        setExistingImages((prev) => prev.filter((img) => img.id !== image_id));
+        // ✅ Update state correctly depending on shape
+        setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+
         queryClient.invalidateQueries({ queryKey: ["categories"] });
         toast.success("Image deleted");
-        setImages([]);
+        setImages([]); // Clear uploaded images if needed
       } else {
         toast.error("Failed to delete image");
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setDeletingImages((prev) => ({ ...prev, [image_id]: false }));
+      setDeletingImages((prev) => ({ ...prev, [imageId]: false }));
     }
   };
 
-  // ✅ Add conditional rendering
-  if (!isOpen) return null;
+  const handleImageFetch = (url: string) => {
+    if (!url) return;
+    setImages([{ type: "url", url }]);
+  };
+
+  console.log("images", images);
+
   return (
-    <Sheet open={isOpen} onOpenChange={closeSheet}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) closeSheet();
+      }}
+    >
       <SheetTitle></SheetTitle>
+
       <SheetContent className=" overflow-y-auto p-0">
         <form onSubmit={handleSubmit}>
           <aside className=" max-w-sm min-w-[300px] bg-gray-100">
@@ -178,10 +202,44 @@ export function ProductAddSheet() {
                 />
                 <div className="flex space-x-2 items-center">
                   <FileUploader
-                    files={images}
-                    onChange={setImages}
+                    files={images
+                      .filter(
+                        (img): img is { type: "file"; file: File } =>
+                          img.type === "file",
+                      )
+                      .map((img) => img.file)}
+                    onChange={(files) =>
+                      setImages(files.map((file) => ({ type: "file", file })))
+                    }
                     multiple={false}
                   />
+
+                  {images.map((img, idx) => {
+                    const src =
+                      img.type === "file"
+                        ? URL.createObjectURL(img.file)
+                        : img.url;
+                    return (
+                      <div key={idx} className="relative w-24 h-24">
+                        <img
+                          src={src}
+                          className="w-full h-full object-cover rounded-md border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== idx),
+                            )
+                          }
+                          className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
+
                   {mode === "edit" && existingImages.length > 0 && (
                     <>
                       <div className="space-y-2">
@@ -220,6 +278,17 @@ export function ProductAddSheet() {
                         </div>
                       </div>
                     </>
+                  )}
+                </div>
+                <div className="flex">
+                  {/* Button to fetch random image */}
+                  {name && (
+                    <ImageFetcherButton
+                      productName={name}
+                      buttonText="Fetch Random Image"
+                      onImageFetched={handleImageFetch}
+                      className="ml-2"
+                    />
                   )}
                 </div>
               </div>

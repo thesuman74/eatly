@@ -10,6 +10,10 @@ import { uploadProductImages } from "@/lib/actions/uploadImages";
 import { toast } from "react-toastify";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 
+type ProductImageItem =
+  | { type: "file"; file: File }
+  | { type: "url"; url: string };
+
 export function useProductActions() {
   const queryClient = useQueryClient();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
@@ -24,13 +28,11 @@ export function useProductActions() {
       description: string;
       price: number;
       category_id: string;
-      images?: File[];
+      images?: ProductImageItem[];
     }) => {
-      if (!restaurantId) {
-        throw new Error("No active restaurant selected");
-      }
+      if (!restaurantId) throw new Error("No active restaurant selected");
 
-      // 1️⃣ Create product
+      // 1️⃣ Create product first
       const product = await addProductAPI({
         name: payload.name,
         description: payload.description,
@@ -39,21 +41,43 @@ export function useProductActions() {
         restaurantId,
       });
 
-      // 2️⃣ Upload images only after product exists
-      if (payload.images?.length) {
-        const urls = await uploadProductImages(product.id, payload.images);
+      // 2️⃣ Separate uploaded files and fetched URLs
+      const fileImages =
+        payload.images?.filter(
+          (img): img is { type: "file"; file: File } => img.type === "file",
+        ) || [];
 
-        // 3️⃣ Insert image records
+      const urlImages =
+        payload.images
+          ?.filter(
+            (img): img is { type: "url"; url: string } => img.type === "url",
+          )
+          .map((img) => img.url) || [];
+
+      // 3️⃣ Upload files if any
+      let uploadedUrls: string[] = [];
+      if (fileImages.length > 0) {
+        uploadedUrls = await uploadProductImages(
+          product.id,
+          fileImages.map((i) => i.file),
+        );
+      }
+
+      // 4️⃣ Combine uploaded and fetched URLs
+      const allUrls = [...uploadedUrls, ...urlImages];
+
+      // 5️⃣ Insert image records
+      if (allUrls.length > 0) {
         const res = await fetch("/api/menu/products/images", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             productId: product.id,
             imageName: product.name,
-            images: urls,
+            images: allUrls,
+            restaurantId,
           }),
         });
-
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to insert images");
       }
@@ -73,31 +97,55 @@ export function useProductActions() {
 
   const updateProduct = useMutation({
     mutationFn: async (payload: {
-      product_id: string; // ✅ Product ID for update
+      product_id: string;
       name: string;
       description: string;
       price: number;
       category_id: string;
-      images?: File[]; // ✅ Optional new images
+      images?: ProductImageItem[];
     }) => {
-      // 1️⃣ Update product
+      if (!restaurantId) throw new Error("No active restaurant selected");
+
+      // 1️⃣ Update product first
       const product = await updateProductAPI({ ...payload }, restaurantId);
 
-      // 2️⃣ Upload new images if any
-      if (payload.images && payload.images.length > 0) {
-        const urls = await uploadProductImages(product.id, payload.images);
+      // 2️⃣ Separate uploaded files and fetched URLs
+      const fileImages =
+        payload.images?.filter(
+          (img): img is { type: "file"; file: File } => img.type === "file",
+        ) || [];
 
-        // 3️⃣ Insert new images via API route
+      const urlImages =
+        payload.images
+          ?.filter(
+            (img): img is { type: "url"; url: string } => img.type === "url",
+          )
+          .map((img) => img.url) || [];
+
+      // 3️⃣ Upload files if any
+      let uploadedUrls: string[] = [];
+      if (fileImages.length > 0) {
+        uploadedUrls = await uploadProductImages(
+          product.id,
+          fileImages.map((i) => i.file),
+        );
+      }
+
+      // 4️⃣ Combine uploaded and fetched URLs
+      const allUrls = [...uploadedUrls, ...urlImages];
+
+      // 5️⃣ Insert image records if any
+      if (allUrls.length > 0) {
         const res = await fetch("/api/menu/products/images", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             productId: product.id,
-            ImageName: product.name,
-            images: urls,
+            imageName: product.name,
+            images: allUrls,
+            restaurantId,
           }),
         });
-
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to insert images");
       }
@@ -107,7 +155,6 @@ export function useProductActions() {
 
     onSuccess: () => {
       toast.success("Product updated successfully!");
-      // ✅ Invalidate categories to refresh the list
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
 

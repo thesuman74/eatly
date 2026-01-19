@@ -18,7 +18,6 @@ const SidePreview = ({ src, showSidePreview = false }: SidePreviewProps) => {
   if (!isOpen || !restaurantId) return null;
 
   const targetUrl = `${restaurantId}/${src}`;
-  console.log("targetUrl", targetUrl);
 
   return (
     <div className=" relative  md:w-96 bg-background flex flex-col shadow-xl">

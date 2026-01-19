@@ -3,6 +3,7 @@ import React from "react";
 import ContactSection from "./ContactSection";
 import { Button } from "../ui/button";
 import ShareButton from "../ui/sharebutton";
+import Image from "next/image";
 
 interface topProps {
   restaurant: {
@@ -23,7 +24,9 @@ const Top = ({ restaurant }: topProps) => {
       <section className="flex flex-col ">
         {/* <!-- banner image --> */}
         <div className=" h-40 md:h-48 w-full ">
-          <img
+          <Image
+            width={1000}
+            height={1000}
             src={banner}
             alt={nameText + "banner"}
             className="h-full w-full rounded-b-sm object-cover"
@@ -33,7 +36,9 @@ const Top = ({ restaurant }: topProps) => {
         {/* <!-- heading  --> */}
         <div className="  -mt-6 z-10  w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-input pb-4">
           <div className="flex size-16 sm:size-24 md:size-32 items-center border bg-muted rounded-xl p-1 min-w-16">
-            <img
+            <Image
+              width={100}
+              height={100}
               src={logoUrl}
               alt={nameText}
               className="rounded-xl object-cover object-top size-full"

@@ -105,13 +105,13 @@ export async function POST(req: Request) {
     if (
       !name?.trim() ||
       price == null ||
-      !description?.trim() ||
+      // !description?.trim() ||
       !category_id ||
       !restaurantId
     ) {
       return NextResponse.json(
         { error: "Missing or invalid required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -159,7 +159,7 @@ export async function POST(req: Request) {
     if (restError || !restaurant) {
       return NextResponse.json(
         { error: "Not authorized for this restaurant" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -173,14 +173,14 @@ export async function POST(req: Request) {
     if (catError || !category) {
       return NextResponse.json(
         { error: "Category not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (category.restaurant_id !== restaurantId) {
       return NextResponse.json(
         { error: "Category does not belong to this restaurant" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -202,7 +202,7 @@ export async function POST(req: Request) {
     if (insertError || !newProduct) {
       return NextResponse.json(
         { error: insertError?.message || "Failed to create product" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -215,7 +215,7 @@ export async function POST(req: Request) {
     console.error("Error adding product:", err);
     return NextResponse.json(
       { error: "Server error", details: err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -237,7 +237,7 @@ export async function PATCH(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Missing or invalid required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -269,7 +269,7 @@ export async function PATCH(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -283,7 +283,7 @@ export async function PATCH(req: Request) {
     if (prodError || !product) {
       return NextResponse.json(
         { error: "Not authorized for this product" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -297,7 +297,7 @@ export async function PATCH(req: Request) {
     if (catError || !category) {
       return NextResponse.json(
         { error: "Invalid category for this restaurant" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -317,7 +317,7 @@ export async function PATCH(req: Request) {
     if (updateError || !updatedProduct) {
       return NextResponse.json(
         { error: updateError?.message || "Failed to update product" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -330,7 +330,7 @@ export async function PATCH(req: Request) {
     console.error("Error updating product:", err);
     return NextResponse.json(
       { error: "Server error", details: err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -346,14 +346,14 @@ export async function DELETE(req: Request) {
     if (!productId) {
       return NextResponse.json(
         { error: "Missing required productId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!restaurantId) {
       return NextResponse.json(
         { error: "Missing required restaurantId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -385,7 +385,7 @@ export async function DELETE(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
     // Verify restaurant ownership
@@ -399,7 +399,7 @@ export async function DELETE(req: Request) {
     if (restError || !restaurant) {
       return NextResponse.json(
         { error: "Not authorized for this restaurant" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -414,7 +414,7 @@ export async function DELETE(req: Request) {
     if (prodError || !product) {
       return NextResponse.json(
         { error: "Product not found or not in this restaurant" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -430,13 +430,13 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json(
       { success: true, message: "Product deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Delete product error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to delete product" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
