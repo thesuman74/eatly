@@ -103,6 +103,9 @@ export const useUpdateOrderItem = () => {
         queryKey: ["orders-list", restaurantId],
       });
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update order");
+    },
   });
 };
 

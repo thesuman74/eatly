@@ -326,8 +326,12 @@ export async function PATCH(
 
     let computedItems: any[] | null = null;
 
-    if (Array.isArray(items) && items.length > 0) {
-      const productIds = items.map((i) => i.product_id);
+    const itemsToProcess = items.filter(
+      (item) => item.action === "update" || item.action === "remove",
+    );
+
+    if (itemsToProcess.length > 0) {
+      const productIds = itemsToProcess.map((i) => i.product_id);
 
       const { data: products, error: productError } = await supabase
         .from("products")
@@ -344,7 +348,7 @@ export async function PATCH(
 
       const priceMap = new Map(products.map((p) => [p.id, p.price]));
 
-      computedItems = items.map((item) => {
+      computedItems = itemsToProcess.map((item) => {
         const unitPrice = priceMap.get(item.product_id);
         if (unitPrice == null) {
           throw new Error("Invalid product price");
@@ -356,6 +360,7 @@ export async function PATCH(
           unit_price: unitPrice,
           total_price: unitPrice * item.quantity,
           notes: item.notes ?? null,
+          action: item.action,
         };
       });
 
@@ -386,18 +391,19 @@ export async function PATCH(
     if (computedItems) {
       for (const item of items) {
         if (item.action === "update") {
-          // Check if there is an active row for this product
-          const { data: existingActiveItem } = await supabase
+          // 1️⃣ Check if there is already an "update" row for this product
+          const { data: existingUpdateRow } = await supabase
             .from("order_items")
             .select("*")
             .eq("order_id", orderId)
             .eq("product_id", item.product_id)
+            .eq("action", "update")
             .eq("is_active", true)
             .maybeSingle();
 
-          if (existingActiveItem) {
-            // Merge: increase quantity and update total_price
-            const newQuantity = item.quantity; // frontend already sends updated quantity
+          if (existingUpdateRow) {
+            // Merge quantity from frontend
+            const newQuantity = item.quantity;
             const newTotalPrice = item.unit_price * newQuantity;
 
             const { error: updateError } = await supabase
@@ -406,11 +412,11 @@ export async function PATCH(
                 quantity: newQuantity,
                 total_price: newTotalPrice,
               })
-              .eq("id", existingActiveItem.id);
+              .eq("id", existingUpdateRow.id);
 
             if (updateError) throw new Error(updateError.message);
           } else {
-            // No active row, insert new with incremented revision
+            // Insert new "update" row
             const { data: latestItem } = await supabase
               .from("order_items")
               .select("revision")

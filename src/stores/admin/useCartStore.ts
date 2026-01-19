@@ -114,56 +114,68 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   setOrderStatus: (status) => set({ orderStatus: status }),
 
-  addToCart: (product, addons) => {
-    const existing = get().cartItems.find(
-      (item) => item.product_id === product.id,
-    );
+  addToCart: (product, addons, quantity = 1) => {
+    const cart = get().cartItems;
+    const isExistingOrder = !!get().currentlyActiveOrderId;
 
-    // Determine if this is an existing order being modified
-    const isExistingOrder = !!get().currentlyActiveOrderId; // store active order id in your zustand store
-    const lastRevision =
-      get()
-        .cartItems.filter((item) => item.id === get().currentlyActiveOrderId)
-        .reduce((max, item) => Math.max(max, item.revision || 0), 0) || 0;
+    // Determine action
+    const action = isExistingOrder ? "update" : "add";
 
-    if (existing) {
-      // Update quantity/addons
-      set({
-        cartItems: get().cartItems.map((item) =>
-          item.product_id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-                total_price:
-                  (item.unit_price ?? product.price) * (item.quantity + 1),
-                addons: addons || item.addons,
-                action: item.action || (isExistingOrder ? "update" : "add"),
-                revision:
-                  item.revision || (isExistingOrder ? lastRevision + 1 : 1),
-              }
-            : item,
-        ),
-      });
-    } else {
-      // Add new item
+    if (action === "add") {
+      // Always insert new "add" item for a new order
       set({
         cartItems: [
-          ...get().cartItems,
+          ...cart,
           {
             id: crypto.randomUUID(),
             product_id: product.id,
             product,
             name: product.name,
-            quantity: 1,
+            quantity,
             unit_price: product.price ?? 0,
-            total_price: product.price ?? 0,
+            total_price: (product.price ?? 0) * quantity,
             addons: addons || [],
-            action: isExistingOrder ? "update" : "add",
-            revision: isExistingOrder ? lastRevision + 1 : 1,
+            action, // always "add"
             order_id: get().currentlyActiveOrderId || undefined,
           } as OrderItem,
         ],
       });
+    } else if (action === "update") {
+      // Check if there is already an "update" row for this product
+      const existingUpdateIndex = cart.findIndex(
+        (item) => item.product_id === product.id && item.action === "update",
+      );
+
+      if (existingUpdateIndex !== -1) {
+        // Merge quantity for existing "update" row
+        const updatedItem = { ...cart[existingUpdateIndex] };
+        updatedItem.quantity += quantity;
+        updatedItem.total_price = updatedItem.unit_price * updatedItem.quantity;
+
+        const newCart = [...cart];
+        newCart[existingUpdateIndex] = updatedItem;
+
+        set({ cartItems: newCart });
+      } else {
+        // Insert new "update" row
+        set({
+          cartItems: [
+            ...cart,
+            {
+              id: crypto.randomUUID(),
+              product_id: product.id,
+              product,
+              name: product.name,
+              quantity,
+              unit_price: product.price ?? 0,
+              total_price: (product.price ?? 0) * quantity,
+              addons: addons || [],
+              action: "update",
+              order_id: get().currentlyActiveOrderId || undefined,
+            } as OrderItem,
+          ],
+        });
+      }
     }
   },
 
@@ -181,7 +193,10 @@ export const useCartStore = create<CartState>((set, get) => ({
     } else {
       set({
         cartItems: get().cartItems.map((item) =>
-          item.product?.id === productId ? { ...item, quantity } : item,
+          // Only allow quantity change for "update" items
+          item.product_id === productId && item.action === "update"
+            ? { ...item, quantity, total_price: item.unit_price * quantity }
+            : item,
         ),
       });
     }
