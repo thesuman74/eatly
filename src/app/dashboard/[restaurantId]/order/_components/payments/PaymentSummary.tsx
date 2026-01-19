@@ -121,6 +121,8 @@ const PaymentSummary = ({
       return;
     }
     setIsProcessing(true); // 🔒 lock immediately
+    setLocalAmountReceived("");
+    setLocalTips("");
 
     try {
       await onRegisterAndAccept?.(); // call parent handler

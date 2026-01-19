@@ -2,7 +2,7 @@ import { can } from "@/lib/rbac/can";
 import { Permission } from "@/lib/rbac/permission";
 import { UserRoles } from "@/lib/rbac/roles";
 import { createClient } from "@/lib/supabase/server";
-import { PAYMENT_STATUS } from "@/lib/types/order-types";
+import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   if (!orderId || !restaurantId) {
     return NextResponse.json(
       { error: "Missing required fields" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Fetch role + assignment
+    // 2️⃣ Fetch role + assignment
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("role, restaurant_id")
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // 3. Permission check
+    // 3️⃣ Permission check
     if (
       !can({
         role: userData.role,
@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // 4. Role-based scoping
+    // 4️⃣ Role-based scoping
     let query = supabase.from("restaurants").select("*").eq("id", restaurantId);
 
     if (userData.role === UserRoles.OWNER) {
@@ -61,41 +61,61 @@ export async function POST(req: NextRequest) {
       if (userData.restaurant_id !== restaurantId) {
         return NextResponse.json(
           { error: "Resource access denied" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
 
     const { data: restaurant, error } = await query.maybeSingle();
+    if (error) throw new Error(error.message);
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    // 3️⃣ Fetch all payments for the order
+    // 5️⃣ Fetch all payments for the order
     const { data: payments, error: paymentsError } = await supabase
       .from("order_payments")
-      .select("amount_paid")
+      .select("amount_paid, payment_status")
       .eq("order_id", orderId);
 
     if (paymentsError || !payments || payments.length === 0) {
       return NextResponse.json(
         { error: "Payment not found for this order" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // 4️⃣ Calculate refundable amount
-    const paidAmount = payments.reduce((sum, p) => sum + p.amount_paid, 0);
+    // ✅ Only allow refund if payment_status is PAID
+    const paidAmount = payments
+      .filter((p) => p.payment_status === PAYMENT_STATUS.PAID)
+      .reduce((sum, p) => sum + p.amount_paid, 0);
 
     if (paidAmount <= 0) {
       return NextResponse.json(
-        { error: "Only paid orders can be refunded" },
-        { status: 400 }
+        { error: "Only fully paid orders can be refunded" },
+        { status: 400 },
       );
     }
 
-    // 5️⃣ Insert refund as a new row (append-only)
+    // 6️⃣ Fetch the order to check status
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("id", orderId)
+      .maybeSingle();
+
+    if (orderError || !order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // ✅ Only allow refund if order status is DRAFT or ACCEPTED
+    if (![ORDER_STATUS.DRAFT, ORDER_STATUS.ACCEPTED].includes(order.status)) {
+      return NextResponse.json(
+        {
+          error: `Cannot refund because order is already ${order.status.toUpperCase()}`,
+        },
+        { status: 400 },
+      );
+    }
+
+    // 7️⃣ Insert refund as a new row (append-only)
     const { error: paymentRefundError } = await supabase
       .from("order_payments")
       .insert({
@@ -111,11 +131,11 @@ export async function POST(req: NextRequest) {
     if (paymentRefundError) {
       return NextResponse.json(
         { error: paymentRefundError.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // 6️⃣ Success response
+    // 8️⃣ Success response
     return NextResponse.json({
       success: true,
       orderId,
@@ -126,7 +146,7 @@ export async function POST(req: NextRequest) {
     console.error("Error refunding order:", error);
     return NextResponse.json(
       { error: error.message || "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
