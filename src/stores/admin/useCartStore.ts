@@ -85,9 +85,9 @@ export const useCartStore = create<CartState>((set, get) => ({
         item.unit_price * item.quantity +
         (item.addons?.reduce(
           (a, addon) => a + addon.price * addon.quantity,
-          0
+          0,
         ) || 0),
-      0
+      0,
     ),
 
   customerName: "",
@@ -116,12 +116,18 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   addToCart: (product, addons) => {
     const existing = get().cartItems.find(
-      (item) => item.product_id === product.id
+      (item) => item.product_id === product.id,
     );
 
-    if (existing) {
-      // update quantity and addons
+    // Determine if this is an existing order being modified
+    const isExistingOrder = !!get().currentlyActiveOrderId; // store active order id in your zustand store
+    const lastRevision =
+      get()
+        .cartItems.filter((item) => item.id === get().currentlyActiveOrderId)
+        .reduce((max, item) => Math.max(max, item.revision || 0), 0) || 0;
 
+    if (existing) {
+      // Update quantity/addons
       set({
         cartItems: get().cartItems.map((item) =>
           item.product_id === product.id
@@ -131,13 +137,15 @@ export const useCartStore = create<CartState>((set, get) => ({
                 total_price:
                   (item.unit_price ?? product.price) * (item.quantity + 1),
                 addons: addons || item.addons,
+                action: item.action || (isExistingOrder ? "update" : "add"),
+                revision:
+                  item.revision || (isExistingOrder ? lastRevision + 1 : 1),
               }
-            : item
+            : item,
         ),
       });
     } else {
-      // add new item with required fields
-
+      // Add new item
       set({
         cartItems: [
           ...get().cartItems,
@@ -147,9 +155,12 @@ export const useCartStore = create<CartState>((set, get) => ({
             product,
             name: product.name,
             quantity: 1,
-            unit_price: product.price ?? 0, // use product.price
-            total_price: product.price ?? 0, // initial total
+            unit_price: product.price ?? 0,
+            total_price: product.price ?? 0,
             addons: addons || [],
+            action: isExistingOrder ? "update" : "add",
+            revision: isExistingOrder ? lastRevision + 1 : 1,
+            order_id: get().currentlyActiveOrderId || undefined,
           } as OrderItem,
         ],
       });
@@ -159,7 +170,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeFromCart: (productId) => {
     set({
       cartItems: get().cartItems.filter(
-        (item) => item?.product?.id !== productId
+        (item) => item?.product?.id !== productId,
       ),
     });
   },
@@ -170,7 +181,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     } else {
       set({
         cartItems: get().cartItems.map((item) =>
-          item.product?.id === productId ? { ...item, quantity } : item
+          item.product?.id === productId ? { ...item, quantity } : item,
         ),
       });
     }
@@ -179,7 +190,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   updateItemAddons: (productId, addons) => {
     set({
       cartItems: get().cartItems.map((item) =>
-        item.product?.id === productId ? { ...item, addons } : item
+        item.product?.id === productId ? { ...item, addons } : item,
       ),
     });
   },
@@ -220,7 +231,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         (item?.product?.price || 0) * item.quantity +
         (item.addons?.reduce(
           (a, addon) => a + addon.price * addon.quantity,
-          0
+          0,
         ) || 0),
       addons: item.addons || [],
     })),

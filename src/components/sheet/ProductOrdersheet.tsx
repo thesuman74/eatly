@@ -97,7 +97,7 @@ const ProductOrdersheet = () => {
     "text-xs font-medium transition-colors",
     elapsed < 300 && "text-green-600", // < 5 min
     elapsed >= 300 && elapsed < 900 && "text-yellow-600", // 5–15 min
-    elapsed >= 900 && "text-red-600" // > 15 min
+    elapsed >= 900 && "text-red-600", // > 15 min
   );
 
   const payments: OrderPayment[] = data?.payments || [];
@@ -132,6 +132,7 @@ const ProductOrdersheet = () => {
   }, [data, orderId]);
 
   // Handlers
+
   const handleRegisterAndAcceptOrder = async () => {
     if (!currentlyActiveOrderId) return;
 

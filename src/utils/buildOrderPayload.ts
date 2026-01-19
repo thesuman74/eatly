@@ -34,6 +34,7 @@ export const buildOrderPayload = (reataurantId: string): CreateOrderPayload => {
       unit_price: item.product!.price,
       total_price: item.total_price,
       notes: item.notes,
+      action: item.action,
     })),
     ...(paymentMethod && amountReceived
       ? {

@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: orderId } = await context.params;
@@ -16,7 +16,7 @@ export async function GET(
     if (!orderId) {
       return NextResponse.json(
         { error: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -26,7 +26,7 @@ export async function GET(
     if (!restaurantId) {
       return NextResponse.json(
         { error: "restaurantId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const supabase = await createClient();
@@ -60,7 +60,7 @@ export async function GET(
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -73,7 +73,7 @@ export async function GET(
       if (userData.restaurant_id !== restaurantId) {
         return NextResponse.json(
           { error: "Resource access denied" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -93,7 +93,7 @@ export async function GET(
     payments:order_payments (
       payment_status
     )
-  `
+  `,
       )
       .eq("id", orderId)
       .eq("restaurant_id", restaurantId)
@@ -194,14 +194,14 @@ export async function GET(
     console.error("Error fetching order:", error);
     return NextResponse.json(
       { error: "Error fetching order" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(
   req: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const supabase = await createClient();
@@ -210,18 +210,19 @@ export async function PATCH(
     if (!orderId) {
       return NextResponse.json(
         { error: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const body: CreateOrderPayload = await req.json();
     const { order, items, payment } = body;
 
+    console.log("body at patch", body);
     const clientRestaurantId = order?.restaurant_id;
     if (!clientRestaurantId) {
       return NextResponse.json(
         { error: "restaurant_id is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -254,7 +255,7 @@ export async function PATCH(
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -273,7 +274,7 @@ export async function PATCH(
     if (existingOrder.restaurant_id !== clientRestaurantId) {
       return NextResponse.json(
         { error: "Restaurant mismatch" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -289,7 +290,7 @@ export async function PATCH(
       if (userData.restaurant_id !== clientRestaurantId) {
         return NextResponse.json(
           { error: "Not authorized for this restaurant" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -300,7 +301,7 @@ export async function PATCH(
     if (restError || !restaurant) {
       return NextResponse.json(
         { error: "Not authorized for this restaurant" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -315,7 +316,7 @@ export async function PATCH(
     if (existingPayment?.payment_status === PAYMENT_STATUS.PAID) {
       return NextResponse.json(
         { error: "Paid orders cannot be updated" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -337,7 +338,7 @@ export async function PATCH(
       if (productError || !products || products.length !== productIds.length) {
         return NextResponse.json(
           { error: "Invalid product selection" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -381,27 +382,90 @@ export async function PATCH(
       throw new Error(updateError?.message || "Order update failed");
     }
 
-    // 🔟 Replace order items if provided
+    // 🔟 Handle order items based on action
     if (computedItems) {
-      await supabase
-        .from("order_items")
-        .delete()
-        .eq("order_id", orderId)
-        .eq("restaurant_id", clientRestaurantId);
+      for (const item of items) {
+        if (item.action === "update") {
+          // Check if there is an active row for this product
+          const { data: existingActiveItem } = await supabase
+            .from("order_items")
+            .select("*")
+            .eq("order_id", orderId)
+            .eq("product_id", item.product_id)
+            .eq("is_active", true)
+            .maybeSingle();
 
-      const itemsPayload = computedItems.map((item) => ({
-        ...item,
-        order_id: orderId,
-        restaurant_id: clientRestaurantId,
-      }));
+          if (existingActiveItem) {
+            // Merge: increase quantity and update total_price
+            const newQuantity = item.quantity; // frontend already sends updated quantity
+            const newTotalPrice = item.unit_price * newQuantity;
 
-      const { error: itemsInsertError } = await supabase
-        .from("order_items")
-        .insert(itemsPayload);
+            const { error: updateError } = await supabase
+              .from("order_items")
+              .update({
+                quantity: newQuantity,
+                total_price: newTotalPrice,
+              })
+              .eq("id", existingActiveItem.id);
 
-      if (itemsInsertError) {
-        throw new Error(itemsInsertError.message);
+            if (updateError) throw new Error(updateError.message);
+          } else {
+            // No active row, insert new with incremented revision
+            const { data: latestItem } = await supabase
+              .from("order_items")
+              .select("revision")
+              .eq("order_id", orderId)
+              .eq("product_id", item.product_id)
+              .order("revision", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            const newRevision = (latestItem?.revision || 0) + 1;
+
+            const payload = {
+              ...item,
+              order_id: orderId,
+              restaurant_id: clientRestaurantId,
+              revision: newRevision,
+              is_active: true,
+            };
+
+            const { error: insertError } = await supabase
+              .from("order_items")
+              .insert(payload);
+
+            if (insertError) throw new Error(insertError.message);
+          }
+        } else if (item.action === "remove") {
+          // mark as inactive
+          const { error: removeError } = await supabase
+            .from("order_items")
+            .update({ is_active: false })
+            .eq("order_id", orderId)
+            .eq("product_id", item.product_id);
+
+          if (removeError) throw new Error(removeError.message);
+        }
       }
+
+      // ✅ After updating all items, recalculate subtotal and total
+      const { data: activeItems } = await supabase
+        .from("order_items")
+        .select("total_price")
+        .eq("order_id", orderId)
+        .eq("is_active", true);
+
+      const subtotal =
+        activeItems?.reduce((sum, i) => sum + i.total_price, 0) || 0;
+      const total = subtotal + (payment?.tip || 0);
+
+      // Update order totals
+      const { error: orderUpdateError } = await supabase
+        .from("orders")
+        .update({ subtotal, total })
+        .eq("id", orderId);
+
+      if (orderUpdateError) throw new Error(orderUpdateError.message);
     }
 
     // 1️⃣1️⃣ Payment update
