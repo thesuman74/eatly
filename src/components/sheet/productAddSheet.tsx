@@ -8,6 +8,8 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetOverlay,
+  SheetPortal,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -161,11 +163,15 @@ export function ProductAddSheet() {
 
   console.log("images", images);
 
-  // ✅ Add conditional rendering
-  if (!isOpen) return null;
   return (
-    <Sheet open={isOpen} onOpenChange={closeSheet}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) closeSheet();
+      }}
+    >
       <SheetTitle></SheetTitle>
+
       <SheetContent className=" overflow-y-auto p-0">
         <form onSubmit={handleSubmit}>
           <aside className=" max-w-sm min-w-[300px] bg-gray-100">
