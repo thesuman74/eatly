@@ -37,11 +37,11 @@ export function ProductAddSheet() {
   const { isOpen, productId, categoryId, mode, closeSheet, openAddSheet } =
     useProductSheet();
 
-  const restaurandId = useRestaurantStore((state) => state.restaurantId);
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const { data: categories } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
-    queryFn: () => getCategoriesAPI(restaurandId),
+    queryFn: () => getCategoriesAPI(restaurantId),
   });
 
   const queryClient = useQueryClient();
@@ -126,32 +126,37 @@ export function ProductAddSheet() {
     }
   };
 
-  const handleDeleteImage = async (image_id: string) => {
-    setDeletingImages((prev) => ({ ...prev, [image_id]: true }));
+  const handleDeleteImage = async (imageId: string) => {
+    setDeletingImages((prev) => ({ ...prev, [imageId]: true }));
+
     try {
-      const res = await fetch("/api/menu/products/images", {
-        method: "DELETE",
-        body: JSON.stringify({ image_id }),
-      });
+      const res = await fetch(
+        `/api/menu/products/images?imageId=${imageId}&restaurantId=${restaurantId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (res.ok) {
-        setExistingImages((prev) => prev.filter((img) => img.id !== image_id));
-        queryClient.invalidateQueries({ queryKey: ["categories", categoryId] });
+        // ✅ Update state correctly depending on shape
+        setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+
+        queryClient.invalidateQueries({ queryKey: ["categories"] });
         toast.success("Image deleted");
-        setImages([]);
+        setImages([]); // Clear uploaded images if needed
       } else {
         toast.error("Failed to delete image");
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setDeletingImages((prev) => ({ ...prev, [image_id]: false }));
+      setDeletingImages((prev) => ({ ...prev, [imageId]: false }));
     }
   };
 
   const handleImageFetch = (url: string) => {
     if (!url) return;
-    setImages([{ type: "url", url }]); // replace current image, single-image setup
+    setImages([{ type: "url", url }]);
   };
 
   console.log("images", images);

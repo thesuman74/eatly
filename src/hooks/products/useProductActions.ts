@@ -75,6 +75,7 @@ export function useProductActions() {
             productId: product.id,
             imageName: product.name,
             images: allUrls,
+            restaurantId,
           }),
         });
         const data = await res.json();
@@ -142,6 +143,7 @@ export function useProductActions() {
             productId: product.id,
             imageName: product.name,
             images: allUrls,
+            restaurantId,
           }),
         });
         const data = await res.json();
