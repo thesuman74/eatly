@@ -41,10 +41,16 @@ export default function CounterTable() {
       // Otherwise, match the selected status
       return order.status === statusFilter;
     })
+    // .sort((a, b) => {
+    //   // Sort descending by order_number (latest first)
+    //   // If you have a date field like created_at, use that instead
+    //   return Number(b.order_number) - Number(a.order_number);
+
     .sort((a, b) => {
-      // Sort descending by order_number (latest first)
-      // If you have a date field like created_at, use that instead
-      return Number(b.order_number) - Number(a.order_number);
+      // Sort descending by created_at (latest first)
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
 
   const [actionState, setActionState] = useState<OrderActionState>({

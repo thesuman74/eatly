@@ -2,6 +2,10 @@
 import { can } from "@/lib/rbac/can";
 import { Permission } from "@/lib/rbac/permission";
 import { UserRoles } from "@/lib/rbac/roles";
+import {
+  checkOrderLimit,
+  getSubscriptionForRestaurant,
+} from "@/lib/subscription/planGuard";
 import { createClient } from "@/lib/supabase/server";
 import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextRequest, NextResponse } from "next/server";
@@ -211,6 +215,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
         { status: 403 },
+      );
+    }
+
+    // .5 Check plan / order limit
+    const subscription = await getSubscriptionForRestaurant(
+      order.restaurant_id,
+    );
+    const canOrder = await checkOrderLimit(order.restaurant_id, subscription);
+
+    if (!canOrder) {
+      return NextResponse.json(
+        { error: "Order limit reached for your plan. Upgrade to continue." },
+        { status: 400 },
       );
     }
 

@@ -33,6 +33,9 @@ export const useCreateOrder = () => {
 
       queryClient.invalidateQueries({ queryKey: ["orders", restauratId] });
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to register order");
+    },
   });
 };
 
