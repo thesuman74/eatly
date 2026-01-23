@@ -218,7 +218,9 @@ export default function UploadForm() {
           <div className="mt-8 flex justify-center">
             <Button
               onClick={handleUpload}
-              disabled={files.length === 0 || loading}
+              disabled={
+                files.length === 0 || loading || isExtractionLimitReached
+              }
               className="px-6 py-3 text-white text-lg"
             >
               {loading ? "Extracting..." : "Extract Menu"}
