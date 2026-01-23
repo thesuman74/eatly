@@ -74,17 +74,44 @@ export default function PreviewMenuForm({
     }
   };
 
+  const handleSubmitWithImages = async () => {
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/menu/import-with-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewMenuData, restaurantId }), // send menu JSON only
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to import menu with images");
+      }
+
+      toast.success("Menu with images imported successfully!");
+
+      setReviewMenu(false);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleProductChange = (
     productId: string,
     field: string,
-    value: any
+    value: any,
   ) => {
     if (!selectedCategory) return;
 
     const updatedCategory = {
       ...selectedCategory,
       products: selectedCategory.products.map((p) =>
-        p.id === productId ? { ...p, [field]: value } : p
+        p.id === productId ? { ...p, [field]: value } : p,
       ),
     };
 
@@ -93,7 +120,7 @@ export default function PreviewMenuForm({
     // Also update the main reviewMenuData so that edits persist when switching categories
     setReviewMenuData((prev) => {
       const newData = prev.map((cat) =>
-        cat.id === updatedCategory.id ? updatedCategory : cat
+        cat.id === updatedCategory.id ? updatedCategory : cat,
       );
 
       // update localStorage with new data
@@ -167,7 +194,7 @@ export default function PreviewMenuForm({
                         handleProductChange(
                           product.id,
                           "price",
-                          Number(e.target.value)
+                          Number(e.target.value),
                         )
                       }
                       className="mt-1"
@@ -182,7 +209,7 @@ export default function PreviewMenuForm({
                         handleProductChange(
                           product.id,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       rows={2}
@@ -205,6 +232,18 @@ export default function PreviewMenuForm({
           >
             <SubmitButton isLoading={isLoading} className="px-6 py-3 text-lg">
               Submit Menu
+            </SubmitButton>
+          </form>
+        </div>
+        <div className="flex justify-center mt-4 pb-2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmitWithImages();
+            }}
+          >
+            <SubmitButton isLoading={isLoading} className="px-6 py-3 text-lg">
+              Submit Menu with Images
             </SubmitButton>
           </form>
         </div>

@@ -67,7 +67,7 @@ export default function RestaurantHome({
 
           <div className="h-full w-full items-start flex justify-end p-2">
             <Image
-              src={restaurantDetails?.logo_url || "Images/logo.png"}
+              src={restaurantDetails?.logo_url || "/Images/logo.png"}
               alt="Restaurant logo"
               width={100}
               height={100}
