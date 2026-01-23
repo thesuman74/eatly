@@ -1,3 +1,6 @@
+import { can } from "@/lib/rbac/can";
+import { Permission } from "@/lib/rbac/permission";
+import { createClient } from "@/lib/supabase/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,9 +9,88 @@ export async function POST(req: NextRequest) {
     const fromData = await req.formData();
     // console.log("fromData", fromData);
     const image = fromData.get("image") as File;
+    const restaurantId = fromData.get("restaurantId") as string;
+
+    if (!restaurantId) {
+      return NextResponse.json(
+        { error: "Missing required restaurantId" },
+        { status: 400 },
+      );
+    }
 
     if (!image) {
       return NextResponse.json({ error: "No image uploaded" }, { status: 400 });
+    }
+    const supabase = await createClient();
+
+    // 1️⃣ Authenticate user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    //check if maximum extraction limit exists
+    const { data, error } = await supabase
+      .from("users")
+      .select(
+        `
+      menu_extracted,
+      plan (
+        menu_extraction_limit
+      )
+    `,
+      )
+      .eq("id", user.id)
+      .single();
+
+    if (error || !data || !data.plan) {
+      console.error("Error fetching user extraction info:", error?.message);
+      return null;
+    }
+
+    // Handle plan safely (array or object)
+    const plan = Array.isArray(data.plan) ? data.plan[0] : data.plan;
+
+    if (!plan) {
+      console.error("No plan found for user");
+      return null;
+    }
+
+    const used = data.menu_extracted;
+    const available = Math.max(plan.menu_extraction_limit - used, 0);
+
+    if (available <= 0) {
+      return NextResponse.json(
+        { error: "Extraction limit reached" },
+        { status: 403 },
+      );
+    }
+
+    // 3️⃣ Fetch role + assignment
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("role, restaurant_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // 4️⃣ Permission check
+    if (
+      !can({
+        role: userData.role,
+        permission: Permission.CREATE_ORDER,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 },
+      );
     }
 
     const buffer = Buffer.from(await image.arrayBuffer());
@@ -65,7 +147,6 @@ Only return the JSON array. Assume currency is NPR. Use placeholder image "/imag
 
     let raw = await result.response.text();
 
-    // Remove markdown code block if present
     if (raw.startsWith("```")) {
       raw = raw.replace(/```(?:json)?\n?/, "").replace(/```$/, "");
     }
@@ -76,13 +157,13 @@ Only return the JSON array. Assume currency is NPR. Use placeholder image "/imag
     } catch {
       return NextResponse.json(
         { error: "Failed to parse Gemini response", raw: raw },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (err: any) {
     return NextResponse.json(
       { error: "Unexpected error", details: err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

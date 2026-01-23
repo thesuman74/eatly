@@ -18,6 +18,8 @@ export const ROLE_PERMISSIONS: Record<UserRoleTypes, Permission[]> = {
 
     Permission.CREATE_STAFF_INVITE,
     Permission.READ_STAFF_INVITE_INFO,
+
+    Permission.EXTRACT_MENU,
   ],
 
   [UserRoles.STAFF]: [
