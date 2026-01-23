@@ -6,6 +6,7 @@ import { GoChecklist } from "react-icons/go";
 import { RefreshCcw, Search } from "lucide-react";
 import NewOrderDropdown from "@/app/dashboard/[restaurantId]/order/_components/NewOrderDropdown";
 import CounterTable from "./CounterTable";
+import FeatureComingSoon from "../FeatureCommingSoon";
 
 const OrderTabsSection = () => {
   const tablist = [
@@ -16,8 +17,20 @@ const OrderTabsSection = () => {
       count: 1,
       content: <CounterTable />,
     },
-    { id: 2, title: "Delivery", icon: <MdOutlineDeliveryDining />, count: 1 },
-    { id: 3, title: "Tables", icon: <MdOutlineTableBar />, count: 1 },
+    {
+      id: 2,
+      title: "Delivery",
+      icon: <MdOutlineDeliveryDining />,
+      count: 1,
+      content: <FeatureComingSoon />,
+    },
+    {
+      id: 3,
+      title: "Tables",
+      icon: <MdOutlineTableBar />,
+      count: 1,
+      content: <FeatureComingSoon />,
+    },
   ];
 
   return (

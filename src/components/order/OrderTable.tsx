@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   Row,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Clock, CalendarDays, CookingPot, Plus } from "lucide-react";
 import clsx from "clsx";
@@ -27,6 +28,7 @@ import {
 import { PAYMENT_UI } from "@/lib/order/paymentUi";
 import { getEffectivePaymentStatus } from "@/lib/order/paymentStautsHelper";
 import { ORDER_STATUS_UI } from "@/lib/order/OrderStatusUI";
+import { useState } from "react";
 
 export type OrdersTableProps = {
   orders: Order[];
@@ -51,6 +53,8 @@ export default function OrdersTable({
   openProductOrderSheet,
   actionState,
 }: OrdersTableProps) {
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const columns: ColumnDef<Order>[] = [
     {
       header: "DATE",
@@ -63,7 +67,7 @@ export default function OrdersTable({
           "text-xs font-medium transition-colors",
           elapsed < 300 && "text-green-600",
           elapsed >= 300 && elapsed < 900 && "text-yellow-600",
-          elapsed >= 900 && "text-red-600 animate-pulse"
+          elapsed >= 900 && "text-red-600 animate-pulse",
         );
 
         return (
@@ -197,6 +201,18 @@ export default function OrdersTable({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      pagination: { pageIndex, pageSize },
+    },
+    onPaginationChange: (updater) => {
+      const newState =
+        typeof updater === "function"
+          ? updater({ pageIndex, pageSize })
+          : updater;
+      setPageIndex(newState.pageIndex);
+      setPageSize(newState.pageSize);
+    },
   });
 
   if (orders.length === 0)
@@ -258,7 +274,7 @@ export default function OrdersTable({
             <div className="col-span-2">
               {flexRender(
                 cells[0].column.columnDef.cell,
-                cells[0].getContext()
+                cells[0].getContext(),
               )}
             </div>
 
@@ -266,7 +282,7 @@ export default function OrdersTable({
             <div className="col-span-2">
               {flexRender(
                 cells[1].column.columnDef.cell,
-                cells[1].getContext()
+                cells[1].getContext(),
               )}
             </div>
 
@@ -274,7 +290,7 @@ export default function OrdersTable({
             <div className="col-span-2">
               {flexRender(
                 cells[2].column.columnDef.cell,
-                cells[2].getContext()
+                cells[2].getContext(),
               )}
             </div>
 
@@ -282,7 +298,7 @@ export default function OrdersTable({
             <div className="col-span-3">
               {flexRender(
                 cells[3].column.columnDef.cell,
-                cells[3].getContext()
+                cells[3].getContext(),
               )}
             </div>
 
@@ -293,7 +309,7 @@ export default function OrdersTable({
             >
               {flexRender(
                 cells[4].column.columnDef.cell,
-                cells[4].getContext()
+                cells[4].getContext(),
               )}
             </div>
           </div>
