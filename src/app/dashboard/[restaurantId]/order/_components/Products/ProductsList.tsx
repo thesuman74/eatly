@@ -23,6 +23,7 @@ import { useCartStore } from "@/stores/admin/useCartStore";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { toast } from "react-toastify";
 
 const ProductsList = () => {
   // const categories = ProductCategoriesData;
@@ -47,6 +48,7 @@ const ProductsList = () => {
       return updated;
     });
     addToCart(product);
+    toast.success("Product added to cart");
   };
   return (
     <>
