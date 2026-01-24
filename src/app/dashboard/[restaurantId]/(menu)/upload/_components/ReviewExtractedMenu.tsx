@@ -223,7 +223,7 @@ export default function PreviewMenuForm({
         )}
 
         {/* Submit Button */}
-        <div className="flex justify-center mt-4 pb-2">
+        {/* <div className="flex justify-center mt-4 pb-2">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -234,7 +234,7 @@ export default function PreviewMenuForm({
               Submit Menu
             </SubmitButton>
           </form>
-        </div>
+        </div> */}
         <div className="flex justify-center mt-4 pb-2">
           <form
             onSubmit={(e) => {
@@ -243,7 +243,7 @@ export default function PreviewMenuForm({
             }}
           >
             <SubmitButton isLoading={isLoading} className="px-6 py-3 text-lg">
-              Submit Menu with Images
+              Submit Menu
             </SubmitButton>
           </form>
         </div>
