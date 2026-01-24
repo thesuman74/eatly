@@ -26,7 +26,7 @@ export default function HorizontalCategoryList({
   };
 
   return (
-    <div className="w-full max-w-full overflow-hidden my-2">
+    <div className="w-full sticky top-0 bg-background z-10 max-w-full overflow-hidden my-2">
       <div
         className="
           flex
