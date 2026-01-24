@@ -11,7 +11,7 @@ export default function MenuPageLayout({
       <main className="flex-1 overflow-y-auto px-4">{children}</main>
 
       {/* Right preview panel */}
-      <aside className="hidden md:block">
+      <aside className="hidden lg:block">
         <SidePreview src="menu" showSidePreview />
       </aside>
     </div>
