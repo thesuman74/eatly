@@ -49,7 +49,6 @@ export default async function AdminLayout({
           </header>
 
           <ClientWrapper>{children}</ClientWrapper>
-          {/* MOBILE BOTTOM NAV ONLY */}
           <div className="md:hidden">
             <BottomNavbar />
           </div>

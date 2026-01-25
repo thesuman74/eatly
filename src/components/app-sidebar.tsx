@@ -132,9 +132,12 @@ export function AppSidebar({ restaurants, ...props }: AppSidebarProps) {
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
-      <div className="mx-auto flex space-x-3 border  py-2 px-4 rounded-sm hover:scale-125 duration-200 hover:cursor-pointer">
+      <div className="mx-auto flex space-x-3 group-data-[collapsible=icon]:border-none border  py-2 px-4 rounded-sm hover:scale-125 duration-200 hover:cursor-pointer">
         <Link href={`/${restaurantId}`} className="flex space-x-4">
-          <SquareArrowOutUpRight /> <span>Preview</span>
+          <SquareArrowOutUpRight />{" "}
+          <span className="hidden sm:block group-data-[collapsible=icon]:hidden ">
+            Preview
+          </span>
         </Link>
       </div>
       <SidebarFooter>
