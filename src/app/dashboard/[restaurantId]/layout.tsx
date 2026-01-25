@@ -1,5 +1,6 @@
 import ClientWrapper from "@/components/admin/ClientWrapper";
 import { AppSidebar } from "@/components/app-sidebar";
+import BottomNavbar from "@/components/BottomNavbar";
 import { RestaurantProvider } from "@/components/HOC/RestaurantProvider";
 import { ThemeToggle } from "@/components/home/ThemeToggle";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -48,6 +49,10 @@ export default async function AdminLayout({
           </header>
 
           <ClientWrapper>{children}</ClientWrapper>
+          {/* MOBILE BOTTOM NAV ONLY */}
+          <div className="md:hidden">
+            <BottomNavbar />
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </RestaurantProvider>
