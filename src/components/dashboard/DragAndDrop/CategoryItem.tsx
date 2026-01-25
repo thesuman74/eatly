@@ -77,85 +77,68 @@ const CategoryItem = ({ category }: CategoryProps) => {
       {/* ProductAddSheet */}
       <ProductAddSheet />
 
-      {/* Category Name & input */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto"> */}
-          <div className="flex w-full items-center gap-2">
-            <span
-              {...attributes}
-              {...listeners}
-              className="cursor-grab hidden md:block active:cursor-grabbing text-gray-500"
-            >
-              <Grip size={16} />
-            </span>
-            {/* Left section: Input field */}
-            <div className="flex-1 min-w-0">
-              <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
-                <input
-                  type="text"
-                  className="font-semibold w-full outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent truncate"
-                  value={editCategory.name}
-                  onChange={(e) =>
-                    setEditCategory({ ...editCategory, name: e.target.value })
-                  }
-                  onBlur={handleBlur}
-                />
-              </ActionGuard>
-              {isEditing && (
-                <span className="text-xs text-gray-500">saving....</span>
-              )}
-            </div>
+      {/* Category Row */}
+      <div className="flex items-center gap-2 w-full">
+        {/* LEFT — Category name (grows/shrinks) */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span
+            {...attributes}
+            {...listeners}
+            className="cursor-grab hidden sm:block active:cursor-grabbing text-gray-500"
+          >
+            <Grip size={16} />
+          </span>
 
-            {/* Right section: Count + Hidden badge + Three dots */}
-            <div className="flex items-center gap-2 md:hidden flex-shrink-0 ml-2">
-              {!category.isVisible && (
-                <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
-                  Hidden
-                </Badge>
-              )}
-              <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-                {category.products?.length || 1}
-              </Badge>
-              <ActionGuard action={Permission.UPDATE_CATEGORY}>
-                <CategoryOptions
-                  onToggleVisibility={() => handleToggleVisibility(category)}
-                  onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
-                  onDelete={() => deleteCategory.mutateAsync(category.id)}
-                />
-              </ActionGuard>
-            </div>
+          <div className="flex-1 min-w-0">
+            <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
+              <input
+                type="text"
+                className="font-semibold w-full outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent truncate"
+                value={editCategory.name}
+                onChange={(e) =>
+                  setEditCategory({ ...editCategory, name: e.target.value })
+                }
+                onBlur={handleBlur}
+              />
+            </ActionGuard>
+            {isEditing && (
+              <span className="text-xs text-gray-500">saving....</span>
+            )}
           </div>
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2 justify-end flex-wrap">
-          <ActionGuard action={Permission.CREATE_PRODUCT}>
-            <Button
-              variant={"outline"}
-              onClick={() => openAddSheet(category.id)}
-            >
-              + Product
-            </Button>
-          </ActionGuard>
+        {/* RIGHT — Actions (never wrap) */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* MOBILE / BELOW MD */}
+          <div className="flex items-center gap-2 ">
+            <ActionGuard action={Permission.CREATE_PRODUCT}>
+              <Button
+                variant="outline"
+                onClick={() => openAddSheet(category.id)}
+                className="md:block hidden"
+              >
+                + Product
+              </Button>
+            </ActionGuard>
+            {!category.isVisible && (
+              <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
+                Hidden
+              </Badge>
+            )}
 
-          {!category.isVisible && (
-            <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
-              Hidden
+            <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              {category.products?.length || 1}
             </Badge>
-          )}
 
-          <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-            {category.products?.length || 1}
-          </Badge>
-
-          <ActionGuard action={Permission.UPDATE_CATEGORY}>
-            <CategoryOptions
-              onToggleVisibility={() => handleToggleVisibility(category)}
-              onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
-              onDelete={() => deleteCategory.mutateAsync(category.id)}
-            />
-          </ActionGuard>
+            <ActionGuard action={Permission.UPDATE_CATEGORY}>
+              <CategoryOptions
+                onToggleVisibility={() => handleToggleVisibility(category)}
+                onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
+                onDelete={() => deleteCategory.mutateAsync(category.id)}
+                onProductAdd={() => openAddSheet(category.id)}
+              />
+            </ActionGuard>
+          </div>
 
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -164,25 +147,6 @@ const CategoryItem = ({ category }: CategoryProps) => {
             {isOpen ? <ChevronDown /> : <ChevronRight />}
           </button>
         </div>
-      </div>
-
-      {/* Bottom row on mobile: + Product + arrow */}
-      <div className="flex justify-between items-center mt-2 md:hidden">
-        <ActionGuard action={Permission.CREATE_PRODUCT}>
-          <Button
-            variant={"outline"}
-            onClick={() => openAddSheet(category.id)}
-            className="flex-1"
-          >
-            + Product
-          </Button>
-        </ActionGuard>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="bg-background rounded-full p-2 ml-2"
-        >
-          {isOpen ? <ChevronDown /> : <ChevronRight />}
-        </button>
       </div>
 
       {/* Sub Items */}
