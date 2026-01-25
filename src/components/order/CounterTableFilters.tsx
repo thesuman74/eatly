@@ -38,7 +38,7 @@ export default function CounterTableFilters({
       {/* Left */}
       <div className="flex items-center gap-2 text-gray-500">
         <Filter size={18} />
-        <span className="text-sm font-medium">Filter</span>
+        <span className="text-sm font-medium hidden md:block">Filter</span>
 
         <div className="flex gap-2 py-2">
           {/* ALL */}
@@ -96,7 +96,9 @@ export default function CounterTableFilters({
       </div>
 
       {/* Right */}
-      <div className="text-sm font-semibold ">Total: Rs {totalAmount}</div>
+      <div className="text-xs sm:text-sm font-semibold ">
+        Total: Rs {totalAmount}
+      </div>
 
       {/* Pagination */}
       {table && (
