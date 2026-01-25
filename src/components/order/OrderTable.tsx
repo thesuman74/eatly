@@ -248,6 +248,7 @@ export default function OrdersTable({
         {/* Rows */}
         {table.getRowModel().rows.map((row) => {
           const cells = row.getVisibleCells();
+          const statusUI = ORDER_STATUS_UI[row.original.status];
 
           return (
             <div
@@ -261,11 +262,7 @@ export default function OrdersTable({
               }}
             >
               <div
-                className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
-                  row.original.status === ORDER_STATUS.DRAFT
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
-                } rounded`}
+                className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1   ${statusUI.badgeBg} rounded`}
               />
 
               <div className="col-span-2">
