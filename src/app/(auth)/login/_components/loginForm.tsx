@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { login } from "@/lib/actions/login";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { LoginFormView } from "@/app/(auth)/login/_components/LoginFormView";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
@@ -24,13 +25,26 @@ export function LoginForm({ className }: { className?: string }) {
   };
 
   const supabase = createBrowserSupabaseClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.push("/dashboard/r/products"); // logged in
+      }
+    });
+
+    // Optional: listen for auth changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) router.push("/dashboard/r/products");
+    });
+  }, [router, supabase]);
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/dashboard/r/products`,
-        skipBrowserRedirect: false,
       },
     });
   }

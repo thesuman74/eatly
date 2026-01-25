@@ -241,7 +241,7 @@ const OnboardingPage = () => {
   };
 
   return (
-    <section className="h-screen flex items-center justify-center bg-gray-50">
+    <section className="h-screen flex items-center justify-center bg-background">
       <div>
         <h1 className="text-4xl font-bold">Welcome to Digital Menus 👋</h1>
         <p className="text-gray-500 mb-4">Let's get your account ready</p>
