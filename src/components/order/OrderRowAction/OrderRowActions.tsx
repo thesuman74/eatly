@@ -61,6 +61,7 @@ export function OrderRowActions({
         onCancel={handleCancelClick}
         onDelete={onDelete}
         orderId={orderId}
+        onAccept={onAccept}
       />
 
       <CancelOrderButton

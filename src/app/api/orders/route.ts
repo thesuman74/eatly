@@ -2,6 +2,10 @@
 import { can } from "@/lib/rbac/can";
 import { Permission } from "@/lib/rbac/permission";
 import { UserRoles } from "@/lib/rbac/roles";
+import {
+  checkOrderLimit,
+  getSubscriptionForRestaurant,
+} from "@/lib/subscription/planGuard";
 import { createClient } from "@/lib/supabase/server";
 import { CreateOrderPayload, PAYMENT_STATUS } from "@/lib/types/order-types";
 import { NextRequest, NextResponse } from "next/server";
@@ -15,7 +19,7 @@ export async function GET(req: Request) {
     if (!restaurantId) {
       return NextResponse.json(
         { error: "Missing required restaurantId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +52,7 @@ export async function GET(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -61,7 +65,7 @@ export async function GET(req: Request) {
       if (userData.restaurant_id !== restaurantId) {
         return NextResponse.json(
           { error: "Resource access denied" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -90,7 +94,7 @@ export async function GET(req: Request) {
         `
     *,
     product:products(id, name)
-  `
+  `,
       )
       .in("order_id", orderIds);
 
@@ -121,7 +125,7 @@ export async function GET(req: Request) {
 
       // Only include addons relevant to this order's items
       const orderAddons = orderItems.flatMap(
-        (item) => addons?.filter((a) => a.order_item_id === item.id) || []
+        (item) => addons?.filter((a) => a.order_item_id === item.id) || [],
       );
 
       const orderPayments =
@@ -162,7 +166,7 @@ export async function GET(req: Request) {
     console.error("Error fetching orders:", error.message || error);
     return NextResponse.json(
       { error: error.message || "Failed to fetch orders" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -186,7 +190,7 @@ export async function POST(req: NextRequest) {
     if (!order.restaurant_id) {
       return NextResponse.json(
         { error: "restaurant_id is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -210,7 +214,20 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
+      );
+    }
+
+    // .5 Check plan / order limit
+    const subscription = await getSubscriptionForRestaurant(
+      order.restaurant_id,
+    );
+    const canOrder = await checkOrderLimit(order.restaurant_id, subscription);
+
+    if (!canOrder) {
+      return NextResponse.json(
+        { error: "Order limit reached for your plan. Upgrade to continue." },
+        { status: 400 },
       );
     }
 
@@ -226,7 +243,7 @@ export async function POST(req: NextRequest) {
       if (userData.restaurant_id !== order.restaurant_id) {
         return NextResponse.json(
           { error: "Not authorized for this restaurant" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -237,7 +254,7 @@ export async function POST(req: NextRequest) {
     if (restError || !restaurant) {
       return NextResponse.json(
         { error: "Not authorized for this restaurant" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -253,7 +270,7 @@ export async function POST(req: NextRequest) {
     if (productError || !products || products.length !== productIds.length) {
       return NextResponse.json(
         { error: "Invalid product selection" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

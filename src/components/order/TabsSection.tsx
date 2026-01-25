@@ -6,6 +6,7 @@ import { GoChecklist } from "react-icons/go";
 import { RefreshCcw, Search } from "lucide-react";
 import NewOrderDropdown from "@/app/dashboard/[restaurantId]/order/_components/NewOrderDropdown";
 import CounterTable from "./CounterTable";
+import FeatureComingSoon from "../FeatureCommingSoon";
 
 const OrderTabsSection = () => {
   const tablist = [
@@ -16,45 +17,61 @@ const OrderTabsSection = () => {
       count: 1,
       content: <CounterTable />,
     },
-    { id: 2, title: "Delivery", icon: <MdOutlineDeliveryDining />, count: 1 },
-    { id: 3, title: "Tables", icon: <MdOutlineTableBar />, count: 1 },
+    {
+      id: 2,
+      title: "Delivery",
+      icon: <MdOutlineDeliveryDining />,
+      count: 1,
+      content: <FeatureComingSoon />,
+    },
+    {
+      id: 3,
+      title: "Tables",
+      icon: <MdOutlineTableBar />,
+      count: 1,
+      content: <FeatureComingSoon />,
+    },
   ];
 
   return (
-    <Tabs defaultValue="Counter" className="w-full mt-2 px-4">
-      <div className="flex justify-between">
-        {/* Tab List */}
-        <TabsList className="grid grid-cols-3 p-0 gap-0  ">
+    <Tabs defaultValue="Counter" className="w-full mt-2 px-2 md:px-4">
+      <div className="flex flex-wrap md:flex-row md:justify-between gap-2 md:gap-6">
+        <TabsList className="flex flex-1  h-auto gap-0 md:gap-1 md:overflow-hidden md:grid md:grid-cols-3 p-0 no-scrollbar">
           {tablist.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.title}
-              className="border-2  border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-500"
+              className="flex-shrink-0  flex-1 border-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-500"
             >
-              <div className="flex items-center space-x-2 px-4 py-2 bg-background font-bold">
-                <span className="text-2xl">{tab.icon}</span>
-                <span className="text-lg ">{tab.title}</span>
-                <span className="rounded-full bg-gray-300 px-2 py-1 text-xs">
-                  {tab.count}
+              <div className="flex flex-col  rounded-sm  items-center sm:flex-row sm:items-center sm:space-x-1 px-2 sm:px-2 py-1 sm:py-2 bg-background font-bold min-w-[80px] sm:min-w-[120px]">
+                {/* Top row on small: icon + count */}
+                <div className="flex items-center space-x-1 sm:space-x-1">
+                  <span className="text-lg sm:text-2xl">{tab.icon}</span>
+                  <span className="rounded-full bg-gray-300 px-2 sm:px-2 py-0.5 text-[10px] sm:text-xs">
+                    {tab.count}
+                  </span>
+                </div>
+
+                {/* Title row */}
+                <span className="text-sm md:text-lg truncate mt-1 sm:mt-0 text-center sm:text-left">
+                  {tab.title}
                 </span>
               </div>
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {/* Right Section */}
-        <div className="flex gap-2">
-          <button className="rounded-sm border px-6">
+        {/* Right Section - Items-center added for vertical alignment on desktop */}
+        <div className="flex  items-center justify-end gap-2  md:mt-4">
+          <button className="rounded-sm  md:order-1 border px-3 py-4 flex-shrink-0 flex items-center justify-center">
             <RefreshCcw size={14} />
           </button>
-          <button className="rounded-sm border  px-6">
+          <button className="rounded-sm  md:order-1 border px-3 py-4 flex-shrink-0 flex items-center justify-center">
             <Search size={14} />
           </button>
-          {/* <button className="flex items-center gap-2 rounded-sm bg-blue-500 px-4 py-2 text-white">
-            <span>+</span>
-            <span>New Orders</span>
-          </button> */}
-          <NewOrderDropdown />
+          <div className="flex-shrink-0 md:order-2">
+            <NewOrderDropdown />
+          </div>
         </div>
       </div>
 

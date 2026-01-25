@@ -39,7 +39,7 @@ interface CategoryListProps {
 const CategoryList = ({ initialCategories }: CategoryListProps) => {
   const [scanMenu, setScanMenu] = useState(false);
   const [categories, setCategories] = useState<ProductCategoryTypes[]>(
-    initialCategories || []
+    initialCategories || [],
   );
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
       // Map to positions for API
       const updatedPositions: CategoryUpdate[] = newCategories.map(
-        (cat, index) => ({ id: cat.id, position: index + 1 })
+        (cat, index) => ({ id: cat.id, position: index + 1 }),
       );
 
       updateCategory.mutate(updatedPositions);

@@ -32,6 +32,10 @@ export interface OrderItem {
   total_price: number;
   notes?: string;
   addons?: OrderItemAddon[];
+
+  revision?: number;
+  is_active?: boolean;
+  action?: OrderItemAction;
 }
 
 export interface OrderItemAddon {
@@ -67,6 +71,14 @@ export const ORDER_TYPES = {
 } as const;
 
 // payment-status.ts
+
+export type OrderItemAction = "add" | "update" | "remove";
+
+export const ORDER_ITEMS_ACTIONS = {
+  ADD: "add",
+  UPDATE: "update",
+  REMOVE: "remove",
+} as const;
 
 export const PAYMENT_STATUS = {
   UNPAID: "unpaid",
@@ -106,7 +118,7 @@ export type PaymentMethod =
 
 export interface CreateOrderPayload {
   order: {
-    id?: string; // <-- add this
+    id?: string;
 
     order_type?: OrderType; // nullable in DB
     customer_name?: string;
@@ -140,6 +152,7 @@ export interface OrderItemPayload {
   unit_price: number;
   total_price: number;
   notes?: string;
+  action?: OrderItemAction;
 }
 
 // /lib/types/order-types.ts

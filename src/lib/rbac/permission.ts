@@ -38,4 +38,7 @@ export enum Permission {
   READ_STAFF_INVITE_INFO = "view_staff_invite_info",
   UPDATE_STAFF_INVITE = "update_staff_invite",
   DELETE_STAFF_INVITE = "delete_staff_invite",
+
+  //extract menu
+  EXTRACT_MENU = "extract_menu",
 }

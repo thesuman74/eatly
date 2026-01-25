@@ -7,6 +7,8 @@ import { Loader2, X } from "lucide-react";
 import PreviewMenuForm from "./ReviewExtractedMenu";
 import { ProductCategoryTypes } from "@/lib/types/menu-types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { getUserMenuExtractions } from "@/lib/subscription/getUserMenuExtractions";
+import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { toast } from "react-toastify";
 
 export default function UploadForm() {
@@ -15,16 +17,36 @@ export default function UploadForm() {
   const [loading, setLoading] = useState(false);
   const [reviewMenu, setReviewMenu] = useState(false);
   const [reviewMenuData, setReviewMenuData] = useState<ProductCategoryTypes[]>(
-    []
+    [],
   );
 
-  // 🚀 Load saved extracted menu from localStorage
+  const [extractions, setExtractions] = useState<{
+    used: number;
+    available: number;
+  } | null>(null);
+
+  const isExtractionLimitReached = extractions?.available === 0;
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
+
+  useEffect(() => {
+    async function fetchExtractions() {
+      const result = await getUserMenuExtractions();
+      setExtractions(result);
+    }
+    fetchExtractions();
+  }, []);
   useEffect(() => {
     const savedMenu = localStorage.getItem("extracted_menu");
 
-    if (savedMenu) {
-      setReviewMenuData(JSON.parse(savedMenu));
-      setReviewMenu(true); // directly open review page
+    if (savedMenu && savedMenu !== "undefined") {
+      try {
+        const parsed = JSON.parse(savedMenu);
+        setReviewMenuData(parsed);
+        setReviewMenu(true); // directly open review page
+      } catch (error) {
+        console.error("Failed to parse saved menu from localStorage:", error);
+        localStorage.removeItem("extracted_menu"); // optional: clean invalid data
+      }
     }
   }, [previews]);
 
@@ -36,7 +58,7 @@ export default function UploadForm() {
       // 🧹 Important: If user uploads a new image, clear old saved menu
       localStorage.removeItem("extracted_menu");
     },
-    [files]
+    [files],
   );
   useEffect(() => {
     previews.forEach((url) => URL.revokeObjectURL(url));
@@ -54,22 +76,61 @@ export default function UploadForm() {
 
   const handleUpload = async () => {
     if (files.length === 0) return;
+
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append("image", files[0]); // single image for now
+    try {
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("image", files[0]); // currently handling single image
 
-    const res = await fetch("/api/gemini", { method: "POST", body: formData });
-    const data = await res.json();
-    console.log("gemini data", data);
+      if (restaurantId) {
+        formData.append("restaurantId", restaurantId);
+      }
 
-    setReviewMenuData(data.data);
+      // Send request to Gemini API
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        body: formData,
+      });
 
-    // 📝 save extracted menu to localStorage
-    localStorage.setItem("extracted_menu", JSON.stringify(data.data));
+      // Parse JSON response safely
+      const responseData = await res.json().catch(() => null);
 
-    setLoading(false);
-    setReviewMenu(true);
+      // Handle API errors
+      if (!res.ok) {
+        const backendError =
+          responseData?.error || `Server responded with status ${res.status}`;
+        toast.error(backendError);
+        return;
+      }
+
+      // Validate returned data
+      if (!responseData?.data) {
+        throw new Error("No data returned from Gemini API.");
+      }
+
+      console.log("Gemini API response:", responseData);
+
+      // Update state with extracted menu data
+      setReviewMenuData(responseData.data);
+
+      // Persist extracted menu locally
+      localStorage.setItem(
+        "extracted_menu",
+        JSON.stringify(responseData.data || []),
+      );
+
+      // Open review menu UI
+      setReviewMenu(true);
+    } catch (error: any) {
+      console.error("Upload failed:", error);
+      toast.error(
+        error.message || "An unexpected error occurred during upload.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -91,8 +152,9 @@ export default function UploadForm() {
         <Card className="max-w-6xl mx-auto mt-10 p-6 border rounded-lg shadow bg-background relative">
           <CardHeader className="text-center mb-6">
             <h1 className="text-3xl font-bold">Upload Menu Image</h1>
-            <p className="text-gray-600 mt-1">
-              Drag & drop images here or click to select (max 5)
+
+            <p className="text-black">
+              Used: {extractions?.used} | Remaining: {extractions?.available}
             </p>
           </CardHeader>
 
@@ -156,7 +218,9 @@ export default function UploadForm() {
           <div className="mt-8 flex justify-center">
             <Button
               onClick={handleUpload}
-              disabled={files.length === 0 || loading}
+              disabled={
+                files.length === 0 || loading || isExtractionLimitReached
+              }
               className="px-6 py-3 text-white text-lg"
             >
               {loading ? "Extracting..." : "Extract Menu"}

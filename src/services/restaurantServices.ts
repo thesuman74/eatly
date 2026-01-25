@@ -12,32 +12,31 @@ export async function getUserRestaurantsAPI(restaurantId: string) {
   } catch (error: any) {
     console.error(
       "Error fetching restaurant:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
     throw new Error(
-      error.response?.data?.error || "Failed to fetch categories"
+      error.response?.data?.error || "Failed to fetch categories",
     );
   }
 }
 
 export async function addRestaurantAPI(payload: AddRestaurantPayload) {
   try {
-    const response = await clientAxiosInstance.post(
-      "/api/restaurant",
-      payload,
-      {
-        requiresAuth: true,
-      }
-    );
+    const response = await fetch("/api/restaurant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-    return response.data; //
+    const data = await response.json();
+    if (!response.ok) {
+      // Throw the error so React Query can catch it
+      throw new Error(data?.error || "Failed to add restaurant");
+    }
+
+    return data; //
   } catch (error: any) {
-    // handle axios error
-    const message =
-      error?.response?.data?.error ||
-      error.message ||
-      "Failed to add restaurant";
-    throw new Error(message);
+    throw new Error(error || "Failed to add restaurant");
   }
 }
 
@@ -47,7 +46,7 @@ export async function deleteRestaurantAPI(restaurantId: string) {
       `/api/restaurant?restaurantId=${restaurantId}`,
       {
         requiresAuth: true,
-      }
+      },
     );
 
     return response.data; //

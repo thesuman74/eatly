@@ -69,71 +69,76 @@ const CategoryItem = ({ category }: CategoryProps) => {
           : undefined,
         transition,
       }}
-      className={`p-3 border rounded-lg mb-2 shadow-md ${
-        category.isVisible
-          ? "bg-gray-100/10"
-          : "bg-gray-100 opacity-80 shadow-none"
-      }`}
+      className={`p-3 border rounded-lg mb-2 shadow-md
+    ${category.isVisible ? "bg-gray-100/10" : "bg-gray-100 opacity-80 shadow-none"}
+    flex flex-col gap-3
+  `}
     >
-      {" "}
+      {/* ProductAddSheet */}
       <ProductAddSheet />
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+
+      {/* Category Row */}
+      <div className="flex items-center gap-2 w-full">
+        {/* LEFT — Category name (grows/shrinks) */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <span
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing text-gray-500"
+            className="cursor-grab hidden sm:block active:cursor-grabbing text-gray-500"
           >
             <Grip size={16} />
           </span>
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-500">Category Name</span>
-            <div className="flex space-x-2">
-              <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
-                <input
-                  type="text"
-                  className="font-semibold w-[200px] outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent"
-                  value={editCategory.name}
-                  onChange={(e) =>
-                    setEditCategory({ ...editCategory, name: e.target.value })
-                  }
-                  onBlur={handleBlur}
-                />
-              </ActionGuard>
-              {isEditing ? (
-                <span className="text-xs text-gray-500">saving....</span>
-              ) : null}
-            </div>
+
+          <div className="flex-1 min-w-0">
+            <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
+              <input
+                type="text"
+                className="font-semibold w-full outline-none border-b border-gray-400 focus:border-b-2 focus:border-black bg-transparent truncate"
+                value={editCategory.name}
+                onChange={(e) =>
+                  setEditCategory({ ...editCategory, name: e.target.value })
+                }
+                onBlur={handleBlur}
+              />
+            </ActionGuard>
+            {isEditing && (
+              <span className="text-xs text-gray-500">saving....</span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <ActionGuard action={Permission.CREATE_PRODUCT}>
-            <Button
-              variant={"outline"}
-              onClick={() => openAddSheet(category.id)}
-              className="mx-8"
-            >
-              + Product
-            </Button>
-          </ActionGuard>
-          <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-            {category.products?.length || 1}
-          </Badge>
+        {/* RIGHT — Actions (never wrap) */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* MOBILE / BELOW MD */}
+          <div className="flex items-center gap-2 ">
+            <ActionGuard action={Permission.CREATE_PRODUCT}>
+              <Button
+                variant="outline"
+                onClick={() => openAddSheet(category.id)}
+                className="md:block hidden"
+              >
+                + Product
+              </Button>
+            </ActionGuard>
+            {!category.isVisible && (
+              <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
+                Hidden
+              </Badge>
+            )}
 
-          {!category.isVisible && (
-            <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
-              Hidden
+            <Badge className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              {category.products?.length || 1}
             </Badge>
-          )}
 
-          <ActionGuard action={Permission.UPDATE_CATEGORY}>
-            <CategoryOptions
-              onToggleVisibility={() => handleToggleVisibility(category)}
-              onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
-              onDelete={() => deleteCategory.mutateAsync(category.id)}
-            />
-          </ActionGuard>
+            <ActionGuard action={Permission.UPDATE_CATEGORY}>
+              <CategoryOptions
+                onToggleVisibility={() => handleToggleVisibility(category)}
+                onDuplicate={() => duplicateCategory.mutateAsync(category.id)}
+                onDelete={() => deleteCategory.mutateAsync(category.id)}
+                onProductAdd={() => openAddSheet(category.id)}
+              />
+            </ActionGuard>
+          </div>
 
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -143,6 +148,8 @@ const CategoryItem = ({ category }: CategoryProps) => {
           </button>
         </div>
       </div>
+
+      {/* Sub Items */}
       {isOpen && (
         <SubItemList products={category.products} categoryID={category.id} />
       )}

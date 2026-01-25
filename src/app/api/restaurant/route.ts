@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     if (!restaurantId) {
       return NextResponse.json(
         { error: "Missing restaurantId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -65,7 +65,7 @@ export async function GET(req: Request) {
       if (userData.restaurant_id !== restaurantId) {
         return NextResponse.json(
           { error: "Resource access denied" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -80,7 +80,7 @@ export async function GET(req: Request) {
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -107,10 +107,16 @@ export async function POST(req: Request) {
       .eq("id", user.id)
       .maybeSingle();
 
+    console.log("userData", userData);
+    console.log("userError", userError);
+
     if (userError || !userData) {
-      return new Response(JSON.stringify({ error: "Access denied" }), {
-        status: 403,
-      });
+      return new Response(
+        JSON.stringify({ error: userError || "Access denied" }),
+        {
+          status: 403,
+        },
+      );
     }
 
     // 3. Permission check
@@ -124,7 +130,7 @@ export async function POST(req: Request) {
         JSON.stringify({ error: "Insufficient permissions" }),
         {
           status: 403,
-        }
+        },
       );
     }
 
@@ -135,14 +141,14 @@ export async function POST(req: Request) {
     if (!restaurantName || !type) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!RESTAURANT_TYPES.includes(type)) {
       return new Response(
         JSON.stringify({ error: "Invalid restaurant type" }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -163,7 +169,7 @@ export async function POST(req: Request) {
     if ((currentCount ?? 0) >= maxRestaurant) {
       return new Response(
         JSON.stringify({ error: "You have reached your restaurant limit" }),
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -183,7 +189,7 @@ export async function POST(req: Request) {
         JSON.stringify({
           error: restaurantError?.message || "Failed to create restaurant",
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -205,12 +211,12 @@ export async function POST(req: Request) {
 
     return new Response(
       JSON.stringify({ restaurant: newRestaurant, user: updatedUser }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     return new Response(
       JSON.stringify({ error: error.message || "Server error" }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -226,7 +232,7 @@ export async function PATCH(req: Request) {
         { error: "Missing required fields" },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -324,7 +330,7 @@ export async function DELETE(req: Request) {
     ) {
       return new Response(
         JSON.stringify({ error: "Insufficient permissions" }),
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -367,7 +373,7 @@ export async function DELETE(req: Request) {
       JSON.stringify({ error: error.message || "Server error" }),
       {
         status: 500,
-      }
+      },
     );
   }
 }

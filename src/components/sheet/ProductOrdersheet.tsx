@@ -47,7 +47,7 @@ type OrderActionType =
 const ProductOrdersheet = () => {
   // Store hooks
   const { orderId } = useOrderWorkspace();
-  const { isProductOrderSheetOpen, closeProductOrderSheet } =
+  const { isProductOrderSheetOpen, closeProductOrderSheet, closeProductList } =
     useOrderWorkspace();
   const {
     orderId: currentOrderId,
@@ -65,6 +65,7 @@ const ProductOrdersheet = () => {
   const updateOrderMutation = useUpdateOrder();
   const updateOrderStatusMutation = useUpdateOrderStatus();
   const paymentRefundMutation = usePaymentRefund();
+  const updateOrderItemMutation = useUpdateOrderItem();
 
   // Cart store
   const {
@@ -97,7 +98,7 @@ const ProductOrdersheet = () => {
     "text-xs font-medium transition-colors",
     elapsed < 300 && "text-green-600", // < 5 min
     elapsed >= 300 && elapsed < 900 && "text-yellow-600", // 5–15 min
-    elapsed >= 900 && "text-red-600" // > 15 min
+    elapsed >= 900 && "text-red-600", // > 15 min
   );
 
   const payments: OrderPayment[] = data?.payments || [];
@@ -132,6 +133,7 @@ const ProductOrdersheet = () => {
   }, [data, orderId]);
 
   // Handlers
+
   const handleRegisterAndAcceptOrder = async () => {
     if (!currentlyActiveOrderId) return;
 
@@ -195,11 +197,11 @@ const ProductOrdersheet = () => {
   const handleAccept = async () => {
     setLoadingActionState((prev) => ({ ...prev, accept: true }));
     try {
-      await updateOrderStatusMutation.mutateAsync({
-        id: currentlyActiveOrderId,
-        status: ORDER_STATUS.ACCEPTED,
-      });
+      const payload = buildOrderPayload(restaurantId);
+      await updateOrderItemMutation.mutateAsync(payload);
       closepaymentPanelStore();
+      closeProductOrderSheet();
+      closeProductList();
     } catch (error: any) {
       toast.error(error.message || "Failed to accept order");
     } finally {

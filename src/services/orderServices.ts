@@ -19,7 +19,7 @@ export async function addOrderAPI(payload: CreateOrderPayload) {
 
 export async function getOrderDetailsAPI(
   orderId: string | null,
-  restauratId: string
+  restauratId: string,
 ) {
   const res = await fetch(`/api/orders/${orderId}?restaurantId=${restauratId}`);
 
@@ -61,11 +61,11 @@ export async function updateOrderStatusAPI({
 }
 
 // lib/api/order-items.ts
-export const updateOrderItemAPI = async (itemId: string, quantity: number) => {
-  const res = await fetch(`/api/orders/${itemId}/update`, {
+export const updateOrderItemAPI = async (payload: CreateOrderPayload) => {
+  const res = await fetch(`/api/orders/${payload.order?.id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify(payload),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to update item");

@@ -40,13 +40,21 @@ const SubItem = ({
           : undefined,
         transition,
       }}
-      className={`p-2 border bg-background rounded-lg mb-2 flex items-center shadow-md ${
-        item.isVisible ? "bg-gray-100/10" : "bg-gray-100 opacity-80 shadow-none"
-      }`}
+      className={`p-2 border rounded-lg mb-2 flex items-center shadow-md gap-2
+    ${item.isVisible ? "bg-gray-100/10" : "bg-gray-100 opacity-80 shadow-none"}
+    bg-background
+  `}
     >
-      <span {...attributes} {...listeners} className="cursor-grab mr-2">
+      {/* Grip */}
+      <span
+        {...attributes}
+        {...listeners}
+        className="cursor-grab flex-shrink-0"
+      >
         <Grip size={16} className="text-gray-500" />
       </span>
+
+      {/* Product Image */}
       <img
         src={
           item?.images?.find((img) => img.is_primary)?.url ||
@@ -58,20 +66,25 @@ const SubItem = ({
           item?.images?.[0]?.alt ||
           "Product image"
         }
-        className="w-8 h-8 rounded-full mr-3"
+        className="w-8 h-8 rounded-full flex-shrink-0"
       />
 
-      <span className="flex-1 text-sm">{item.name}</span>
+      {/* Product Name */}
+      <span className="flex-1 min-w-0 text-sm truncate">{item.name}</span>
 
-      <span>
-        <span className="text-sm font-semibold mr-6">Rs {item.price}</span>
+      {/* Price */}
+      <span className="text-sm font-semibold flex-shrink-0">
+        Rs {item.price}
       </span>
+
+      {/* Hidden badge */}
       {!item.isVisible && (
-        <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white">
+        <Badge className="bg-red-600 px-2 py-1 rounded-full text-xs text-white flex-shrink-0">
           Hidden
         </Badge>
       )}
 
+      {/* Options */}
       <ActionGuard action={Permission.UPDATE_PRODUCT}>
         <ProductOptions
           onToggleVisibility={() => onToggleVisibility(item.id)}

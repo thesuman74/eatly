@@ -24,14 +24,16 @@ export const PaymentList: React.FC<PaymentListProps> = ({
   return (
     <div className="flex flex-col p-4 space-y-4">
       {/* Total Paid Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow">
+      <div className="flex items-center justify-between bg-card border p-4 rounded-lg shadow">
         <div className="flex items-center space-x-2">
-          <span className="font-semibold text-gray-700">Total</span>
+          <span className="font-semibold text-gray-700 dark:text-white">
+            Total
+          </span>
           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
             Paid
           </span>
         </div>
-        <span className="text-xl font-bold text-gray-900">Rs {totalPaid}</span>
+        <span className="text-xl font-bold  ">Rs {totalPaid}</span>
       </div>
 
       {/* Payment Cards */}
@@ -42,13 +44,11 @@ export const PaymentList: React.FC<PaymentListProps> = ({
         return (
           <div
             key={p.id}
-            className="bg-white p-4 rounded-lg shadow flex justify-around items-center relative"
+            className="bg-card p-4 rounded-lg shadow flex justify-around items-center relative"
           >
             <div>
               <div className="text-lg text-gray-500">{p.method}</div>
-              <div className="text-lg font-semibold text-gray-900">
-                Rs {p.amount_paid}
-              </div>
+              <div className="text-lg font-semibold ">Rs {p.amount_paid}</div>
             </div>
 
             <div className="text-sm text-gray-400">
@@ -74,9 +74,9 @@ export const PaymentList: React.FC<PaymentListProps> = ({
 
                 {/* Dropdown menu */}
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow z-10">
+                  <div className="absolute right-0 mt-2 w-28 bg-secondary border rounded shadow z-10">
                     <button
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-500"
+                      className="w-full text-left px-4 py-2 hover:bg-secondary-foreground text-sm text-red-500"
                       onClick={() => handleRefundPayment(p.id)}
                     >
                       Refund

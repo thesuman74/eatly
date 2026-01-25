@@ -93,8 +93,9 @@ const PaymentSummary = ({
 
   const [localTips, setLocalTips] = useState(tips?.toString() || "");
   const [localAmountReceived, setLocalAmountReceived] = useState(
-    amountReceived?.toString() || ""
+    amountReceived?.toString() || "",
   );
+  const [isProcessing, setIsProcessing] = useState(false);
 
   console.log("payments", payments);
 
@@ -108,19 +109,28 @@ const PaymentSummary = ({
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const isPaid = Boolean(
-    payments?.find((p) => p.payment_status === PAYMENT_STATUS.PAID)
+    payments?.find((p) => p.payment_status === PAYMENT_STATUS.PAID),
   );
 
   const paymentStatus: PaymentStatus = payment_status ?? PAYMENT_STATUS.UNPAID;
   const paymentUI = PAYMENT_UI[paymentStatus];
 
-  const handleRegisterAndAcceptClick = () => {
+  const handleRegisterAndAcceptClick = async () => {
     if (!canRegisterAndAccept) {
       toast.error("Save as pending or provide enough amount");
       return;
     }
-    // Call parent handler
-    onRegisterAndAccept?.();
+    setIsProcessing(true); // 🔒 lock immediately
+    setLocalAmountReceived("");
+    setLocalTips("");
+
+    try {
+      await onRegisterAndAccept?.(); // call parent handler
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false); // unlock if needed
+    }
   };
 
   // const handleRegisterPayment = () => {
@@ -139,14 +149,13 @@ const PaymentSummary = ({
   };
 
   const togglePending = () => {
-    setIsPending((prev) => {
-      const newPendingState = !prev;
-      if (newPendingState) {
-        // Only clear payment info when toggled to pending
-        handleSaveAsPending();
-      }
-      return newPendingState;
-    });
+    const newPendingState = !isPending;
+
+    if (newPendingState) {
+      handleSaveAsPending();
+    }
+
+    setIsPending(newPendingState);
   };
 
   const PAYMENT_METHODS: {
@@ -341,12 +350,15 @@ const PaymentSummary = ({
               <Button
                 variant="outline"
                 className="w-full bg-green-100 border-green-600 text-green-700 hover:bg-green-200"
-                disabled={loading?.registerAndAccept || !canRegisterAndAccept}
+                disabled={
+                  loading?.registerAndAccept ||
+                  !canRegisterAndAccept ||
+                  isProcessing
+                }
                 onClick={handleRegisterAndAcceptClick}
               >
-                {loading?.registerAndAccept && (
-                  <Loader2 className="animate-spin" />
-                )}
+                {loading?.registerAndAccept ||
+                  (isProcessing && <Loader2 className="animate-spin" />)}
                 Register and Accept Order
               </Button>
             </div>

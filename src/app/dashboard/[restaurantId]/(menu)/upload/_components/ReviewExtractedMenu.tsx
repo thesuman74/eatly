@@ -5,15 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { MoveLeft } from "lucide-react";
+import { MoveLeft, Trash2, X } from "lucide-react";
 import { toast } from "react-toastify";
-import { redirect, useRouter } from "next/navigation";
-import { ProductCategoryTypes } from "@/lib/types/menu-types";
-import { Textarea } from "@/components/ui/textarea";
-import { set } from "react-hook-form";
-import SubmitButton from "@/components/ui/SubmitButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { Textarea } from "@/components/ui/textarea";
+import SubmitButton from "@/components/ui/SubmitButton";
+import { ProductCategoryTypes } from "@/lib/types/menu-types";
 
 interface PreviewMenuFormProps {
   reviewMenu: boolean;
@@ -31,40 +29,100 @@ export default function PreviewMenuForm({
   setReviewMenuData,
 }: PreviewMenuFormProps) {
   const queryClient = useQueryClient();
+  const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   const [selectedCategory, setSelectedCategory] =
     useState<ProductCategoryTypes | null>(null);
-
   const [isLoading, setIsLoading] = useState(false);
-  const restaurantId = useRestaurantStore((state) => state.restaurantId);
-
   useEffect(() => {
-    if (reviewMenuData && reviewMenuData.length > 0) {
+    if (!selectedCategory && reviewMenuData.length > 0) {
       setSelectedCategory(reviewMenuData[0]);
+    } else if (selectedCategory) {
+      // update selectedCategory reference from the updated reviewMenuData
+      const updatedCategory = reviewMenuData.find(
+        (cat) => cat.id === selectedCategory.id,
+      );
+      if (updatedCategory) setSelectedCategory(updatedCategory);
     }
   }, [reviewMenuData]);
 
   if (!reviewMenuData) return <div>Loading menu data...</div>;
   if (reviewMenuData.length === 0) return <div>No menu data available.</div>;
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const saveToLocalStorage = (data: ProductCategoryTypes[]) => {
+    localStorage.setItem("extracted_menu", JSON.stringify(data));
+  };
 
+  const handleProductChange = (
+    productId: string,
+    field: string,
+    value: any,
+  ) => {
+    if (!selectedCategory) return;
+
+    const updatedCategory = {
+      ...selectedCategory,
+      products: selectedCategory.products.map((p) =>
+        p.id === productId ? { ...p, [field]: value } : p,
+      ),
+    };
+
+    setSelectedCategory(updatedCategory);
+
+    setReviewMenuData((prev) => {
+      const newData = prev.map((cat) =>
+        cat.id === updatedCategory.id ? updatedCategory : cat,
+      );
+      saveToLocalStorage(newData);
+      return newData;
+    });
+  };
+
+  const handleRemoveProduct = (productId: string) => {
+    if (!selectedCategory) return;
+
+    const updatedCategory = {
+      ...selectedCategory,
+      products: selectedCategory.products.filter((p) => p.id !== productId),
+    };
+
+    setSelectedCategory(updatedCategory);
+
+    setReviewMenuData((prev) => {
+      const newData = prev.map((cat) =>
+        cat.id === updatedCategory.id ? updatedCategory : cat,
+      );
+      saveToLocalStorage(newData);
+      return newData;
+    });
+  };
+
+  const handleRemoveCategory = (categoryId: string) => {
+    const newData = reviewMenuData.filter((cat) => cat.id !== categoryId);
+    setReviewMenuData(newData);
+    saveToLocalStorage(newData);
+
+    if (newData.length > 0) {
+      setSelectedCategory(newData[0]);
+    } else {
+      setSelectedCategory(null);
+    }
+  };
+
+  const handleSubmitWithImages = async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch("/api/menu/import", {
+      const res = await fetch("/api/menu/import-with-images", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reviewMenuData, restaurantId }), // send array directly
+        body: JSON.stringify({ reviewMenuData, restaurantId }),
       });
-
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to import menu");
-      }
+      if (!res.ok)
+        throw new Error(data.error || "Failed to import menu with images");
 
-      toast.success("Menu imported successfully!");
-
+      toast.success("Menu with images imported successfully!");
       setReviewMenu(false);
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     } catch (error: any) {
@@ -74,41 +132,11 @@ export default function PreviewMenuForm({
     }
   };
 
-  const handleProductChange = (
-    productId: string,
-    field: string,
-    value: any
-  ) => {
-    if (!selectedCategory) return;
-
-    const updatedCategory = {
-      ...selectedCategory,
-      products: selectedCategory.products.map((p) =>
-        p.id === productId ? { ...p, [field]: value } : p
-      ),
-    };
-
-    setSelectedCategory(updatedCategory);
-
-    // Also update the main reviewMenuData so that edits persist when switching categories
-    setReviewMenuData((prev) => {
-      const newData = prev.map((cat) =>
-        cat.id === updatedCategory.id ? updatedCategory : cat
-      );
-
-      // update localStorage with new data
-      localStorage.setItem("extracted_menu", JSON.stringify(newData));
-
-      return newData;
-    });
-  };
-
   return (
     <Card className="max-w-6xl mx-auto mt-10 p-4 shadow-lg">
-      {/* Header */}
-      <CardHeader className="flex flex-row items-center gap-4 p-0 pb-4 border-b">
+      <CardHeader className="relative p-0 pb-4 border-b flex justify-center items-center">
         <MoveLeft
-          className="cursor-pointer text-gray-600 hover:text-gray-900"
+          className="absolute left-0 cursor-pointer text-gray-600 hover:text-gray-900"
           onClick={() => setReviewMenu(false)}
           size={24}
         />
@@ -119,16 +147,24 @@ export default function PreviewMenuForm({
 
       <CardContent className="pt-6 max-h-[75vh] overflow-y-auto">
         {/* Category Tabs */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6 ">
           {reviewMenuData.map((cat) => (
-            <Button
-              key={cat.id}
-              variant={selectedCategory?.id === cat.id ? "default" : "outline"}
-              onClick={() => setSelectedCategory(cat)}
-              size="sm"
-            >
-              {cat.name} ({cat.products.length})
-            </Button>
+            <div key={cat.id} className="flex relative items-center gap-2">
+              <Button
+                variant={
+                  selectedCategory?.id === cat.id ? "default" : "outline"
+                }
+                onClick={() => setSelectedCategory(cat)}
+                size="sm"
+              >
+                {cat.name} ({cat.products.length})
+              </Button>
+              <X
+                className="absolute -top-2 right-0 cursor-pointer text-red-500 hover:text-red-700 bg-background rounded-full"
+                size={18}
+                onClick={() => handleRemoveCategory(cat.id)}
+              />
+            </div>
           ))}
         </div>
 
@@ -137,26 +173,23 @@ export default function PreviewMenuForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             {selectedCategory.products.map((product) => (
               <Card key={product.id} className="p-4 flex flex-col gap-4">
-                <CardHeader className="p-0 flex justify-center">
-                  {/* <img
-                    src={product.image.url}
-                    alt={product.image.alt}
-                    className="size-24 object-cover rounded-lg"
-                  /> */}
-                </CardHeader>
-
                 <CardContent className="p-0 flex flex-col gap-3">
-                  <div>
+                  <div className="flex justify-between items-center">
                     <Label htmlFor={`name-${product.id}`}>Name</Label>
-                    <Input
-                      id={`name-${product.id}`}
-                      value={product.name} // bind value to state
-                      onChange={(e) =>
-                        handleProductChange(product.id, "name", e.target.value)
-                      }
-                      className="mt-1"
+                    <Trash2
+                      className="cursor-pointer text-red-500 hover:text-red-700"
+                      size={18}
+                      onClick={() => handleRemoveProduct(product.id)}
                     />
                   </div>
+                  <Input
+                    id={`name-${product.id}`}
+                    value={product.name}
+                    onChange={(e) =>
+                      handleProductChange(product.id, "name", e.target.value)
+                    }
+                    className="mt-1"
+                  />
 
                   <div>
                     <Label htmlFor={`price-${product.id}`}>Price (NPR)</Label>
@@ -167,7 +200,7 @@ export default function PreviewMenuForm({
                         handleProductChange(
                           product.id,
                           "price",
-                          Number(e.target.value)
+                          Number(e.target.value),
                         )
                       }
                       className="mt-1"
@@ -182,7 +215,7 @@ export default function PreviewMenuForm({
                         handleProductChange(
                           product.id,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       rows={2}
@@ -200,10 +233,14 @@ export default function PreviewMenuForm({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit();
+              handleSubmitWithImages();
             }}
           >
-            <SubmitButton isLoading={isLoading} className="px-6 py-3 text-lg">
+            <SubmitButton
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="px-6 py-3 text-lg"
+            >
               Submit Menu
             </SubmitButton>
           </form>

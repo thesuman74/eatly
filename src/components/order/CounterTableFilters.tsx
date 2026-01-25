@@ -1,6 +1,7 @@
 import { Check, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Order, ORDER_STATUS, OrderStatus } from "@/lib/types/order-types";
+import { Table } from "@tanstack/react-table";
 
 export type StatusFilter = OrderStatus | "all";
 
@@ -8,12 +9,14 @@ interface Props {
   value: StatusFilter;
   onChange: (value: StatusFilter) => void;
   orders: { status: OrderStatus; total_amount: number }[];
+  table?: Table<any>; // optional table instance for pagination
 }
 
 export default function CounterTableFilters({
   value,
   onChange,
   orders,
+  table,
 }: Props) {
   const isActive = (v: StatusFilter) =>
     value === v ? "bg-blue-200 text-blue-600" : "hover:border-accent";
@@ -35,7 +38,7 @@ export default function CounterTableFilters({
       {/* Left */}
       <div className="flex items-center gap-2 text-gray-500">
         <Filter size={18} />
-        <span className="text-sm font-medium">Filter</span>
+        <span className="text-sm font-medium hidden md:block">Filter</span>
 
         <div className="flex gap-2 py-2">
           {/* ALL */}
@@ -93,7 +96,54 @@ export default function CounterTableFilters({
       </div>
 
       {/* Right */}
-      <div className="text-sm font-semibold ">Total: Rs {totalAmount}</div>
+      <div className="text-xs sm:text-sm font-semibold ">
+        Total: Rs {totalAmount}
+      </div>
+
+      {/* Pagination */}
+      {table && (
+        <div className="flex items-center justify-end gap-2 mt-2">
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<<"}
+          </button>
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<"}
+          </button>
+          <span>
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">"}
+          </button>
+          <button
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {">>"}
+          </button>
+
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+          >
+            {[5, 10, 20, 50].map((size) => (
+              <option key={size} value={size}>
+                Show {size}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

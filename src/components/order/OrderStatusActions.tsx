@@ -32,6 +32,7 @@ export function OrderStatusActions({
               e.stopPropagation();
             }}
             variant="outline"
+            className="h-6 md:h-8 px-2 py-1 text-xs sm:px-3 sm:py-2 sm:text-sm"
           >
             {loading ? (
               <Loader2 className="animate-spin" />

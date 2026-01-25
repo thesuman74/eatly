@@ -15,6 +15,7 @@ import { getCategoriesAPI } from "@/services/categoryServices";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
 import useCartStore from "@/stores/user/userCartStore";
 import Top from "@/components/menu/Top";
+import HorizontalCategoryList from "@/components/dashboard/HorizontalCategoryList";
 
 interface MenuPageProps {
   initialCategories: ProductCategoryTypes[] | [];
@@ -120,6 +121,7 @@ export default function MenuPage({
             </div>
           </div>
         </div>
+        <HorizontalCategoryList categories={initialCategories ?? []} />
 
         <div className="py-8 ">
           {filteredCategories.length === 0 ? (
@@ -130,7 +132,11 @@ export default function MenuPage({
             <>
               {" "}
               {filteredCategories.map((category: ProductCategoryTypes) => (
-                <div key={category.id} className="mb-8">
+                <div
+                  key={category.id}
+                  id={`category-${category.id}`}
+                  className="mb-8"
+                >
                   <h2 className="text-2xl font-bold mb-4">{category.name}</h2>
                   <div
                     //  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4 "

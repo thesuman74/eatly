@@ -33,6 +33,9 @@ export const useCreateOrder = () => {
 
       queryClient.invalidateQueries({ queryKey: ["orders", restauratId] });
     },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to register order");
+    },
   });
 };
 
@@ -94,39 +97,17 @@ export const useUpdateOrderItem = () => {
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
   return useMutation({
-    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
-      updateOrderItemAPI(itemId, quantity),
-    onMutate: async ({ itemId, quantity }) => {
-      await queryClient.cancelQueries({
-        queryKey: ["order-details", restaurantId],
-      });
+    mutationFn: updateOrderItemAPI,
 
-      const previousOrder = queryClient.getQueryData<any>(["order-details"]);
-
-      queryClient.setQueryData(["order-details"], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          items: old.items.map((item: any) =>
-            item.id === itemId ? { ...item, quantity } : item
-          ),
-        };
-      });
-
-      return { previousOrder };
-    },
-    onError: (err, variables, context) => {
-      toast.error(err?.message || "Failed to update quantity");
-
-      if (context?.previousOrder) {
-        queryClient.setQueryData(["order-details"], context.previousOrder);
-      }
-    },
     onSuccess: () => {
-      toast.success("Quantity updated successfully");
+      toast.success("Order updated successfully");
+
+      queryClient.invalidateQueries({
+        queryKey: ["orders-list", restaurantId],
+      });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["order-details"] });
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update order");
     },
   });
 };

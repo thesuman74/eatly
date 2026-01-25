@@ -6,16 +6,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleX, MoreVertical, Trash2 } from "lucide-react";
+import { Check, CircleX, MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 export function OrderOverflowMenu({
   onCancel,
   onDelete,
+  onAccept,
   orderId,
 }: {
   onCancel: () => void;
   onDelete: () => void;
+  onAccept: () => void;
   orderId: string;
 }) {
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -24,12 +26,28 @@ export function OrderOverflowMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" onClick={(e) => e.stopPropagation()}>
-            <MoreVertical size={16} />
+          <Button
+            className=" size-6 md:size-auto"
+            variant="outline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreVertical />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            className="hover:cursor-pointer  block sm:hidden"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <span className=" space-x-2 flex items-center">
+              <Check size={16} />
+              <span>Accept Order</span>
+            </span>
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="hover:cursor-pointer hover:text-red-700 "
             onClick={(e) => {

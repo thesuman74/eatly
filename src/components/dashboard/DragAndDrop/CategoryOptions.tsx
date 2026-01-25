@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, EllipsisVertical, Eye, Trash2 } from "lucide-react";
+import { Copy, EllipsisVertical, Eye, Plus, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -12,12 +12,14 @@ interface CategoryOptionsProps {
   onDuplicate: () => void;
   onToggleVisibility: () => void;
   onDelete: () => void;
+  onProductAdd: () => void;
 }
 
 const CategoryOptions = ({
   onDuplicate,
   onToggleVisibility,
   onDelete,
+  onProductAdd,
 }: CategoryOptionsProps) => {
   return (
     <DropdownMenu>
@@ -28,6 +30,13 @@ const CategoryOptions = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-56">
+        <DropdownMenuItem
+          onClick={onProductAdd}
+          className="flex items-center md:hidden space-x-2 border-b-2 hover:cursor-pointer"
+        >
+          <Plus size={16} />
+          <span>Add products</span>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={onToggleVisibility}
           className="flex items-center space-x-2 border-b-2 hover:cursor-pointer"

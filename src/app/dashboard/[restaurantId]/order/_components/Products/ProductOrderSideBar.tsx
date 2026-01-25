@@ -1,7 +1,15 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Check, Clock, Hash, Utensils, X } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Clock,
+  Hash,
+  ShoppingBasket,
+  Utensils,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
 import CartPreview from "./CartPreview";
 import { useCartStore } from "@/stores/admin/useCartStore";
@@ -12,12 +20,19 @@ import PaymentSummary from "../payments/PaymentSummary";
 import { buildOrderPayload } from "@/utils/buildOrderPayload";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
 import { useCreateOrder, useUpdateOrder } from "@/hooks/order/useOrders";
+import { set } from "zod";
 
-const ProductOrderSideBar = () => {
+interface ProductOrderSideBarprops {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+}
+
+const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
   const createOrderMutation = useCreateOrder();
   const updateOrderMutation = useUpdateOrder();
 
   const [showPaymentPanel, setShowPaymentPanel] = useState(false);
+  // const [showOrderSidebar, setShowOrderSidebar] = useState(true);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   const searchParams = useSearchParams();
@@ -85,131 +100,141 @@ const ProductOrderSideBar = () => {
 
   return (
     <>
-      <aside
-        className="    h-[calc(100vh-4rem)]
-  max-w-sm w-full flex flex-col border "
-      >
-        {showPaymentPanel ? (
-          <PaymentSummary
-            open={showPaymentPanel}
-            setOpen={setShowPaymentPanel}
-            // onRegister={handleRegisterOrder}
-            onSaveAsPending={handleSaveAsPending}
-            onRegisterAndAccept={handleRegisterAndAcceptOrder}
-          />
-        ) : (
-          <>
-            {/* Top Section */}
-            <div className="shrink-0 ">
-              <div
-                className={`flex px-4 py-2  text-white ${
-                  paymentStatus === PAYMENT_STATUS.PAID
-                    ? "bg-green-600"
-                    : "bg-yellow-400"
-                }`}
-              >
-                <div className="flex space-x-2">
-                  <Hash />
-                  <span className="text-lg font-semibold">1</span>
-                </div>
-                <div className="flex space-x-4 items-center px-1">
-                  <span>
-                    <Utensils size={20} />
-                  </span>
-                  <span className="px-1">
-                    {orderType?.toUpperCase() || "On site"}
-                  </span>{" "}
-                  <span> | </span>{" "}
-                  <span> {paymentStatus?.toUpperCase() || "PENDING"}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center bg-yellow-50/80  dark:bg-muted px-2">
-                <div className="flex justify-between py-2">
-                  <span className="font-semibold bg-background px-4 py-1 mx-1 rounded-full text-xs">
-                    POS
-                  </span>
-                  <div className="flex items-center">
+      {open && (
+        <aside
+          className="    h-[calc(100vh-4rem)]
+  max-w-sm w-full flex flex-col border bg-background "
+        >
+          <div className="absolute top-2 right-2 z-10">
+            <button
+              onClick={() => setOpen && setOpen(false)}
+              className="p-2 rounded hover:bg-gray-100 transition"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+          {showPaymentPanel ? (
+            <PaymentSummary
+              open={showPaymentPanel}
+              setOpen={setShowPaymentPanel}
+              // onRegister={handleRegisterOrder}
+              onSaveAsPending={handleSaveAsPending}
+              onRegisterAndAccept={handleRegisterAndAcceptOrder}
+            />
+          ) : (
+            <>
+              {/* Top Section */}
+              <div className="shrink-0 ">
+                <div
+                  className={`flex px-4 py-2  text-white ${
+                    paymentStatus === PAYMENT_STATUS.PAID
+                      ? "bg-green-600"
+                      : "bg-yellow-400"
+                  }`}
+                >
+                  <div className="flex space-x-2">
+                    <Hash />
+                    <span className="text-lg font-semibold">1</span>
+                  </div>
+                  <div className="flex space-x-4 items-center px-1">
                     <span>
-                      <Calendar size={16} />
+                      <Utensils size={20} />
                     </span>
-                    <span>13/07/25 12:28</span>
+                    <span className="px-1">
+                      {orderType?.toUpperCase() || "On site"}
+                    </span>{" "}
+                    <span> | </span>{" "}
+                    <span> {paymentStatus?.toUpperCase() || "PENDING"}</span>
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-center space-x-2">
-                    <span>
-                      <Clock size={16} />
+                <div className="flex justify-between items-center bg-yellow-50/80  dark:bg-muted px-2">
+                  <div className="flex justify-between py-2">
+                    <span className="font-semibold bg-background px-4 py-1 mx-1 rounded-full text-xs">
+                      POS
                     </span>
-                    {/* <span>01:11 minutes</span> */}
+                    <div className="flex items-center">
+                      <span>
+                        <Calendar size={16} />
+                      </span>
+                      <span>13/07/25 12:28</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-center space-x-2">
+                      <span>
+                        <Clock size={16} />
+                      </span>
+                      {/* <span>01:11 minutes</span> */}
+                    </div>
+                  </div>
+                </div>
+                <hr className="border-gray-400" />
+
+                <div className="space-y-2 py-2">
+                  <Input
+                    type="text"
+                    name="product_title"
+                    placeholder="Add title"
+                    onBlur={(e) => setOrderTitle(e.target.value)}
+                    className="w-full border"
+                  />
+
+                  <Input
+                    type="text"
+                    name="client_name"
+                    placeholder="Add Client Name"
+                    onBlur={(e) => setCustomerName(e.target.value)}
+                    className="w-full border text-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Middle (scrollable) */}
+              <div className="flex-1 overflow-y-auto min-h-0">
+                <CartPreview />
+              </div>
+              {/* Bottom Section */}
+              <div className="shrink-0 pb-4  ">
+                <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
+                  <div className="flex justify-center w-full gap-4 px-2 py-2 ">
+                    <Button
+                      variant={"outline"}
+                      className="text-red-500 border-red-500 w-full"
+                    >
+                      <span className="cursor-pointer">
+                        <X />
+                      </span>
+                      <span>Cancel</span>
+                    </Button>
+
+                    <Button
+                      variant={"outline"}
+                      onClick={() => handlePayment()}
+                      className="text-blue-500 border-blue-500 w-full"
+                    >
+                      <span className="cursor-pointer">$</span>
+                      <span>Pay</span>
+                    </Button>
+
+                    <Button
+                      variant={"default"}
+                      className="text-white bg-green-500 w-full"
+                      onClick={() => handleConfirm()}
+                    >
+                      <span className="cursor-pointer">
+                        <Check />
+                      </span>
+                      <span>Confirm</span>
+                    </Button>
                   </div>
                 </div>
               </div>
-              <hr className="border-gray-400" />
-
-              <div className="space-y-2 py-2">
-                <Input
-                  type="text"
-                  name="product_title"
-                  placeholder="Add title"
-                  onBlur={(e) => setOrderTitle(e.target.value)}
-                  className="w-full border"
-                />
-
-                <Input
-                  type="text"
-                  name="client_name"
-                  placeholder="Add Client Name"
-                  onBlur={(e) => setCustomerName(e.target.value)}
-                  className="w-full border text-lg"
-                />
-              </div>
-            </div>
-
-            {/* Middle (scrollable) */}
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <CartPreview />
-            </div>
-            {/* Bottom Section */}
-            <div className="shrink-0 pb-4  ">
-              <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
-                <div className="flex justify-center w-full gap-4 px-2 py-2 ">
-                  <Button
-                    variant={"outline"}
-                    className="text-red-500 border-red-500 w-full"
-                  >
-                    <span className="cursor-pointer">
-                      <X />
-                    </span>
-                    <span>Cancel</span>
-                  </Button>
-
-                  <Button
-                    variant={"outline"}
-                    onClick={() => handlePayment()}
-                    className="text-blue-500 border-blue-500 w-full"
-                  >
-                    <span className="cursor-pointer">$</span>
-                    <span>Pay</span>
-                  </Button>
-
-                  <Button
-                    variant={"default"}
-                    className="text-white bg-green-500 w-full"
-                    onClick={() => handleConfirm()}
-                  >
-                    <span className="cursor-pointer">
-                      <Check />
-                    </span>
-                    <span>Confirm</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </aside>
+            </>
+          )}
+        </aside>
+      )}
     </>
   );
 };

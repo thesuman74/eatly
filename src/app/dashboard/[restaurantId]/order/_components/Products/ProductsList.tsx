@@ -1,104 +1,90 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ArrowUpRight,
-  Calendar,
-  Check,
-  Clock,
-  Hash,
-  Settings,
-  Utensils,
-  X,
-} from "lucide-react";
-
-import React, { useState } from "react";
-import ProductSearch from "./ProductSearch";
+import { ArrowUpRight, Hash, Utensils, X } from "lucide-react";
+import React, { useState, useMemo } from "react";
 import ProductCard from "./ProductCard";
 import { ProductCategoryTypes, ProductTypes } from "@/lib/types/menu-types";
-import BouncingText from "@/components/animation/BouncingText";
-import Link from "next/link";
-import { useProductStore } from "@/stores/admin/useProductStores";
 import { useCartStore } from "@/stores/admin/useCartStore";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAPI } from "@/services/categoryServices";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { toast } from "react-toastify";
 
 const ProductsList = () => {
-  // const categories = ProductCategoriesData;
-
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
-
-  const [cartItems, setCartItems] = useState<ProductTypes[]>([]);
-  const [total, setTotal] = useState(0);
   const { addToCart } = useCartStore();
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Fetch categories
   const { data: categories } = useQuery<ProductCategoryTypes[]>({
     queryKey: ["categories"],
     queryFn: () => getCategoriesAPI(restaurantId),
     enabled: !!restaurantId,
   });
 
-  const handleAddToCart = (categoryId: string, product: ProductTypes) => {
-    setCartItems((prev) => {
-      const updated = [...prev, product];
-      const newTotal = updated.reduce((sum, item) => sum + item.price, 0);
-      setTotal(newTotal);
-      return updated;
-    });
+  // Handle adding to cart
+  const handleAddToCart = (product: ProductTypes) => {
     addToCart(product);
+    toast.success("Product added to cart");
   };
+
+  // Filter categories based on search term
+  const filteredCategories = useMemo(() => {
+    if (!categories) return [];
+
+    if (!searchTerm) return categories;
+
+    return categories
+      .map((category) => {
+        const filteredProducts = category.products.filter((p) =>
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+        return { ...category, products: filteredProducts };
+      })
+      .filter((category) => category.products.length); // keep only categories with products
+  }, [categories, searchTerm]);
+
   return (
-    <>
-      <div className="w-full h-full flex flex-col relative z-0">
-        {/* Top section with search + sidebar */}
-        <div className="flex flex-1 w-full pb-10">
-          {/* <ProductSidebar categories={categories} /> */}
-
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="flex justify-between items-center mb-4">
-              <ProductSearch />
-              <h2 className=" text-lg font-semibold mr-14">PRODUCTS</h2>
-            </div>
-
-            {categories?.map((category) => (
-              <div key={category.id}>
-                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {category.products.map((p) => (
-                    <div className="mb-6" key={p.id}>
-                      <ProductCard
-                        product={p}
-                        onAddToCart={() => handleAddToCart(category.id, p)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Cart Section at the page bottom */}
-        {/* {cartItems.length > 0 && (
-          <div className="fixed right-74 bottom-0 z-10 w-[880px] flex bg-white border-t py-4 px-6 shadow-md  justify-between items-center">
-            <>
-              <div className="flex items-center">
-                <span>{cartItems.length} Products</span>
-                <BouncingText
-                  text={`Rs ${(total / 100).toFixed(2)}`}
-                  className="text-xl font-bold ml-4"
-                />
-              </div>
-              <Button onClick={() => {}}>
-                Confirm Order
-                <ArrowUpRight />
-              </Button>
-            </>
-          </div>
-        )} */}
+    <div className="w-full h-full flex flex-col relative z-0">
+      {/* Top search bar */}
+      <div className="flex justify-between items-center p-4 ">
+        <Input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 mr-4 w-sm max-w-sm"
+        />
       </div>
-    </>
+
+      {/* Product grid */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {filteredCategories.length > 0 ? (
+          filteredCategories.map((category) => (
+            <div key={category.id} className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {category.products.map((p) => (
+                  <div className="mb-6" key={p.id}>
+                    <ProductCard
+                      product={p}
+                      onAddToCart={() => handleAddToCart(p)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500 text-center mt-10">
+            No products found for "{searchTerm}"
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
 

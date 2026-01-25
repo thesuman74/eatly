@@ -25,23 +25,33 @@ export default function CounterTable() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { openpaymentPanelStore } = paymentPanelStore();
 
-  console.log("orders", orders);
+  const filteredData = orders
+    .filter((order) => {
+      // Hide COMPLETED or CANCELLED orders
+      if (
+        order.status === ORDER_STATUS.COMPLETED ||
+        order.status === ORDER_STATUS.CANCELLED
+      ) {
+        return false;
+      }
 
-  const filteredData = orders.filter((order) => {
-    // Hide COMPLETED or CANCELLED orders
-    if (
-      order.status === ORDER_STATUS.COMPLETED ||
-      order.status === ORDER_STATUS.CANCELLED
-    ) {
-      return false;
-    }
+      // Show all if "all" filter is selected
+      if (statusFilter === "all") return true;
 
-    // Show all if "all" filter is selected
-    if (statusFilter === "all") return true;
+      // Otherwise, match the selected status
+      return order.status === statusFilter;
+    })
+    // .sort((a, b) => {
+    //   // Sort descending by order_number (latest first)
+    //   // If you have a date field like created_at, use that instead
+    //   return Number(b.order_number) - Number(a.order_number);
 
-    // Otherwise, match the selected status
-    return order.status === statusFilter;
-  });
+    .sort((a, b) => {
+      // Sort descending by created_at (latest first)
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
 
   const [actionState, setActionState] = useState<OrderActionState>({
     orderId: null,
@@ -51,7 +61,7 @@ export default function CounterTable() {
   const handleStatusChange = (
     id: string,
     status: OrderStatus,
-    type: OrderActionType
+    type: OrderActionType,
   ) => {
     setActionState({ orderId: id, type });
 
@@ -61,7 +71,7 @@ export default function CounterTable() {
         onSettled: () => {
           setActionState({ orderId: null, type: null });
         },
-      }
+      },
     );
   };
 
