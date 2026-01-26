@@ -77,12 +77,13 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
     <>
       <div className=" w-auto mx-auto mt-2 p-4 bg-background shadow-md rounded-md">
         {/* Buttons */}
-        <div className="flex space-x-2 mb-4">
+        <div className="flex overflow-x-auto space-y-2 space-x-2 mb-4">
+          <span></span>
           <ActionGuard action={Permission.CREATE_CATEGORY}>
             <Button
               variant="outline"
               onClick={() => addCategory.mutate()}
-              className="text-lg font-bold flex items-center"
+              className="md:text-lg text-sm  font-bold flex items-center"
             >
               {addCategory.isPending ? (
                 <LoaderCircle className="animate-spin" size={20} />
@@ -94,7 +95,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
           </ActionGuard>
           <Button
             variant="outline"
-            className="text-lg font-bold flex items-center"
+            className="text-sm md:text-lg font-bold flex items-center"
             onClick={() => setScanMenu(true)}
           >
             <SquareMenu />

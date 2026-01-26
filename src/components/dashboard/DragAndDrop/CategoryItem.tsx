@@ -90,6 +90,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
           </span>
 
           <div className="flex-1 min-w-0">
+            <span className="text-xs text-gray-600">Category Name</span>
             <ActionGuard action={Permission.UPDATE_CATEGORY} mode="disable">
               <input
                 type="text"
