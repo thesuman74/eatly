@@ -230,7 +230,7 @@ const ProductOrdersheet = () => {
         {isProductOrderSheetOpen && (
           <aside
             className="h-[calc(100vh-4rem)]
- fixed top-16 right-0  max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
+ fixed top-16 right-0 z-50  max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
           >
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary
@@ -301,14 +301,14 @@ const ProductOrdersheet = () => {
                   </div>
                   <hr className="border-gray-400" />
 
-                  <div className="space-y-2 py-2 bg-background">
+                  <div className="space-y-2 py-2 bg-background text-sm md:text-md">
                     <Input
                       type="text"
                       name="product_title"
                       placeholder="Add title"
                       value={orderTitle}
                       onChange={(e) => setOrderTitle(e.target.value)}
-                      className="w-full border"
+                      className="w-full border text-sm md:text-md"
                     />
 
                     <Input
@@ -317,7 +317,7 @@ const ProductOrdersheet = () => {
                       placeholder="Add Client Name"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full border text-lg"
+                      className="w-full border text-sm md:text-md"
                     />
                   </div>
                 </div>

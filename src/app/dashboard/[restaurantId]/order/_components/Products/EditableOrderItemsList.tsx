@@ -55,19 +55,19 @@ export default function EditableOrderItemsList({
       </div>
 
       {/* Scrollable Items List */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[300px] max-h-[350px]">
+      <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[180px] md:min-h-[140px] max-h-[140px] md:max-h-[250px]">
         {/* 1️⃣ Unchanged / previously existing items */}
         {cartItems
           .filter((item) => item.action === "add")
           .map((item, index) => (
             <div
               key={item.id + index}
-              className="flex items-center gap-4 mb-4 border rounded-lg p-1"
+              className="flex items-center text-sm md:text-md gap-4 mb-4 border rounded-lg p-1"
             >
               <img
                 src={item.product?.images?.[0]?.url || "/Images/coffee.png"}
                 alt={item.product?.images?.[0]?.alt || item.product?.name || ""}
-                className="h-16 w-16 object-cover rounded-lg"
+                className="size-10 md:size-16 object-cover rounded-lg"
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex justify-between w-full items-center">
