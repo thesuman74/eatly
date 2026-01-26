@@ -13,6 +13,7 @@ import {
   PAYMENT_STATUS,
   ORDER_TYPES,
 } from "@/lib/types/order-types";
+import { v4 as uuidv4 } from "uuid";
 
 // export interface CartItem {
 //   product: ProductTypes;
@@ -119,35 +120,51 @@ export const useCartStore = create<CartState>((set, get) => ({
     const isExistingOrder = !!get().currentlyActiveOrderId;
 
     // Determine action
-    const action = isExistingOrder ? "update" : "add";
+    const action: "add" | "update" = isExistingOrder ? "update" : "add";
 
     if (action === "add") {
-      // Always insert new "add" item for a new order
-      set({
-        cartItems: [
-          ...cart,
-          {
-            id: crypto.randomUUID(),
-            product_id: product.id,
-            product,
-            name: product.name,
-            quantity,
-            unit_price: product.price ?? 0,
-            total_price: (product.price ?? 0) * quantity,
-            addons: addons || [],
-            action, // always "add"
-            order_id: get().currentlyActiveOrderId || undefined,
-          } as OrderItem,
-        ],
-      });
+      // Check if the same product already exists in the cart
+      const existingIndex = cart.findIndex(
+        (item) => item.product_id === product.id && item.action === "add",
+      );
+
+      if (existingIndex !== -1) {
+        // Merge quantity in the existing "add" row
+        const updatedItem = { ...cart[existingIndex] };
+        updatedItem.quantity += quantity;
+        updatedItem.total_price = updatedItem.unit_price * updatedItem.quantity;
+
+        const newCart = [...cart];
+        newCart[existingIndex] = updatedItem;
+
+        set({ cartItems: newCart });
+      } else {
+        // Insert new "add" row
+        set({
+          cartItems: [
+            ...cart,
+            {
+              id: uuidv4(),
+              product_id: product.id,
+              product,
+              name: product.name,
+              quantity,
+              unit_price: product.price ?? 0,
+              total_price: (product.price ?? 0) * quantity,
+              addons: addons || [],
+              action, // "add"
+              order_id: get().currentlyActiveOrderId || undefined,
+            } as OrderItem,
+          ],
+        });
+      }
     } else if (action === "update") {
-      // Check if there is already an "update" row for this product
+      // Existing logic for "update" remains unchanged
       const existingUpdateIndex = cart.findIndex(
         (item) => item.product_id === product.id && item.action === "update",
       );
 
       if (existingUpdateIndex !== -1) {
-        // Merge quantity for existing "update" row
         const updatedItem = { ...cart[existingUpdateIndex] };
         updatedItem.quantity += quantity;
         updatedItem.total_price = updatedItem.unit_price * updatedItem.quantity;
@@ -157,7 +174,6 @@ export const useCartStore = create<CartState>((set, get) => ({
 
         set({ cartItems: newCart });
       } else {
-        // Insert new "update" row
         set({
           cartItems: [
             ...cart,

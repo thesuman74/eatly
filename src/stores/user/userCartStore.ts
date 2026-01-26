@@ -2,6 +2,7 @@ import { ProductTypes } from "@/lib/types/menu-types";
 import { OrderType, PaymentMethod } from "@/lib/types/order-types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { v4 as uuidv4 } from "uuid";
 
 export interface cartItem extends ProductTypes {
   quantity: number;
@@ -77,18 +78,18 @@ const useCartStore = create<userCartStore>()(
             // --- Generate guest_id if not exists ---
             let guestId = state.guest_id;
             if (!guestId) {
-              guestId = localStorage.getItem("guest_id") || crypto.randomUUID();
+              guestId = localStorage.getItem("guest_id") || uuidv4();
               localStorage.setItem("guest_id", guestId);
             }
 
             const existing = state.cartItems.find(
-              (item) => item.id === product.id
+              (item) => item.id === product.id,
             );
             const newCart = existing
               ? state.cartItems.map((item) =>
                   item.id === product.id
                     ? { ...item, quantity: item.quantity + quantity }
-                    : item
+                    : item,
                 )
               : [...state.cartItems, { ...product, quantity }];
 
@@ -110,7 +111,7 @@ const useCartStore = create<userCartStore>()(
         incrementQuantity: (id) => {
           set((state) => {
             const newCart = state.cartItems.map((item) =>
-              item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+              item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
             );
             return { cartItems: newCart, total: calculateTotal(newCart) };
           });
@@ -121,7 +122,7 @@ const useCartStore = create<userCartStore>()(
             const newCart = state.cartItems.map((item) =>
               item.id === id
                 ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
-                : item
+                : item,
             );
             return { cartItems: newCart, total: calculateTotal(newCart) };
           });
@@ -139,8 +140,8 @@ const useCartStore = create<userCartStore>()(
     {
       name: "cart-storage",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 export default useCartStore;

@@ -23,8 +23,6 @@ export default function EditableOrderItemsList({
   const updateOrderMutation = useUpdateOrderItem();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  console.log("cartItems", cartItems);
-
   // Only items with action for the "Updated List"
   const modifiedItems = useMemo(
     () =>
@@ -121,7 +119,7 @@ export default function EditableOrderItemsList({
                   alt={
                     item.product?.images?.[0]?.alt || item.product?.name || ""
                   }
-                  className="h-16 w-16 object-cover rounded-lg"
+                  className="size-10 md:size-16 object-cover rounded-lg"
                 />
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between w-full items-center">

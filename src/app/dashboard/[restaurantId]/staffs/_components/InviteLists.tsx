@@ -13,7 +13,7 @@ const InviteLists = ({ invites }: pendingInvitesProps) => {
     <div>
       {/* Pending Invites */}
       {invites.length > 0 && (
-        <div className="bg-background border rounded-sm p-4">
+        <div className="bg-background overflow-x-auto border rounded-sm p-4">
           <h2 className="text-2xl font-bold mb-4">Invites</h2>
           <div className=" p-2">
             <table className="w-full border-collapse border border-gray-300">

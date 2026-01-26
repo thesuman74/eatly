@@ -41,6 +41,7 @@ export function LoginForm({ className }: { className?: string }) {
   }, [router, supabase]);
 
   async function handleGoogleLogin() {
+    console.log("google login");
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

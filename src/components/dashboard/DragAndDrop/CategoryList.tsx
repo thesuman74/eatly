@@ -75,7 +75,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
 
   return (
     <>
-      <div className=" w-auto mx-auto mt-2 p-4 bg-background shadow-md rounded-md">
+      <div className=" w-auto mx-auto mt-2 mb-16 p-4 bg-background shadow-md rounded-md">
         {/* Buttons */}
         <div className="flex overflow-x-auto space-y-2 space-x-2 mb-4">
           <span></span>

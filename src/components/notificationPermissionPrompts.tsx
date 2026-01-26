@@ -36,19 +36,19 @@ export function NotificationPermissionPrompt() {
   };
 
   return (
-    <Card className="m-4">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="w-5 h-5" />
-          Enable Notifications
-        </CardTitle>
-        <CardDescription>
-          Get real-time alerts with sound, even when you're on a different tab
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button onClick={handleRequest}>Enable Notifications</Button>
-      </CardContent>
-    </Card>
+    // <Card className="m-4">
+    //   <CardHeader>
+    //     <CardTitle className="flex items-center gap-2">
+    //       <Bell className="w-5 h-5" />
+    //       Enable Notifications
+    //     </CardTitle>
+    //     <CardDescription>
+    //       Get real-time alerts with sound, even when you're on a different tab
+    //     </CardDescription>
+    //   </CardHeader>
+    //   <CardContent>
+    //   </CardContent>
+    // </Card>
+    <Button onClick={handleRequest}>Enable Notifications</Button>
   );
 }

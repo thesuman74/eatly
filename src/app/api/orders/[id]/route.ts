@@ -217,7 +217,6 @@ export async function PATCH(
     const body: CreateOrderPayload = await req.json();
     const { order, items, payment } = body;
 
-    console.log("body at patch", body);
     const clientRestaurantId = order?.restaurant_id;
     if (!clientRestaurantId) {
       return NextResponse.json(

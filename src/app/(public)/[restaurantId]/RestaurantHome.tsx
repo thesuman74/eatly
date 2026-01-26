@@ -16,7 +16,7 @@ export default function RestaurantHome({
 }: RestaurantHomeProps) {
   return (
     <>
-      <section className="relative h-screen w-full overflow-hidden">
+      <section className="relative h-dvh w-full overflow-hidden">
         {/* Background image */}
         <img
           src={

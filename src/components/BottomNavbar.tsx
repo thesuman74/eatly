@@ -1,7 +1,13 @@
 "use client";
 
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
-import { ShoppingCart, DollarSign, Utensils, Menu } from "lucide-react";
+import {
+  ShoppingCart,
+  DollarSign,
+  Utensils,
+  Menu,
+  CookingPot,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -17,15 +23,16 @@ export default function BottomNavbar() {
       href: `/dashboard/${restaurantName}/order`,
       icon: ShoppingCart,
     },
-    {
-      label: "Sales",
-      href: "#",
-      icon: DollarSign,
-    },
+
     {
       label: "Menu",
       href: `/dashboard/${restaurantName}/products`,
       icon: Utensils,
+    },
+    {
+      label: "Kitchen",
+      href: `/dashboard/${restaurantName}/kitchen`,
+      icon: CookingPot,
     },
   ];
 

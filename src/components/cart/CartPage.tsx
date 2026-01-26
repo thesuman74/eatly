@@ -35,12 +35,13 @@ const CartPage = () => {
           </div>
           <div className="flex flex-col items-center">
             <span className="text-gray-500">Your Cart</span>
-            <span className="font-bold">
+            <div className="font-bold flex space-x-2 items-center">
+              <span>RS</span>
               <BouncingText
                 text={total.toString()}
                 className="text-xl font-bold"
               />
-            </span>
+            </div>
           </div>
         </div>
         <div>

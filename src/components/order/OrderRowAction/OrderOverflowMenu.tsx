@@ -40,7 +40,7 @@ export function OrderOverflowMenu({
             className="hover:cursor-pointer  block sm:hidden"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              onAccept();
             }}
           >
             <span className=" space-x-2 flex items-center">

@@ -76,6 +76,7 @@ export default function CounterTable() {
   };
 
   const acceptOrder = (id: string) => {
+    console.log("order accepted");
     handleStatusChange(id, ORDER_STATUS.ACCEPTED, "accept");
   };
 
