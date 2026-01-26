@@ -30,6 +30,7 @@ import { getEffectivePaymentStatus } from "@/lib/order/paymentStautsHelper";
 import { ORDER_STATUS_UI } from "@/lib/order/OrderStatusUI";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
+import { TablePagination } from "../Pagination";
 
 export type OrdersTableProps = {
   orders: Order[];
@@ -233,197 +234,216 @@ export default function OrdersTable({
     );
 
   return (
-    <div className="bg-background shadow mb-20 overflow-hidden">
-      {/* ===== DESKTOP (lg+) ===== */}
-      <div className="hidden lg:block">
-        {/* Header */}
-        <div className="grid grid-cols-12 gap-4 p-2 px-4 text-xs font-semibold text-gray-500 bg-background">
-          <div className="col-span-2">DATE</div>
-          <div className="col-span-2">STATUS</div>
-          <div className="col-span-2">TOTAL</div>
-          <div className="col-span-2">CLIENT</div>
-          <div className="col-span-3 text-center">ACTIONS</div>
+    <>
+      <div className="bg-background shadow mb-20 overflow-hidden">
+        {/* ===== DESKTOP (lg+) ===== */}
+        <div className="hidden lg:block">
+          {/* Header */}
+          <div className="grid grid-cols-12 gap-4 p-2 px-4 text-xs font-semibold text-gray-500 bg-background">
+            <div className="col-span-2">DATE</div>
+            <div className="col-span-2">STATUS</div>
+            <div className="col-span-2">TOTAL</div>
+            <div className="col-span-2">CLIENT</div>
+            <div className="col-span-3 text-center">ACTIONS</div>
+          </div>
+
+          {/* Rows */}
+          {table.getRowModel().rows.map((row) => {
+            const cells = row.getVisibleCells();
+            const statusUI = ORDER_STATUS_UI[row.original.status];
+
+            return (
+              <div
+                key={row.id}
+                className="relative grid grid-cols-12 gap-4 p-4 border items-center bg-card hover:bg-secondary cursor-pointer"
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (!target.closest(".actions-cell")) {
+                    openProductOrderSheet(row.original.id);
+                  }
+                }}
+              >
+                <div
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1   ${statusUI.badgeBg} rounded`}
+                />
+
+                <div className="col-span-2">
+                  {flexRender(
+                    cells[0].column.columnDef.cell,
+                    cells[0].getContext(),
+                  )}
+                </div>
+
+                <div className="col-span-2">
+                  {flexRender(
+                    cells[1].column.columnDef.cell,
+                    cells[1].getContext(),
+                  )}
+                </div>
+
+                <div className="col-span-2">
+                  {flexRender(
+                    cells[2].column.columnDef.cell,
+                    cells[2].getContext(),
+                  )}
+                </div>
+
+                <div className="col-span-3">
+                  {flexRender(
+                    cells[3].column.columnDef.cell,
+                    cells[3].getContext(),
+                  )}
+                </div>
+                <div className="col-span-3">
+                  {flexRender(
+                    cells[4].column.columnDef.cell,
+                    cells[4].getContext(),
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Rows */}
-        {table.getRowModel().rows.map((row) => {
-          const cells = row.getVisibleCells();
-          const statusUI = ORDER_STATUS_UI[row.original.status];
+        {/* ===== MOBILE + TABLET (<lg) ===== */}
+        <div className="block lg:hidden space-y-3 p-3">
+          {table.getRowModel().rows.map((row) => {
+            const order = row.original;
 
-          return (
-            <div
-              key={row.id}
-              className="relative grid grid-cols-12 gap-4 p-4 border items-center bg-card hover:bg-secondary cursor-pointer"
-              onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (!target.closest(".actions-cell")) {
-                  openProductOrderSheet(row.original.id);
-                }
-              }}
-            >
+            const statusUI = ORDER_STATUS_UI[order.status];
+            const paymentStatus = getEffectivePaymentStatus(order.payments);
+            const paymentUI = PAYMENT_UI[paymentStatus];
+
+            const elapsed =
+              (Date.now() - new Date(order.created_at).getTime()) / 1000;
+            const timeColor = clsx(
+              "text-xs font-medium transition-colors",
+              elapsed < 300 && "text-green-600",
+              elapsed >= 300 && elapsed < 900 && "text-yellow-600",
+              elapsed >= 900 && "text-red-600 animate-pulse",
+            );
+
+            const loading = {
+              accept:
+                actionState.orderId === order.id &&
+                actionState.type === "accept",
+
+              finish:
+                actionState.orderId === order.id &&
+                actionState.type === "finish",
+
+              status:
+                actionState.orderId === order.id &&
+                actionState.type === "status",
+
+              cancel:
+                actionState.orderId === order.id &&
+                actionState.type === "cancel",
+
+              delete:
+                actionState.orderId === order.id &&
+                actionState.type === "delete",
+
+              pay: false, // UI-only
+            };
+
+            return (
               <div
-                className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1   ${statusUI.badgeBg} rounded`}
-              />
-
-              <div className="col-span-2">
-                {flexRender(
-                  cells[0].column.columnDef.cell,
-                  cells[0].getContext(),
-                )}
-              </div>
-
-              <div className="col-span-2">
-                {flexRender(
-                  cells[1].column.columnDef.cell,
-                  cells[1].getContext(),
-                )}
-              </div>
-
-              <div className="col-span-2">
-                {flexRender(
-                  cells[2].column.columnDef.cell,
-                  cells[2].getContext(),
-                )}
-              </div>
-
-              <div className="col-span-3">
-                {flexRender(
-                  cells[3].column.columnDef.cell,
-                  cells[3].getContext(),
-                )}
-              </div>
-              <div className="col-span-3">
-                {flexRender(
-                  cells[4].column.columnDef.cell,
-                  cells[4].getContext(),
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ===== MOBILE + TABLET (<lg) ===== */}
-      <div className="block lg:hidden space-y-3 p-3">
-        {orders.map((order) => {
-          const statusUI = ORDER_STATUS_UI[order.status];
-          const paymentStatus = getEffectivePaymentStatus(order.payments);
-          const paymentUI = PAYMENT_UI[paymentStatus];
-
-          const elapsed =
-            (Date.now() - new Date(order.created_at).getTime()) / 1000;
-          const timeColor = clsx(
-            "text-xs font-medium transition-colors",
-            elapsed < 300 && "text-green-600",
-            elapsed >= 300 && elapsed < 900 && "text-yellow-600",
-            elapsed >= 900 && "text-red-600 animate-pulse",
-          );
-
-          const loading = {
-            accept:
-              actionState.orderId === order.id && actionState.type === "accept",
-
-            finish:
-              actionState.orderId === order.id && actionState.type === "finish",
-
-            status:
-              actionState.orderId === order.id && actionState.type === "status",
-
-            cancel:
-              actionState.orderId === order.id && actionState.type === "cancel",
-
-            delete:
-              actionState.orderId === order.id && actionState.type === "delete",
-
-            pay: false, // UI-only
-          };
-
-          return (
-            <div
-              key={order.id}
-              className="relative  border-b p-3 space-y-2"
-              onClick={() => openProductOrderSheet(order.id)}
-            >
-              <div
-                className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
-                  statusUI.badgeBg
-                } rounded`}
-              />
-
-              {/* Row 1 */}
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex gap-2 font-semibold">
-                  <span className={statusUI.headerText}>
-                    {order.order_number}
-                  </span>
-                  <span className={statusUI.headerText}>
-                    #{order.order_type}
-                  </span>
-                </div>
-                <span className={`flex items-center text-xs gap-1 `}>
-                  {formatCreatedDate(order.created_at)}
-                </span>
-              </div>
-
-              {/* Row 2 */}
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex gap-2 flex-wrap">
-                  <Badge variant={"outline"} className="text-muted-foreground ">
-                    {order.order_source}
-                  </Badge>
-
-                  <span
-                    className={`px-2 py-0.5 rounded-full  font-semibold ${statusUI.badgeBg} ${statusUI.badgeText}`}
-                  >
-                    {order.status}
-                  </span>
-
-                  <span
-                    className={`px-2 py-0.5 rounded-full font-semibold ${paymentUI.badgeBg} ${paymentUI.badgeText}`}
-                  >
-                    {paymentStatus}
-                  </span>
-                </div>
-
-                <span
-                  className={`flex items-center text-xs gap-1 ${timeColor}`}
-                >
-                  {" "}
-                  {timeAgo(order.created_at)}
-                </span>
-              </div>
-
-              {/* Row 3 */}
-              <div className="flex justify-between items-center text-md font-semibold">
-                <div className="space-x-4 md:space-x-8">
-                  <span>Rs {order.total_amount}</span>
-                  <span className="text-gray-600 text-xs">
-                    {order?.customer_name}
-                  </span>
-                </div>
-
+                key={order.id}
+                className="relative  border-b p-3 space-y-2"
+                onClick={() => openProductOrderSheet(order.id)}
+              >
                 <div
-                  className="actions-cell"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <OrderRowActions
-                    order={order}
-                    loading={loading}
-                    onAccept={() => onAccept(order.id)}
-                    onFinish={() => onFinish(order)}
-                    onPay={() => onPay(order.id)}
-                    onStatusChange={(status) =>
-                      onStatusChange(order.id, status)
-                    }
-                    onCancel={() => onCancel(order.id)}
-                    onDelete={() => onDelete(order.id)}
-                  />
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-1 ${
+                    statusUI.badgeBg
+                  } rounded`}
+                />
+
+                {/* Row 1 */}
+                <div className="flex justify-between items-center text-sm">
+                  <div className="flex gap-2 font-semibold">
+                    <span className={statusUI.headerText}>
+                      {order.order_number}
+                    </span>
+                    <span className={statusUI.headerText}>
+                      #{order.order_type}
+                    </span>
+                  </div>
+                  <span className={`flex items-center text-xs gap-1 `}>
+                    {formatCreatedDate(order.created_at)}
+                  </span>
+                </div>
+
+                {/* Row 2 */}
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex gap-2 flex-wrap">
+                    <Badge
+                      variant={"outline"}
+                      className="text-muted-foreground "
+                    >
+                      {order.order_source}
+                    </Badge>
+
+                    <span
+                      className={`px-2 py-0.5 rounded-full  font-semibold ${statusUI.badgeBg} ${statusUI.badgeText}`}
+                    >
+                      {order.status}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded-full font-semibold ${paymentUI.badgeBg} ${paymentUI.badgeText}`}
+                    >
+                      {paymentStatus}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`flex items-center text-xs gap-1 ${timeColor}`}
+                  >
+                    {" "}
+                    {timeAgo(order.created_at)}
+                  </span>
+                </div>
+
+                {/* Row 3 */}
+                <div className="flex justify-between items-center text-md font-semibold">
+                  <div className="space-x-4 md:space-x-8">
+                    <span>Rs {order.total_amount}</span>
+                    <span className="text-gray-600 text-xs">
+                      {order?.customer_name}
+                    </span>
+                  </div>
+
+                  <div
+                    className="actions-cell"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <OrderRowActions
+                      order={order}
+                      loading={loading}
+                      onAccept={() => onAccept(order.id)}
+                      onFinish={() => onFinish(order)}
+                      onPay={() => onPay(order.id)}
+                      onStatusChange={(status) =>
+                        onStatusChange(order.id, status)
+                      }
+                      onCancel={() => onCancel(order.id)}
+                      onDelete={() => onDelete(order.id)}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <TablePagination
+          pageIndex={pageIndex}
+          pageCount={table.getPageCount()}
+          setPageIndex={setPageIndex}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+        />
       </div>
-    </div>
+    </>
   );
 }

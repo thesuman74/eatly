@@ -11,6 +11,7 @@ import CounterTableFilters, {
 } from "@/components/order/CounterTableFilters";
 import { useState } from "react";
 import { useUpdateOrderStatus } from "@/hooks/order/useOrders";
+import { TablePagination } from "@/components/Pagination"; // import your pagination component
 
 interface KitchenPageProps {
   orderData: Order[];
@@ -18,9 +19,10 @@ interface KitchenPageProps {
 
 export default function KitchenPage({ orderData }: KitchenPageProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10); // default rows per page
 
   const filteredData = orderData.filter((order) => {
-    // Hide COMPLETED or CANCELLED orders
     if (
       order.status === ORDER_STATUS.COMPLETED ||
       order.status === ORDER_STATUS.CANCELLED ||
@@ -30,12 +32,14 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
       return false;
     }
 
-    // Show all if "all" filter is selected
     if (statusFilter === "all") return true;
-
-    // Otherwise, match the selected status
     return order.status === statusFilter;
   });
+
+  const paginatedData = filteredData.slice(
+    pageIndex * pageSize,
+    pageIndex * pageSize + pageSize,
+  );
 
   const updateOrderStatus = useUpdateOrderStatus();
   const [actionState, setActionState] = useState<OrderActionState>({
@@ -46,7 +50,7 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
   const handleStatusChange = (
     id: string,
     status: OrderStatus,
-    type: OrderActionType
+    type: OrderActionType,
   ) => {
     setActionState({ orderId: id, type });
 
@@ -56,12 +60,13 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
         onSettled: () => {
           setActionState({ orderId: null, type: null });
         },
-      }
+      },
     );
   };
+
   return (
     <>
-      <div className="bg-background min-h-screen  flex flex-col">
+      <div className="bg-background  min-h-screen flex flex-col mb-10">
         <div className="mb-4">
           <CounterTableFilters
             value={statusFilter}
@@ -69,19 +74,29 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
             orders={orderData}
           />
         </div>
-        {/* Filters row */}
 
         {/* Cards container */}
-        <div className="flex flex-wrap justify-start gap-4">
-          {filteredData?.map((order, index) => (
+        <div className="flex flex-wrap mx-auto justify-start gap-4">
+          {paginatedData?.map((order) => (
             <KitchenCardItem
               order={order}
-              key={index}
+              key={order.id} // use stable id
               onStatusChange={(id, status) =>
                 handleStatusChange(id, status, "status")
               }
             />
           ))}
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-4">
+          <TablePagination
+            pageIndex={pageIndex}
+            pageCount={Math.ceil(filteredData.length / pageSize)}
+            setPageIndex={setPageIndex}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+          />
         </div>
       </div>
     </>
