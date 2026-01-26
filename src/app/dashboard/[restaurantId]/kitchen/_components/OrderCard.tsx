@@ -76,7 +76,7 @@ export default function KitchenPage({ orderData }: KitchenPageProps) {
         </div>
 
         {/* Cards container */}
-        <div className="flex flex-wrap mx-auto justify-start gap-4">
+        <div className="flex flex-wrap   gap-2">
           {paginatedData?.map((order) => (
             <KitchenCardItem
               order={order}
