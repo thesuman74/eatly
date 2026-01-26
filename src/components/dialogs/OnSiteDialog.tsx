@@ -59,6 +59,8 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
 
   const restaurantId = useCartStore((state) => state.restaurant_id);
 
+  const canOrder = cartItems.length > 0 && payment?.method;
+
   const handlePlaceOrder = async () => {
     if (!cartItems.length) {
       return toast.error("Your cart is empty");
@@ -121,7 +123,7 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg w-[600px] h-[80vh] items-start flex flex-col">
+      <DialogContent className="max-w-lg w-full rounded-md md:w-[600px] h-[80vh] items-start flex flex-col">
         <DialogHeader>
           <DialogTitle>🛄 On Site</DialogTitle>
           <DialogDescription>
@@ -202,7 +204,11 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
         </div>
 
         <DialogFooter className="w-full mt-auto">
-          <Button onClick={handlePlaceOrder} className="w-full">
+          <Button
+            onClick={handlePlaceOrder}
+            disabled={!canOrder}
+            className="w-full"
+          >
             To order (Rs {total})
           </Button>
         </DialogFooter>
