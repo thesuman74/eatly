@@ -31,7 +31,7 @@ export function PrimaryOrderButton({
           variant={"outline"}
           className="
     text-red-500 border-red-500 
-    px-2 py-1 h-6 md:h-9  text-xs
+    px-2 py-1  h-6 md:h-9  text-xs
    sm:text-sm hidden sm:block
   "
           onClick={(e) => {

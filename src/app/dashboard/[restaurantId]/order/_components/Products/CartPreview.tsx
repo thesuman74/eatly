@@ -7,19 +7,18 @@ export default function CartPreview() {
   const { cartItems, updateQuantity, removeFromCart } = useCartStore();
   const cartTotal = useCartStore((state) => state.cartTotal());
 
-  console.log("cartItems", cartItems);
   const paymentStatus = useCartStore((state) => state.paymentStatus);
 
   return (
     <>
       <div className="w-full max-w-md  bg-background border rounded shadow-md ">
         <div className="flex items-center justify-between border-b  ">
-          <span className="font-bold text-lg w-full text-white bg-blue-500 dark:bg-muted p-2">
+          <span className="font-bold text-sm md:text-md w-full text-white bg-blue-500 dark:bg-muted p-2">
             + Products
           </span>
         </div>
 
-        <div className="mt-2 min-h-[240px] max-h-[250px] overflow-y-auto px-2 ">
+        <div className="mt-2 min-h-[140px] md:min-h-[140px] max-h-[40px] md:max-h-[250px] overflow-y-auto px-2 ">
           {cartItems.map((item) => {
             const itemImage =
               item.product?.images?.find((img) => img.is_primary)?.url ||
@@ -29,12 +28,12 @@ export default function CartPreview() {
             return (
               <div
                 key={item.product?.id}
-                className="flex items-center gap-4 mb-4 bg-card border rounded-lg p-1"
+                className="flex items-center text-sm md:text-md gap-4 mb-4 bg-card border rounded-lg p-1"
               >
                 <img
                   src={itemImage}
                   alt={item.product?.name}
-                  className="h-16 w-16 object-cover rounded-lg"
+                  className="size-10 md:size-16 object-cover rounded-lg"
                 />
                 <div className="flex flex-1 flex-col ">
                   <div className="flex justify-between w-full items-center">

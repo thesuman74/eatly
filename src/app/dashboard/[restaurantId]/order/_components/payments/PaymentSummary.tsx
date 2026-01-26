@@ -172,11 +172,11 @@ const PaymentSummary = ({
 
   return (
     <>
-      <div className=" flex flex-col h-screen">
+      <div className=" flex flex-col h-svh">
         {/* Header */}
         <div className="flex border-b p-2 space-x-4 items-center">
           <MoveLeft className="cursor-pointer" onClick={() => setOpen(false)} />
-          <span className="text-xl font-bold">Register Payment</span>
+          <span className="text-lg md:text-xl font-bold">Register Payment</span>
 
           {payment_status && (
             <span
@@ -203,7 +203,7 @@ const PaymentSummary = ({
                 <label className="text-sm font-medium text-gray-700">
                   Payment Method
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-3 text-sm md:text-md ">
                   {PAYMENT_METHODS.map((method) => {
                     const isActive = paymentMethod === method.value;
 
@@ -216,7 +216,7 @@ const PaymentSummary = ({
                           setPaymentMethod(method.value as PaymentMethod)
                         }
                         className={`
-          rounded-lg border p-4 text-center font-medium transition
+          rounded-lg border p-2 md:p-3 text-center font-medium transition
           ${
             isActive
               ? "border-primary bg-primary/10 text-primary"
@@ -312,12 +312,12 @@ const PaymentSummary = ({
                 </span>
               </div>
 
-              {amountReceived && change < 0 && (
+              {amountReceived && change < 0 ? (
                 <p className="text-sm text-red-500 text-center">
                   Amount received is less than total (Rs {totalToPay.toFixed(2)}
                   )
                 </p>
-              )}
+              ) : null}
             </div>
 
             {/* Actions */}
