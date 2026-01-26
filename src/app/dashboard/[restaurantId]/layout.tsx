@@ -1,6 +1,7 @@
 import ClientWrapper from "@/components/admin/ClientWrapper";
 import { AppSidebar } from "@/components/app-sidebar";
 import BottomNavbar from "@/components/BottomNavbar";
+import ProgressProvider from "@/components/HOC/ProgressProvider";
 import { RestaurantProvider } from "@/components/HOC/RestaurantProvider";
 import { ThemeToggle } from "@/components/home/ThemeToggle";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -32,27 +33,29 @@ export default async function AdminLayout({
   return (
     <RestaurantProvider restaurants={restaurantData}>
       <SidebarProvider>
-        <AppSidebar restaurants={restaurantData} />
-        <SidebarInset className="min-w-0 max-w-full overflow-x-hidden bg-primary-foreground">
-          <header className="flex h-16    z-20 top-0 shrink-0 items-center gap-2 transition-[width,height] bg-sidebar-primary text-white ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex   w-full justify-between items-center gap-2 px-4">
-              <div>
-                <SidebarTrigger className="-ml-1 mt-4" />
-                <Separator aria-orientation="vertical" className="mr-2 h-4" />
-              </div>
-              <div className="mr-2 md:mr-10 flex space-x-2 md:space-x-6 items-center">
-                <ThemeToggle />
+        <ProgressProvider>
+          <AppSidebar restaurants={restaurantData} />
+          <SidebarInset className="min-w-0 max-w-full overflow-x-hidden bg-primary-foreground">
+            <header className="flex h-16    z-20 top-0 shrink-0 items-center gap-2 transition-[width,height] bg-sidebar-primary text-white ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+              <div className="flex   w-full justify-between items-center gap-2 px-4">
+                <div>
+                  <SidebarTrigger className="-ml-1 mt-4" />
+                  <Separator aria-orientation="vertical" className="mr-2 h-4" />
+                </div>
+                <div className="mr-2 md:mr-10 flex space-x-2 md:space-x-6 items-center">
+                  <ThemeToggle />
 
-                <NotificationBell />
+                  <NotificationBell />
+                </div>
               </div>
+            </header>
+
+            <ClientWrapper>{children}</ClientWrapper>
+            <div className="md:hidden">
+              <BottomNavbar />
             </div>
-          </header>
-
-          <ClientWrapper>{children}</ClientWrapper>
-          <div className="md:hidden">
-            <BottomNavbar />
-          </div>
-        </SidebarInset>
+          </SidebarInset>
+        </ProgressProvider>
       </SidebarProvider>
     </RestaurantProvider>
   );
