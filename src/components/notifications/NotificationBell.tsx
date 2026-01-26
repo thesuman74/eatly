@@ -10,6 +10,7 @@ import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { useEnhancedNotifications } from "@/hooks/useEnhancedNotification";
 import NotificationList from "./NotificationList";
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
+import { NotificationPermissionPrompt } from "../notificationPermissionPrompts";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,8 @@ export default function NotificationBell() {
   const unreadCount = data?.unreadCount || 0;
 
   // Unified notify function
-  const { notify, stopSound } = useEnhancedNotifications();
+  const { notify, stopSound, hasNotificationPermission } =
+    useEnhancedNotifications();
 
   // ❌ Close on outside click
   useEffect(() => {
@@ -86,8 +88,12 @@ export default function NotificationBell() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-sm md:w-96 bg-popover border  rounded-lg shadow-lg z-50">
-          <div className="px-4 py-3 border-b text-black dark:text-white font-semibold">
-            Notifications
+          <div className="flex justify-between">
+            <div className="px-4 py-3 border-b text-black dark:text-white font-semibold">
+              Notifications
+            </div>
+
+            {!hasNotificationPermission && <NotificationPermissionPrompt />}
           </div>
           <Button onClick={handleTestNotification} className="w-full" size="lg">
             <Bell className="w-4 h-4 mr-2" />
