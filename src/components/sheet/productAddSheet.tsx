@@ -170,11 +170,11 @@ export function ProductAddSheet() {
         if (!open) closeSheet();
       }}
     >
-      <SheetTitle></SheetTitle>
+      <SheetTitle className="opacity-0"></SheetTitle>
 
-      <SheetContent className=" overflow-y-auto p-0">
+      <SheetContent className=" overflow-y-auto p-0 ">
         <form onSubmit={handleSubmit}>
-          <aside className=" max-w-sm min-w-[300px] bg-gray-100">
+          <aside className=" max-w-sm  min-w-[300px] bg-gray-100">
             <div className="flex justify-between px-4 py-2">
               <span className="text-lg font-semibold">
                 {mode === "edit" ? "Edit Product" : "Add Product"}
