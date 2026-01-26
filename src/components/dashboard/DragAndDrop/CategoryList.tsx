@@ -137,7 +137,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         {/* Scan Menu Modal */}
         {scanMenu && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-            <div className="bg-background w-full max-w-5xl rounded-md shadow-lg p-6 relative">
+            <div className="bg-background w-full max-w-xl md:max-w-5xl rounded-md shadow-lg p-6 relative">
               <button
                 className="absolute top-4 right-4 text-gray-600 hover:text-black"
                 onClick={() => setScanMenu(false)}

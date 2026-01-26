@@ -149,48 +149,51 @@ export default function UploadForm() {
           setReviewMenuData={setReviewMenuData}
         />
       ) : (
-        <Card className="max-w-6xl mx-auto mt-10 p-6 border rounded-lg shadow bg-background relative">
-          <CardHeader className="text-center mb-6">
-            <h1 className="text-3xl font-bold">Upload Menu Image</h1>
+        <Card className="relative mx-auto mt-4 sm:mt-8 max-w-6xl p-4 sm:p-6 border rounded-lg shadow bg-background">
+          {/* Header */}
+          <CardHeader className="text-center mb-4 sm:mb-6 space-y-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+              Upload Menu Image
+            </h1>
 
-            <p className="text-black">
+            <p className="text-sm sm:text-base text-black">
               Used: {extractions?.used} | Remaining: {extractions?.available}
             </p>
           </CardHeader>
 
           {/* Loader Overlay */}
           {loading && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70">
-              <Loader2 className="animate-spin text-blue-500" size={64} />
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70 rounded-lg">
+              <Loader2 className="animate-spin text-blue-500" size={48} />
             </div>
           )}
 
           {/* Dropzone */}
           <div
             {...getRootProps()}
-            className={`border-2  mx-auto max-w-2xl h-60 border-dashed rounded-xl p-8 text-center cursor-pointer transition 
-              ${
-                isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
-              }`}
+            className={`mx-auto  sm:max-w-2xl h-48 sm:h-60 border-2 border-dashed  rounded-xl p-4 sm:p-8 text-center cursor-pointer transition
+      ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
           >
             <input {...getInputProps()} />
-            <div className="flex flex-col  items-center justify-center">
+
+            <div className="flex flex-col items-center justify-center h-full">
               <img
                 src="/images/uploadplaceholder.png"
                 alt="Upload placeholder"
-                className="w-24 h-24 opacity-50 mb-4"
+                className="w-16 h-16 sm:w-24 sm:h-24 opacity-50 mb-3 sm:mb-4"
               />
-              <p className="text-gray-600">
+
+              <p className="text-xs sm:text-sm text-gray-600 px-2">
                 {isDragActive
                   ? "Drop the images here..."
-                  : "Drag & drop menu images here, or click to select"}
+                  : "Tap to select or drag & drop menu images"}
               </p>
             </div>
           </div>
 
           {/* Preview grid */}
           {previews.length > 0 && (
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {previews.map((src, idx) => (
                 <Card
                   key={src}
@@ -199,11 +202,12 @@ export default function UploadForm() {
                   <img
                     src={src}
                     alt={`Preview ${idx + 1}`}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-28 sm:h-36 md:h-40 object-cover"
                   />
+
                   <button
                     onClick={() => removeFile(idx)}
-                    className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center"
                     aria-label="Remove image"
                     type="button"
                   >
@@ -215,13 +219,13 @@ export default function UploadForm() {
           )}
 
           {/* Upload Button */}
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 sm:mt-8 flex justify-center">
             <Button
               onClick={handleUpload}
               disabled={
                 files.length === 0 || loading || isExtractionLimitReached
               }
-              className="px-6 py-3 text-white text-lg"
+              className="w-full sm:w-auto px-6 py-3 text-base sm:text-lg text-white"
             >
               {loading ? "Extracting..." : "Extract Menu"}
             </Button>
