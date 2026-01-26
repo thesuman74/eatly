@@ -231,7 +231,7 @@ const ProductOrdersheet = () => {
           <aside
             className=" h-[calc(100dvh-4rem)]     
   md:h-[calc(100vh-4rem)]
- fixed top-16 right-0 z-50 max-w-md  sm:max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
+ fixed top-16 right-0 z-30 max-w-md  sm:max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
           >
             {showPaymentPanelForThisOrder ? (
               <PaymentSummary

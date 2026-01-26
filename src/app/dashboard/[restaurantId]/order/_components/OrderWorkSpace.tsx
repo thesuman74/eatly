@@ -13,7 +13,7 @@ export default function OrderWorkspace() {
       <div className="flex w-full h-full overflow-hidden">
         {/* LEFT: Products List */}
         {isProductListOpen && (
-          <div className="fixed right-[384px] top-[64px] h-full w-[890px] border-r bg-white z-50 shadow-lg flex flex-col">
+          <div className="fixed right-0 md:right-[384px] top-[64px] h-full w-sm md:w-lg border-r bg-background z-50 shadow-lg flex flex-col">
             {/* Header with Close Button */}
             <div className=" flex justify-end p-1 border-b">
               <button
