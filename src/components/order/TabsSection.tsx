@@ -34,7 +34,7 @@ const OrderTabsSection = () => {
   ];
 
   return (
-    <Tabs defaultValue="Counter" className="w-full mt-20 px-2 md:px-4">
+    <Tabs defaultValue="Counter" className="w-full mt-2 px-2 md:px-4">
       <div className="flex flex-wrap md:flex-row md:justify-between gap-2 md:gap-6">
         <TabsList className="flex flex-1  h-auto gap-0 md:gap-1 md:overflow-hidden md:grid md:grid-cols-3 p-0 no-scrollbar">
           {tablist.map((tab) => (

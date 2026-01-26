@@ -1,7 +1,7 @@
 import { CancelOrderButton } from "@/app/dashboard/[restaurantId]/order/_components/CancelOrderButton";
 import { Button } from "@/components/ui/button";
 import { ORDER_STATUS } from "@/lib/types/order-types";
-import { Loader2, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { useState } from "react";
 
 export function PrimaryOrderButton({
@@ -31,22 +31,22 @@ export function PrimaryOrderButton({
           variant={"outline"}
           className="
     text-red-500 border-red-500 
-    px-2 py-1  h-6 md:h-9  text-xs
-   sm:text-sm hidden sm:block
+    px-2 py-1  h-6 md:h-9   text-xs 
+   sm:text-sm hidden sm:flex
   "
           onClick={(e) => {
             e.stopPropagation();
             onCancel();
           }}
         >
-          {/* <span className="cursor-pointer">
+          <span className="cursor-pointer ">
             <X />
-          </span> */}
+          </span>
           <span>Reject</span>
         </Button>
 
         <Button
-          className="bg-green-600 h-6 md:h-9 px-4 py-1 text-xs sm:text-sm hidden sm:block"
+          className="bg-green-600 h-6 md:h-9 px-4 py-1 text-xs sm:text-sm hidden sm:flex"
           disabled={loading.accept}
           onClick={(e) => {
             e.stopPropagation();
@@ -54,12 +54,11 @@ export function PrimaryOrderButton({
           }}
         >
           {loading.accept ? (
-            <>
-              <Loader2 className="animate-spin mr-2" />
-            </>
+            <Loader2 className="animate-spin" />
           ) : (
-            "Accept"
+            <Check className="w-4 h-4" />
           )}
+          Accept
         </Button>
       </>
     );

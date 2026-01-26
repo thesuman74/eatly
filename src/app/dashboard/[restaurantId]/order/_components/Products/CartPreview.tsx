@@ -18,7 +18,7 @@ export default function CartPreview() {
           </span>
         </div>
 
-        <div className="mt-2 min-h-[140px] md:min-h-[140px] max-h-[140px] md:max-h-[250px] overflow-y-auto px-2 ">
+        <div className="mt-2 min-h-[140px] md:min-h-[240px] max-h-[140px] md:max-h-[250px] overflow-y-auto px-2 ">
           {cartItems.map((item) => {
             const itemImage =
               item.product?.images?.find((img) => img.is_primary)?.url ||

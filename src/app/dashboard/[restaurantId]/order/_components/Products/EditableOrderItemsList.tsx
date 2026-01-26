@@ -55,7 +55,7 @@ export default function EditableOrderItemsList({
       </div>
 
       {/* Scrollable Items List */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[180px] md:min-h-[140px] max-h-[140px] md:max-h-[250px]">
+      <div className="flex-1 overflow-y-auto px-2 py-2 min-h-[180px] md:min-h-[240px] max-h-[140px] md:max-h-[250px]">
         {/* 1️⃣ Unchanged / previously existing items */}
         {cartItems
           .filter((item) => item.action === "add")

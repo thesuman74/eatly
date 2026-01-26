@@ -43,7 +43,7 @@ export function OrderActionButtons({
   const isPaid = payment_status === PAYMENT_STATUS.PAID;
   const isAccepted = status !== ORDER_STATUS.DRAFT;
 
-  const canBeUpdated = isAccepted && !isPaid && !isFinalPayment;
+  const canBeUpdated = !isPaid && !isFinalPayment;
   return (
     <div className="flex w-full gap-3">
       {/* Cancel */}
