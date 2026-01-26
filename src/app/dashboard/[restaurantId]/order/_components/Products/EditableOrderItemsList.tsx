@@ -23,8 +23,6 @@ export default function EditableOrderItemsList({
   const updateOrderMutation = useUpdateOrderItem();
   const restaurantId = useRestaurantStore((state) => state.restaurantId);
 
-  console.log("cartItems", cartItems);
-
   // Only items with action for the "Updated List"
   const modifiedItems = useMemo(
     () =>

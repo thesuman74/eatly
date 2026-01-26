@@ -13,6 +13,7 @@ import {
   PAYMENT_STATUS,
   ORDER_TYPES,
 } from "@/lib/types/order-types";
+import { v4 as uuidv4 } from "uuid";
 
 // export interface CartItem {
 //   product: ProductTypes;
@@ -127,7 +128,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         cartItems: [
           ...cart,
           {
-            id: crypto.randomUUID(),
+            id: uuidv4(),
             product_id: product.id,
             product,
             name: product.name,

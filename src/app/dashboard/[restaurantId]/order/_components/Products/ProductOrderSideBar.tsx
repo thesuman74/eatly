@@ -102,8 +102,9 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
     <>
       {open && (
         <aside
-          className="h-[calc(100vh-4rem)]
-  max-w-sm w-full flex flex-col border  bg-background "
+          className=" h-[calc(100dvh-4rem)]     
+  md:h-[calc(100vh-4rem)]
+ fixed top-16 right-0 z-50 max-w-md  sm:max-w-sm w-full flex flex-col border border-t-0 bg-secondary "
         >
           <div className="absolute top-2 right-2 z-50">
             <button
