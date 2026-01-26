@@ -39,47 +39,42 @@ export const InviteStaffForm = ({
     <div className="mb-6 p-4 border rounded-md bg-background max-w-xl">
       <h2 className="text-2xl font-bold mb-4">Invite staffs</h2>
 
-      <div>
-        <form className=" flex space-x-4" onSubmit={handleSubmit}>
-          {/* Email */}
-          <Input
-            placeholder="Staff Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <div className="flex items-center space-x-2">
-            <Label className="text-sm">Role: </Label>
+      <form className=" flex flex-wrap  space-x-4" onSubmit={handleSubmit}>
+        {/* Email */}
+        <Input
+          placeholder="Staff Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <div className="flex p-2 items-center space-x-2">
+          <Label className="text-sm">Role: </Label>
 
-            {/* Role */}
-            <Select
-              value={role}
-              onValueChange={(val: StaffRole) => setRole(val)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Role" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(STAFFROLES).map((roleOption) => (
-                  <SelectItem
-                    key={roleOption}
-                    value={roleOption}
-                    className="capitalize"
-                  >
-                    {roleOption}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Role */}
+          <Select value={role} onValueChange={(val: StaffRole) => setRole(val)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Role" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(STAFFROLES).map((roleOption) => (
+                <SelectItem
+                  key={roleOption}
+                  value={roleOption}
+                  className="capitalize"
+                >
+                  {roleOption}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Submit Button */}
-          <Button type="submit" className="">
-            {isLoading && <Loader2 className="animate-spin mr-2" />} Send Invite
-          </Button>
-        </form>
-      </div>
+        {/* Submit Button */}
+        <Button type="submit" className="mt-2 ">
+          {isLoading && <Loader2 className="animate-spin mr-2" />} Send Invite
+        </Button>
+      </form>
     </div>
   );
 };

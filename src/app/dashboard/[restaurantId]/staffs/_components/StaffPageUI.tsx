@@ -43,7 +43,7 @@ interface StaffPageUIProps {
 
 export default function StaffPageUI({ staffData }: StaffPageUIProps) {
   return (
-    <div className="p-4 bg-background border rounded-sm">
+    <div className="p-4 bg-background overflow-x-auto  border rounded-sm">
       <h2 className="text-2xl font-bold mb-4"> My Team</h2>
       <StaffTable users={staffData} />
     </div>

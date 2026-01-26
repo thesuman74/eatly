@@ -6,6 +6,7 @@ import ToastProvider from "./ToastProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ProgressProvider from "./ProgressProvider";
 
 const Provider = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
@@ -18,7 +19,9 @@ const Provider = ({ children }: { children: ReactNode }) => {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>{children}</ToastProvider>
+        <ProgressProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ProgressProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ThemeProvider>
