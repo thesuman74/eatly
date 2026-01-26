@@ -18,10 +18,10 @@ interface TopSectionProps {
 
 const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
   const [logoUrl, setLogoUrl] = useState(
-    restaurant?.logo_url || "/Images/logo.png"
+    restaurant?.logo_url || "/Images/logo.png",
   );
   const [bannerUrl, setBannerUrl] = useState(
-    restaurant?.banner_url || "https://picsum.photos/1200/300"
+    restaurant?.banner_url || "https://picsum.photos/1200/300",
   );
   const [name, setName] = useState(restaurant?.name);
   const [isSaving, setIsSaving] = useState(false);
@@ -35,7 +35,7 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
   // Generic API update function
   const updateRestaurantField = async (
     field: "name" | "logo_url" | "banner_url",
-    value: string
+    value: string,
   ) => {
     setIsSaving(true);
     try {
@@ -56,7 +56,7 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
       if (field === "banner_url") setBannerUrl(value);
 
       toast.success(
-        `${field.replace("_", " ").toUpperCase()} updated successfully`
+        `${field.replace("_", " ").toUpperCase()} updated successfully`,
       );
     } catch (err: any) {
       console.error(err);
@@ -161,7 +161,7 @@ const TopSection: React.FC<TopSectionProps> = ({ restaurant }) => {
       </div>
 
       {/* Heading Section */}
-      <div className="-mt-6 z-10 w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-input pb-4">
+      <div className="-mt-6  w-full flex items-center px-4 space-x-4 sm:space-x-8 border-b border-input pb-4">
         {/* Logo */}
         <div className="relative flex items-center bg-gray-200 rounded-xl p-1 min-w-16">
           <img

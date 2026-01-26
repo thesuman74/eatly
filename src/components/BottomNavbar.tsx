@@ -30,7 +30,7 @@ export default function BottomNavbar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 dark:bg-secondary bg-blue-600 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-20 dark:bg-secondary bg-blue-600 md:hidden">
       <div className="flex h-16 items-center justify-around">
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = href !== "#" && pathname.startsWith(href);

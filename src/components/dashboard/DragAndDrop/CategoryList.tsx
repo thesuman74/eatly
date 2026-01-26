@@ -77,12 +77,13 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
     <>
       <div className=" w-auto mx-auto mt-2 p-4 bg-background shadow-md rounded-md">
         {/* Buttons */}
-        <div className="flex space-x-2 mb-4">
+        <div className="flex overflow-x-auto space-y-2 space-x-2 mb-4">
+          <span></span>
           <ActionGuard action={Permission.CREATE_CATEGORY}>
             <Button
               variant="outline"
               onClick={() => addCategory.mutate()}
-              className="text-lg font-bold flex items-center"
+              className="md:text-lg text-sm  font-bold flex items-center"
             >
               {addCategory.isPending ? (
                 <LoaderCircle className="animate-spin" size={20} />
@@ -94,7 +95,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
           </ActionGuard>
           <Button
             variant="outline"
-            className="text-lg font-bold flex items-center"
+            className="text-sm md:text-lg font-bold flex items-center"
             onClick={() => setScanMenu(true)}
           >
             <SquareMenu />
@@ -136,7 +137,7 @@ const CategoryList = ({ initialCategories }: CategoryListProps) => {
         {/* Scan Menu Modal */}
         {scanMenu && (
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-            <div className="bg-background w-full max-w-5xl rounded-md shadow-lg p-6 relative">
+            <div className="bg-background w-full max-w-xl md:max-w-5xl rounded-md shadow-lg p-6 relative">
               <button
                 className="absolute top-4 right-4 text-gray-600 hover:text-black"
                 onClick={() => setScanMenu(false)}

@@ -22,7 +22,7 @@ export const PaymentList: React.FC<PaymentListProps> = ({
     .reduce((acc, p) => acc + p.amount_paid, 0);
 
   return (
-    <div className="flex flex-col p-4 space-y-4">
+    <div className="flex flex-col p-4 space-y-4 ">
       {/* Total Paid Header */}
       <div className="flex items-center justify-between bg-card border p-4 rounded-lg shadow">
         <div className="flex items-center space-x-2">
@@ -46,9 +46,9 @@ export const PaymentList: React.FC<PaymentListProps> = ({
             key={p.id}
             className="bg-card p-4 rounded-lg shadow flex justify-around items-center relative"
           >
-            <div>
-              <div className="text-lg text-gray-500">{p.method}</div>
-              <div className="text-lg font-semibold ">Rs {p.amount_paid}</div>
+            <div className="text-sm md:text-md">
+              <div className=" text-gray-500">{p.method}</div>
+              <div className=" font-semibold ">Rs {p.amount_paid}</div>
             </div>
 
             <div className="text-sm text-gray-400">

@@ -102,10 +102,10 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
     <>
       {open && (
         <aside
-          className="    h-[calc(100vh-4rem)]
-  max-w-sm w-full flex flex-col border bg-background "
+          className="h-[calc(100vh-4rem)]
+  max-w-sm w-full flex flex-col border  bg-background "
         >
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-50">
             <button
               onClick={() => setOpen && setOpen(false)}
               className="p-2 rounded hover:bg-gray-100 transition"
@@ -124,7 +124,7 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
           ) : (
             <>
               {/* Top Section */}
-              <div className="shrink-0 ">
+              <div className="shrink-0">
                 <div
                   className={`flex px-4 py-2  text-white ${
                     paymentStatus === PAYMENT_STATUS.PAID
@@ -140,11 +140,14 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
                     <span>
                       <Utensils size={20} />
                     </span>
-                    <span className="px-1">
+                    <span className="px-1 text-sm md:text-md">
                       {orderType?.toUpperCase() || "On site"}
                     </span>{" "}
                     <span> | </span>{" "}
-                    <span> {paymentStatus?.toUpperCase() || "PENDING"}</span>
+                    <span className="text-sm md:text-md">
+                      {" "}
+                      {paymentStatus?.toUpperCase() || "PENDING"}
+                    </span>
                   </div>
                 </div>
 
@@ -178,7 +181,7 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
                     name="product_title"
                     placeholder="Add title"
                     onBlur={(e) => setOrderTitle(e.target.value)}
-                    className="w-full border"
+                    className="w-full border text-sm md:text-md"
                   />
 
                   <Input
@@ -186,7 +189,7 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
                     name="client_name"
                     placeholder="Add Client Name"
                     onBlur={(e) => setCustomerName(e.target.value)}
-                    className="w-full border text-lg"
+                    className="w-full border  text-sm md:text-md"
                   />
                 </div>
               </div>
@@ -198,7 +201,7 @@ const ProductOrderSideBar = ({ open, setOpen }: ProductOrderSideBarprops) => {
               {/* Bottom Section */}
               <div className="shrink-0 pb-4  ">
                 <div className="flex flex-wrap items-center space-y-2 space-x-2 text-sm text-nowrap px-2 ">
-                  <div className="flex justify-center w-full gap-4 px-2 py-2 ">
+                  <div className="flex justify-center w-full gap-4 px-2 py-2  ">
                     <Button
                       variant={"outline"}
                       className="text-red-500 border-red-500 w-full"

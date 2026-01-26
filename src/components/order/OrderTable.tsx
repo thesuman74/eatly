@@ -395,7 +395,12 @@ export default function OrdersTable({
 
               {/* Row 3 */}
               <div className="flex justify-between items-center text-md font-semibold">
-                <span>Rs {order.total_amount}</span>
+                <div className="space-x-4 md:space-x-8">
+                  <span>Rs {order.total_amount}</span>
+                  <span className="text-gray-600 text-xs">
+                    {order?.customer_name}
+                  </span>
+                </div>
 
                 <div
                   className="actions-cell"

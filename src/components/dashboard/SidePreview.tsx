@@ -1,7 +1,7 @@
 "use client";
 
 import { useRestaurantStore } from "@/stores/admin/restaurantStore";
-import { X } from "lucide-react";
+import { SquareArrowOutUpRight, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
@@ -20,7 +20,7 @@ const SidePreview = ({ src, showSidePreview = false }: SidePreviewProps) => {
   const targetUrl = `${restaurantId}/${src}`;
 
   return (
-    <div className=" relative  md:w-96 bg-background flex flex-col shadow-xl">
+    <div className=" relative  md:w-96 h-full bg-background flex flex-col shadow-xl">
       {/* Close button */}
       <button
         onClick={() => setIsOpen(false)}
@@ -35,18 +35,18 @@ const SidePreview = ({ src, showSidePreview = false }: SidePreviewProps) => {
         <iframe
           src={`/${targetUrl}`}
           // src={`${restaurantId}/menu`}
-          className="w-[330px] h-[600px] border rounded-xl mt-12 shadow-lg bg-white"
+          className="w-[300px] h-[550px] border rounded-xl mt-12 shadow-lg bg-background"
         />
       </div>
-
       {/* Bottom action */}
-      <div className="p-4 border-t py-6 ">
+      <div className="w-full border-t p-4 py-2 flex justify-center">
         <Link
           href={"/" + restaurantId}
           target="_blank"
-          className="block w-full text-center rounded-md bg-primary text-white py-2 font-medium hover:opacity-90"
+          className="flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2 font-medium text-center hover:opacity-90"
         >
-          open in new tab
+          <SquareArrowOutUpRight />
+          <span>Preview</span>
         </Link>
       </div>
     </div>
