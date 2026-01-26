@@ -233,7 +233,7 @@ export default function OrdersTable({
     );
 
   return (
-    <div className="bg-background shadow overflow-hidden">
+    <div className="bg-background shadow mb-20 overflow-hidden">
       {/* ===== DESKTOP (lg+) ===== */}
       <div className="hidden lg:block">
         {/* Header */}

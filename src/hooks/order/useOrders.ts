@@ -74,10 +74,6 @@ export const useUpdateOrderStatus = () => {
       });
     },
     onSuccess: (_, { id }) => {
-      console.log("Invalidating with:", {
-        orderId: id,
-        restaurantId,
-      });
       toast.success("Order status updated");
       queryClient.invalidateQueries({
         queryKey: ["order-details", id],
