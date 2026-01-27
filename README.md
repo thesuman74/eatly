@@ -23,6 +23,9 @@ This project is built to help restaruants and hotels owners to help them manage 
 
 The main goal of this project is to enable all Small to medium large scale business owners to To move into more digital way of managing their systems.
 
+<img width="1889" height="928" alt="image" src="https://github.com/user-attachments/assets/86e226a9-2571-4474-a9c5-b973ca459b8e" />
+
+
 ### Key features
 
 The main key features of this projects are :
@@ -35,6 +38,28 @@ The main key features of this projects are :
 - Subscriptions and plans
 - Real-time updates
 - Notifications
+
+##  MVP Scope
+
+| Feature / Capability                  | Version 1 (MVP) | Version 2 |
+|--------------------------------------|------------------|-----------|
+| User authentication                  | ✅ Yes           | —         |
+| Restaurant (tenant) setup            | ✅ Yes           | —         |
+| Menu (categories & products)         | ✅ Yes           | —         |
+| Menu extraction (image → menu data)  | ✅ Yes           | —         |
+| Basic image assignment to menu items | ✅ Yes           | —         |
+| Basic pricing                        | ✅ Yes           | —         |
+| Order creation & status              | ✅ Yes           | —         |
+| Online ordering flow                 | ✅ Yes           | —         |
+| Table management                     | ❌ No            | ✅ Yes    |
+| Product variants (size, addons)      | ❌ No            | ✅ Yes    |
+| Delivery option                      | ❌ No            | ✅ Yes    |
+| Multiple staff roles                 | ❌ No            | ✅ Yes    |
+| Analytics & reports                  | ❌ No            | ✅ Yes    |
+
+### 🔒 Scope Lock
+Features listed under **Version 2** are intentionally excluded from the MVP to keep Eatly focused, shippable, and easy to evolve.
+
 
 ## System Architecture
 
@@ -149,6 +174,34 @@ Orders follow a structured lifecycle:
   Draft --> Cancelled
   Accepted --> Cancelled
 ```
+## 🛒 Public Order Management (No Login Required)
+
+Eatly allows **customers to place orders without creating an account or logging in**, reducing friction and enabling faster ordering.  
+Orders are still **restaurant-scoped** and **securely tracked** using unique order identifiers.
+
+### How Public Ordering Works
+
+- Customers access the menu via a **public link or QR code**
+- No authentication is required to:
+  - Browse the menu
+  - Add items to cart
+  - Place an order
+- Customer provides minimal details (e.g. name, phone) at checkout
+- Each order is assigned a **unique order ID** for tracking
+
+### Order Visibility & Control
+
+- Customers can:
+  - View order confirmation
+  - Track basic order status using the order ID
+- Restaurants can:
+  - See all incoming public orders in their dashboard
+  - Manage status updates internally
+
+<img width="962" height="433" alt="image" src="https://github.com/user-attachments/assets/dc8773b8-e1d6-4d4d-a4d3-12ca307fbc29" />
+
+### Demo of Order placement without login
+![PublicOrderplacement-gif](https://github.com/user-attachments/assets/3be85aa8-3b34-44dd-a750-799d9bebcc95)
 
 ## Menu Management
 
@@ -172,6 +225,11 @@ A robust **menu management system** that allows restaurants to organize and main
 - Google Gemini API automatically **extracts categories, product names, and prices**
 - Items are imported directly into Eatly with optional **image assignment** for products
 - Reduces manual data entry and accelerates menu setup
+
+<img width="895" height="618" alt="image" src="https://github.com/user-attachments/assets/4039a028-539c-465d-8856-b9c12b1e6dcb" />
+
+### Demo fo scanning and extracting menu
+![scanmenu-gif](https://github.com/user-attachments/assets/7d7f53ce-02a8-478d-a368-9a2910b998fe)
 
 ---
 
@@ -238,6 +296,19 @@ It implements a **plan-based subscription system** to manage feature access and 
 | **Billing Lifecycle**        | - **Active:** Full access to features.<br>- **Expired:** Access may be restricted.<br>- **Grace Period:** Temporary access to allow renewal. |
 
 ---
+
+## 🖼️ Screenshots & Demo Images
+
+Here are some visual examples of Eatly in action to give an overview of the core workflows and user experience.
+<img width="946" height="757" alt="restaurant home page" src="https://github.com/user-attachments/assets/2c76af95-b8b6-4b79-a7c6-f714b6c9ce6c" />
+<img width="1889" height="928" alt="image" src="https://github.com/user-attachments/assets/d99f7bd6-1f95-4667-9000-c9e67cba8581" />
+<img width="961" height="752" alt="Product Add page" src="https://github.com/user-attachments/assets/b64f6e51-932f-4297-9bb0-b015502f7c24" />
+<img width="1917" height="852" alt="Product order page" src="https://github.com/user-attachments/assets/e643fc85-a0e1-4040-92fa-b15c7e7a5cf5" />
+
+
+
+> Screenshots are for demonstration purposes. The UI may evolve as features are added and optimized.
+
 
 ## Future Enhancements and Features
 
