@@ -161,8 +161,6 @@ export function ProductAddSheet() {
     setImages([{ type: "url", url }]);
   };
 
-  console.log("images", images);
-
   return (
     <Sheet
       open={isOpen}

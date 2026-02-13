@@ -28,6 +28,8 @@ import { redirect, useRouter } from "next/navigation";
 export type userOrderPayload = {
   restaurant_id: string;
   order_type: "ONSITE" | "TAKEAWAY" | "DELIVERY";
+  active?: true;
+
   customer?: {
     name?: string;
     phone?: string;
@@ -43,7 +45,13 @@ export type userOrderPayload = {
   };
 };
 
-export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
+export function OnsiteDialog({
+  order_type,
+  active,
+}: {
+  order_type: OrderType;
+  active: boolean;
+}) {
   const {
     cartItems,
     total,
@@ -56,6 +64,7 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
 
   const { setOrderType } = useCartStore();
   const router = useRouter();
+  const [isOrdering, setIsOrdering] = useState(false);
 
   const restaurantId = useCartStore((state) => state.restaurant_id);
 
@@ -71,6 +80,7 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
     }
 
     try {
+      setIsOrdering(true);
       // 3️⃣ Build payload from Zustand (single source of truth)
       const payload = userOrderPayload("web");
 
@@ -107,6 +117,8 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
     } catch (error) {
       console.error("Place order error:", error);
       // show toast / UI feedback
+    } finally {
+      setIsOrdering(false);
     }
   };
 
@@ -117,10 +129,13 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
         className="cursor-pointer hover:scale-105 duration-300"
         onClick={() => setOrderType(order_type)}
       >
-        <button className="mx-2 min-w-[150px] flex-1 rounded-sm bg-blue-500 py-2 text-white">
+        <Button
+          disabled={!active}
+          className="mx-2 min-w-[150px] flex-1 rounded-sm bg-blue-500 py-2 text-white"
+        >
           <span>🛄</span>
           <span>{order_type}</span>
-        </button>
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-lg w-full rounded-md md:w-[600px] h-[80vh] items-start flex flex-col">
@@ -206,10 +221,10 @@ export function OnsiteDialog({ order_type }: { order_type: OrderType }) {
         <DialogFooter className="w-full mt-auto">
           <Button
             onClick={handlePlaceOrder}
-            disabled={!canOrder}
+            disabled={!canOrder || isOrdering}
             className="w-full"
           >
-            To order (Rs {total})
+            {isOrdering ? "Placing order..." : `To order (Rs ${total})`}
           </Button>
         </DialogFooter>
       </DialogContent>

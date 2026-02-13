@@ -6,6 +6,7 @@ import CartItem from "./CartItem";
 import CartFooter from "./CartFooter";
 import useCartStore from "@/stores/user/userCartStore";
 import BouncingText from "../animation/BouncingText";
+import { ArrowRight, ShoppingCart } from "lucide-react";
 
 const CartPage = () => {
   const router = useRouter();
@@ -44,11 +45,40 @@ const CartPage = () => {
             </div>
           </div>
         </div>
-        <div>
-          {cartItems.map((item) => (
-            <CartItem key={item.id} item={item} />
-          ))}
-        </div>
+        {cartItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center animate-fadeIn">
+            {/* Animated Icon */}
+            <div className="mb-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 p-8 shadow-inner animate-float">
+              <ShoppingCart size={52} className="text-gray-400" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              Your Cart is Empty
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-gray-500 mb-8 max-w-sm">
+              Looks like you haven’t added anything yet. Please find something
+              amazing for you.
+            </p>
+
+            {/* CTA Button
+            <button className="group flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300">
+              Start Shopping
+              <ArrowRight
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </button> */}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {cartItems.map((item) => (
+              <CartItem key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Service Buttons and Dialog */}

@@ -75,7 +75,7 @@ const CategoryItem = ({ category }: CategoryProps) => {
   `}
     >
       {/* ProductAddSheet */}
-      {/* <ProductAddSheet /> */}
+      <ProductAddSheet />
 
       {/* Category Row */}
       <div className="flex items-center gap-2 w-full">
